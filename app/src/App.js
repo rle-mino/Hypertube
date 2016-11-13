@@ -1,5 +1,5 @@
-import React from 'react';
-import './App.css';
+import React from 'react'
+import './App.sass'
 
 export default class App extends React.Component {
 	render() {
@@ -7,6 +7,6 @@ export default class App extends React.Component {
 			<div className="App">
 				{this.props.children}
 			</div>
-		);
+		)
 	}
 }
