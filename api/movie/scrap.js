@@ -31,7 +31,7 @@ const fill = (movie) => {
     });
 };
 
-const yts = (req, res) => {
+const yts = () => {
     const client = request.createClient('https://yts.ag/api/v2/');
     client.get('list_movies.json', (err, response, body) => {
         const max = Math.ceil(body.data.movie_count / 50);
@@ -41,14 +41,14 @@ const yts = (req, res) => {
                     fill(movie);
                 });
             });
+            if (i === max - 1) console.log('Success! Database filled from YTS');
         }
-        res.send('success');
     });
 };
 
 const tpb = async (req, res) => {
     const searchResults = await pirate.search('harry potter', {
-        category: 'video',
+        category: '/search/0/99/207',
         page: 3,
         orderBy: 'seeds',
         sortBy: 'desc',
@@ -59,7 +59,4 @@ const tpb = async (req, res) => {
 export { yts, tpb };
 
 
-// yts recupere les films sur le tracker yts qui ne sont pas encore sur notre
-// base de données et les y ajoute
-// il faut voir dans la partie functions/search si on ne recupere pas les infos IMDB
-// qu'en front en cas de demande user
+// ajouter CRON pour recuperer les donnees
