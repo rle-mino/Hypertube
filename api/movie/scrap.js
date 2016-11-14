@@ -6,8 +6,14 @@ const fill = (movie) => {
     const { title } = movie;
     const { year } = movie;
     Movie.findOne({ title, year }, (err, found) => {
+        if (!movie.torrents) return;
+        movie.torrents.forEach((torrent) => {
+            const trackers = '&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://glotorrents.pw:6969/announce';
+            const name = movie.title.replace(' ', '+');
+            const link = encodeURI(`magnet:?xt=urn:btih:${torrent.hash}&dn=${name}${trackers}`);
+            torrent.magnet = link;
+        });
         if (!found) {
-            console.log(movie.torrents);
             const newMovie = new Movie({
                 title: movie.title,
                 year: movie.year,

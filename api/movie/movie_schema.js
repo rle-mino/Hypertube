@@ -16,7 +16,7 @@ const movieSchema = new Schema({
   code: String,
   rating: Number,
   torrents: Array,
-  status: { type: String, default: 'success' },
+  extended: { type: Boolean, default: false },
 });
 
 const Movie = mongoose.model('Movie', movieSchema);
