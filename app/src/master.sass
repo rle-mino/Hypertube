@@ -8,42 +8,17 @@ body
 	-webkit-font-smoothing: antialiased !important
 	background-color: #F0F0F0
 
-.authComp
-	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)
-	position: absolute
-	left: 50%
-	top: 50%
-	width: 500px
-	height: 500px
-	transform: translate(-50%, -50%)
-	background-color: white
-	animation: authIn .5s cubic-bezier(0.39,-0.02, 0.41, 0.99)
+html, body, #root
+	height: 100%
 
-	& .textInp
-		width: 80% !important
 
-	& .topColored
-		width: calc(100% - 100px)
-		min-height: calc(25% - 70px)
-		padding: 35px 50px
-		background-color: $red
-		color: white
-
-	& .botColored
-		padding: 10px
-		height: calc(75% - 45px)
-
-		& .mainTitle
-			font-size: 40px
-			margin: 0
-
-@keyframes authIn
-	0%
-		opacity: 0
-		transform: translate(-50%, -40%)
-
-	30%
-		opacity: 1
-
-	100%
-		transform: translate(-50%, -50%)
+@media screen and(max-width:1080px)
+	body
+		background-color: transparent
+	// 	top: 0
+	// 	height: auto
+	// 	position: relative
+	// #root, html
+	// 	height: auto
+	// 	position: relative
+	// 	// top: 0
