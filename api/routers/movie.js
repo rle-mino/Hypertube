@@ -6,9 +6,8 @@ export default (app) => {
 	app.get('/api/movie', (req, res) => {
 		res.send('MOVIE ROUTER: OK');
 	});
+	app.post('/api/movie/moreinfo', functions.getFilmInfo);
 	app.get('/api/movie/search', functions.search);
-	// app.get('/api/movie/scrap/yts', scrap.yts);
-	app.get('/api/movie/scrap/tpb', scrap.tpb); // pour tests
 
 	const CronJob = cron.CronJob;
 	const job = new CronJob('00 30 11 * * 1-7', () => {

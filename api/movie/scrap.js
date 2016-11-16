@@ -1,5 +1,4 @@
 import request from 'request-json';
-import pirate from 'thepiratebay';
 import Movie from './movie_schema';
 
 const fill = (movie) => {
@@ -46,17 +45,7 @@ const yts = () => {
     });
 };
 
-const tpb = async (req, res) => {
-    const searchResults = await pirate.search('harry potter', {
-        category: '/search/0/99/207',
-        page: 3,
-        orderBy: 'seeds',
-        sortBy: 'desc',
-    });
-    console.log(searchResults);
-};
-
-export { yts, tpb };
+export { yts };
 
 
 // ajouter CRON pour recuperer les donnees
