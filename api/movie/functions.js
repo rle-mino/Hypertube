@@ -72,6 +72,8 @@ const search = (req, res) => {
             return res.send({ result: {
                 name: tpbresult.result.name,
                 poster: movie.poster,
+                year: movie.year,
+                rating: movie.imdb.rating,
                 magnet: tpbresult.result.magnet,
             },
             status: 'success' });
