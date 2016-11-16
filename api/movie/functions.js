@@ -40,11 +40,7 @@ const getFilmInfo = (req, res) => {
             if (!movie) return (res.send({ result: { title, magnet }, status: 'success' }));
             Movie.findOne({ code: movie.imdb.id }, (err, found) => {
                 if (found && found.extended) return (res.send({ result: found, status: 'success' }));
-                const newMovie = new Movie({
-                    torrents: {
-                        magnet,
-                    },
-                });
+                const newMovie = new Movie({ torrents: { magnet } });
                 update(newMovie, movie);
                 return (res.send({ result: newMovie, status: 'success' }));
             });
@@ -59,20 +55,28 @@ const tpb = async (title) => {
         orderBy: 'seeds',
         sortBy: 'desc',
     });
-    return searchResults[0];
+    if (!searchResults[0]) return ({ status: 'error', details: 'movie not found' });
+    const name = ptn(searchResults[0].name).title;
+    return ({ result: { name, magnet: searchResults[0].magnetLink }, status: 'success' });
 };
 
 const search = (req, res) => {
-    let { title } = req.query;
+    const { title } = req.query;
     Movie.find({ title: new RegExp(`.*${title}.*`, 'i') }, async (err, found) => {
         if (found.length > 0) return (res.send({ results: found, status: 'success' }));
         const tpbresult = await tpb(title);
-        title = ptn(tpbresult.name).title;
-        return res.send({ result: {
-            title,
-            magnet: tpbresult.magnetLink,
-        },
-        status: 'success' });
+        if (tpbresult.status !== 'success') return (res.send({ status: 'error', details: tpbresult.details }));
+        omdb.get({ title: tpbresult.result.name }, true, (error, movie) => {
+            if (error) return (res.send({ status: 'error', details: error }));
+            if (!movie) return res.send({ result: tpbresult.result, status: 'success' });
+            return res.send({ result: {
+                name: tpbresult.result.name,
+                poster: movie.poster,
+                magnet: tpbresult.result.magnet,
+            },
+            status: 'success' });
+        });
+        return (false);
     });
 };
 
