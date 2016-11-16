@@ -1,5 +1,6 @@
 import omdb from 'omdb';
 import pirate from 'thepiratebay';
+import ptn from 'parse-torrent-name';
 import Movie from './movie_schema';
 
 const update = (doc, data) => {
@@ -20,7 +21,7 @@ const update = (doc, data) => {
 };
 
 const getFilmInfo = (req, res) => {
-    const { code } = req.body; // on part du principe que code imdb = le film est en BDD
+    const { code } = req.body;
     const title = req.body.name;
     const magnet = req.body.magnet;
     if (code) {
@@ -62,12 +63,13 @@ const tpb = async (title) => {
 };
 
 const search = (req, res) => {
-    const { title } = req.query;
+    let { title } = req.query;
     Movie.find({ title: new RegExp(`.*${title}.*`, 'i') }, async (err, found) => {
         if (found.length > 0) return (res.send({ results: found, status: 'success' }));
         const tpbresult = await tpb(title);
+        title = ptn(tpbresult.name).title;
         return res.send({ result: {
-            title: tpbresult.name,
+            title,
             magnet: tpbresult.magnetLink,
         },
         status: 'success' });
