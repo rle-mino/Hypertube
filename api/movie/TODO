@@ -3,3 +3,30 @@ TODO
 Wed 11/16/16
 - paginate search results
 - filter/sort search results
+
+1 > film en DB
+
+{
+  "title": "Zootopia",
+  "poster": "https://yts.ag/assets/images/movies/zootopia_2016/large-cover.jpg",
+  "year": 2016,
+  "rating": 8.1,
+  "code": "tt2948356"
+},
+
+2 > film pas en DB mais dispo sur IMDB
+
+"result": {
+    "title": "War of the Buttons",
+    "poster": "https://images-na.ssl-images-amazon.com/images/M/MV5BNzA5MDAwNTM3NF5BMl5BanBnXkFtZTcwNDc4MTYyMQ@@._V1_SX300.jpg",
+    "year": 1994,
+    "rating": 7.5,
+    "magnet": "magnet:?xt=urn:btih:e7185a1cf33d141d4c9018f5cfc9d56242632f83&dn=War.of.the.Buttons.1994.DVDRip.XviD-RedBlade&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969"
+  },
+
+3 > film pas en db et pas sur IMDB
+
+"result": {
+  "title": "La Verite Si Je Mens-3",
+  "magnet": "magnet:?xt=urn:btih:ec6e9e426cf2bbecbd804f79e0350b87db89fa7d&dn=La.Verite.Si.Je.Mens-3.2012.French.720p.Bluray.X264-Lost&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969"
+},

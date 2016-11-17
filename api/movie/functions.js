@@ -23,7 +23,7 @@ const update = (doc, data) => {
 
 const getFilmInfo = (req, res) => {
     const { code } = req.body;
-    const title = req.body.name;
+    const title = req.body.title;
     const magnet = req.body.magnet;
     if (code) {
         Movie.findOne({ code }, (err, found) => {
@@ -58,21 +58,22 @@ const tpb = async (title) => {
     });
     if (!searchResults[0]) return ({ status: 'error', details: 'movie not found' });
     const name = ptn(searchResults[0].name).title;
-    return ({ result: { name, magnet: searchResults[0].magnetLink }, status: 'success' });
+    return ({ result: { title: name, magnet: searchResults[0].magnetLink }, status: 'success' });
 };
 
 const search = (req, res) => {
     const { title } = req.query;
     Movie.find({ title: new RegExp(`.*${title}.*`, 'i') }, async (err, found) => {
-		const results = found.map(el => _.pick(el, ['title', 'poster', 'year', 'rating', 'code']));
+		let results = found.map(el => _.pick(el, ['title', 'poster', 'year', 'rating', 'code']));
+        results = _.sortBy(results, ['title']);
         if (found.length > 0) return (res.send({ results, status: 'success' }));
         const tpbresult = await tpb(title);
         if (tpbresult.status !== 'success') return (res.send({ status: 'error', details: tpbresult.details }));
-        omdb.get({ title: tpbresult.result.name }, true, (error, movie) => {
+        omdb.get({ title: tpbresult.result.title }, true, (error, movie) => {
             if (error) return (res.send({ status: 'error', details: error }));
             if (!movie) return res.send({ result: tpbresult.result, status: 'success' });
             return res.send({ result: {
-                name: tpbresult.result.name,
+                title: tpbresult.result.title,
                 poster: movie.poster,
                 year: movie.year,
                 rating: movie.imdb.rating,
