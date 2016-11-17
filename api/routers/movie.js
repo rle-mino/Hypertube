@@ -8,11 +8,14 @@ export default (app) => {
 	});
 	app.post('/api/movie/moreinfo', functions.getFilmInfo);
 	app.get('/api/movie/search', functions.search);
+	app.get('/api/movie/refreshdb', scrap.yts);
+
+	scrap.yts();
 
 	const CronJob = cron.CronJob;
-	const job = new CronJob('00 30 11 * * 1-7', () => {
+	const job = new CronJob('0 0 * * * *', () => {
 		console.log('Refreshing database');
 		scrap.yts();
-	}, null, true, 'Europe/Paris');
+	}, true, 'Europe/Paris');
 	job.start();
 };

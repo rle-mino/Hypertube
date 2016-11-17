@@ -1,6 +1,7 @@
 import omdb from 'omdb';
 import pirate from 'thepiratebay';
 import ptn from 'parse-torrent-name';
+import _ from 'lodash';
 import Movie from './movie_schema';
 
 const update = (doc, data) => {
@@ -63,7 +64,8 @@ const tpb = async (title) => {
 const search = (req, res) => {
     const { title } = req.query;
     Movie.find({ title: new RegExp(`.*${title}.*`, 'i') }, async (err, found) => {
-        if (found.length > 0) return (res.send({ results: found, status: 'success' }));
+		const results = found.map(el => _.pick(el, ['title', 'poster', 'year', 'rating', 'code']));
+        if (found.length > 0) return (res.send({ results, status: 'success' }));
         const tpbresult = await tpb(title);
         if (tpbresult.status !== 'success') return (res.send({ status: 'error', details: tpbresult.details }));
         omdb.get({ title: tpbresult.result.name }, true, (error, movie) => {
