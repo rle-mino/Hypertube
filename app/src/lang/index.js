@@ -10,4 +10,8 @@ module.exports = {
 	SIGNUP: [ 'SIGN UP', 'S\'ENREGISTER' ],
 	SENDMEANEMAIL: [ 'SEND ME AN EMAIL', 'M\'ENVOYER UN MAIL' ],
 	forgotPassword: [ 'Forgot password', 'Mot de passe oublié' ],
+	code: [ 'code', 'code' ],
+	passwordAreDifferent: [ 'passwords don\'t match', 'les mots de passe sont différents' ],
+	RESETPASS: [ 'RESET YOUR PASSWORD', 'REINITIALISER VOTRE MOT DE PASSE' ],
+	reset: [ 'Reset', 'Réinitialiser' ]
 }

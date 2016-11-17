@@ -1,10 +1,9 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
 import { bindActionCreators }	from 'redux'
-import { browserHistory }		from 'react-router'
 import { selectAuth }			from '../../action/auth'
 import lang						from '../../lang'
-import textFieldSet				from '../textFieldSet'
+import colors					from '../../colors/colors'
 
 import TextField				from 'material-ui/TextField'
 import FlatButton				from 'material-ui/FlatButton'
@@ -12,14 +11,21 @@ import ExtLogin					from './ExtLogin'
 
 import '../sass/login.sass'
 
+const textFieldSet = {
+	className: 'textInp',
+	autoComplete: 'off',
+	floatingLabelFocusStyle: { color: colors.red },
+	underlineFocusStyle: { borderColor: colors.red }
+}
+
 class LoginForm extends React.Component {
 	_mounted = false
 
 	state = {
 		username: '',
 		password: '',
-		usernameError: '',
-		passwordError: '',
+		usernameR: '',
+		passwordR: '',
 	}
 
 	componentDidMount() {
@@ -46,14 +52,11 @@ class LoginForm extends React.Component {
 
 	setForgot = () => {
 		this.props.selectAuth(2)
-		setTimeout(() => {
-			if (this._mounted) browserHistory.push('/forgot')
-		}, 300)
 	}
 
 	render() {
 		const { l } = this.props
-		const { usernameError, passwordError } = this.state
+		const { usernameR, passwordR } = this.state
 		return (
 			<form className="authForm" onChange={this.handleChange}>
 				<ExtLogin />
@@ -61,14 +64,14 @@ class LoginForm extends React.Component {
 			    	floatingLabelText={lang.username[l]}
 					name="username"
 					type="text"
-					errorText={usernameError}
+					errorText={usernameR}
 					{ ...textFieldSet }
     			/>
 				<TextField
 			    	floatingLabelText={lang.password[l]}
 					name="password"
 					type="password"
-					errorText={passwordError}
+					errorText={passwordR}
 					{ ...textFieldSet }
     			/>
 				<FlatButton

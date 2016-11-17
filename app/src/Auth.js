@@ -3,6 +3,7 @@ import { connect }				from 'react-redux'
 import { bindActionCreators }	from 'redux'
 import { browserHistory }		from 'react-router'
 import lang						from './lang'
+import colors					from './colors/colors'
 import { selectAuth }			from './action/auth'
 
 import FloatingActionButton		from 'material-ui/FloatingActionButton'
@@ -22,12 +23,12 @@ class Auth extends React.Component {
 
 	state = {
 		logRegButton: 'floatButton',
-		floatIcon: loginIcon,
-		floatColor: '#03a9f4',
+		floatIcon: registerIcon,
+		floatColor: colors.lightBlue,
 		mainTitle: lang.signIn[this.props.l],
 		titleClass: 'mainTitle',
 		rippled: '',
-		topCol: '#f44336',
+		topCol: colors.red,
 		update: false,
 		nextColor: 'white',
 		formContainer: 'formContainer log',
@@ -41,74 +42,57 @@ class Auth extends React.Component {
 		this._mounted = false
 	}
 
-	componentWillMount() {
-		const { pathname } = this.props.location
+	setupAuth = (props) => {
+		const { pathname } = props.location
 
-		if (pathname === '/register') {
+		if (pathname === '/') {
 			this.setState({
 				floatIcon: registerIcon,
+				formContainer: 'formContainer log',
+				mainTitle: lang.signIn[this.props.l],
+				floatColor: colors.blue,
+				topCol: colors.red
+			})
+		}
+		else if (pathname === '/register') {
+			this.setState({
+				floatIcon: loginIcon,
 				formContainer: 'formContainer reg',
 				mainTitle: lang.signUp[this.props.l],
-				floatColor: '#f44336',
-				topCol: '#03a9f4'
+				floatColor: colors.red,
+				topCol: colors.blue
 			})
 			this.props.selectAuth(1)
 
 		} else if (pathname === '/forgot') {
 			this.setState({
 				floatIcon: loginIcon,
+				formContainer: 'formContainer for',
 				mainTitle: lang.forgotPassword[this.props.l],
-				topCol: '#673ab7'
+				floatColor: colors.red,
+				topCol: colors.deepPurple
 			})
 			this.props.selectAuth(2)
-		}
-	}
-
-	componentWillReceiveProps = (newProps) => {
-		if (newProps.selectedAuth === 2 && newProps.selectedAuth !== this.props.selectedAuth) {
-
-			const nextColor = '#673ab7'
-			const formContainerRes = 'formContainer forg'
-			const formContainer = `${formContainerRes} leave`
-			const resetOBJ = {
-				update: false,
-				rippled: '',
-				titleClass: 'mainTitle',
-				logRegButton: 'floatButton',
-				formContainer: formContainerRes,
-			}
+		} else if (pathname === '/reset_password') {
 			this.setState({
-				update: true,
-				rippled: 'rippleTopAuth',
-				titleClass: 'mainTitle out',
-				logRegButton: 'floatButton out',
-				formContainer,
-				nextColor,
+				floatIcon: loginIcon,
+				mainTitle: lang.reset[this.props.l],
+				formContainer: 'formContainer res',
+				floatColor: colors.red,
+				topCol: colors.orange
 			})
-
-			setTimeout(async() => {
-				await this.setState({
-					floatIcon: loginIcon,
-					mainTitle: lang.forgotPassword[this.props.l],
-					floatColor: '#f44336',
-					topCol: '#673ab7',
-					...resetOBJ,
-				})
-			}, 350)
-
+			this.props.selectAuth(3)
 		}
 	}
 
-	updateAuth = async () => {
-		if (this.state.update) return false
+	componentWillMount() {
+		this.setupAuth(this.props)
+	}
 
-		const { selectedAuth } = this.props
-		const nextColor = selectedAuth === 0 ? '#03a9f4' : '#f44336'
-
-		let formContainerRes = 'formContainer';
-		if (selectedAuth === 0) formContainerRes += ' reg'
-		else formContainerRes += ' log'
-
+	updateComp = (nextColor, nextFormClass,
+						floatIcon, mainTitle,
+						floatColor, cb) => {
+		const formContainerRes = `formContainer ${nextFormClass}`
 		const formContainer = `${formContainerRes} leave`
 		const resetOBJ = {
 			update: false,
@@ -122,36 +106,58 @@ class Auth extends React.Component {
 			rippled: 'rippleTopAuth',
 			titleClass: 'mainTitle out',
 			logRegButton: 'floatButton out',
-			formContainer,
 			nextColor,
+			formContainer,
 		})
-		setTimeout(() => {
 
-			if (selectedAuth === 0) {
-				// FROM LOGIN TO REGISTER
-				this.setState({
-					floatIcon: loginIcon,
-					mainTitle: lang.signUp[this.props.l],
-					floatColor: '#f44336',
-					topCol: '#03a9f4',
-					...resetOBJ,
-				})
-				browserHistory.push('/register')
-
-			} else {
-				// FROM OTHER TO LOGIN
-				this.setState({
-					floatIcon: registerIcon,
-					mainTitle: lang.signIn[this.props.l],
-					floatColor: '#03a9f4',
-					topCol: '#f44336',
-					...resetOBJ,
-				})
-				browserHistory.push('/')
-			}
-
-			this.props.selectAuth(selectedAuth === 0 ? 1 : 0)
+		setTimeout(async() => {
+			if (!this._mounted) return false
+			cb()
+			this.setState({
+				floatIcon,
+				mainTitle,
+				floatColor,
+				nextColor,
+				topCol: nextColor,
+				...resetOBJ,
+			})
 		}, 300)
+	}
+
+	componentWillReceiveProps = (newProps) => {
+		if (newProps.selectedAuth === 2 &&
+			newProps.selectedAuth !== this.props.selectedAuth) {
+				// FROM LOGIN TO FORGOT
+				this.updateComp(colors.deepPurple, 'forg', loginIcon,
+								lang.forgotPassword[this.props.l],
+								colors.red,
+								() => browserHistory.push('/forgot'))
+		} else if (newProps.selectedAuth === 3 &&
+			newProps.selectedAuth !== this.props.selectedAuth) {
+				// FROM FORGOT TO RESET
+				this.updateComp(colors.orange, 'res', loginIcon,
+								lang.reset[this.props.l], colors.red,
+							() => browserHistory.push('/reset_password'))
+		} else if (newProps.location.pathname !== this.props.location.pathname) {
+			this.setupAuth(newProps)
+		}
+	}
+
+	updateAuth = async () => {
+		if (this.state.update) return false
+
+		const selectedAuth = this.props.selectedAuth === 0 ? 1 : 0
+		const nextColor = selectedAuth === 0 ? colors.red : '#03a9f4'
+		const nextFormClass = selectedAuth === 0 ? 'log' : 'reg'
+		const floatIcon = selectedAuth === 0 ? registerIcon : loginIcon
+		const mainTitle = selectedAuth === 0 ? lang.signIn[this.props.l] : lang.signUp[this.props.l]
+		const floatColor = selectedAuth === 0 ? '#03a9f4' : colors.red
+		this.updateComp(nextColor, nextFormClass,
+						floatIcon, mainTitle, floatColor,
+						() => {
+			this.props.selectAuth(selectedAuth)
+			browserHistory.push(selectedAuth === 0 ? '/' : '/register')
+		})
 	}
 
 	render() {
@@ -179,7 +185,7 @@ class Auth extends React.Component {
 				</div>
 				<div className="botColored">
 					<div className={formContainer}>
-					{this.props.children}
+						{this.props.children}
 					</div>
 				</div>
 			</div>
