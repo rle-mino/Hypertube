@@ -1,10 +1,12 @@
-import React			from 'react'
-import { connect }		from 'react-redux'
-import lang				from '../../lang'
-import colors			from '../../colors/colors'
+import React					from 'react'
+import { bindActionCreators }	from 'redux'
+import { connect }				from 'react-redux'
+import { selectAuth }			from '../../action/auth'
+import lang						from '../../lang'
+import colors					from '../../colors/colors'
 
-import TextField			from 'material-ui/TextField'
-import FlatButton			from 'material-ui/FlatButton'
+import TextField				from 'material-ui/TextField'
+import FlatButton				from 'material-ui/FlatButton'
 
 const textFieldSet = {
 	className: 'textInp',
@@ -54,6 +56,7 @@ class ResetPassForm extends React.Component {
 			code,
 		}
 		console.log(data)
+		this.props.selectAuth(100)
 	}
 
 	handleChange = (e) => {
@@ -111,4 +114,8 @@ const mapStateToProps = (state) => {
 	}
 }
 
-export default connect(mapStateToProps)(ResetPassForm)
+const matchDispatchToProps = (dispatch) => {
+	return bindActionCreators({ selectAuth }, dispatch)
+}
+
+export default connect(mapStateToProps, matchDispatchToProps)(ResetPassForm)

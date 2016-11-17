@@ -42,6 +42,7 @@ class LoginForm extends React.Component {
 			password: this.state.password
 		}
 		console.log(data)
+		this.props.selectAuth(100)
 	}
 
 	handleChange = (e) => {

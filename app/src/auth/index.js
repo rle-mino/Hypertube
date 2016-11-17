@@ -2,11 +2,12 @@ import React					from 'react'
 import { connect }				from 'react-redux'
 import { bindActionCreators }	from 'redux'
 import { browserHistory }		from 'react-router'
-import lang						from './lang'
-import colors					from './colors/colors'
-import { selectAuth }			from './action/auth'
+import lang						from '../lang'
+import colors					from '../colors/colors'
+import { selectAuth }			from '../action/auth'
 
 import FloatingActionButton		from 'material-ui/FloatingActionButton'
+import LangSelector				from '../components/LangSelector'
 
 import './auth.sass'
 
@@ -32,6 +33,7 @@ class Auth extends React.Component {
 		update: false,
 		nextColor: 'white',
 		formContainer: 'formContainer log',
+		container: '',
 	}
 
 	componentDidMount() {
@@ -124,7 +126,44 @@ class Auth extends React.Component {
 		}, 300)
 	}
 
+	end = () => {
+		this.setState({ container: 'toCircle' })
+		setTimeout(() => {
+			this.setState({ container: 'toCircle toLeave' })
+			setTimeout(() => {
+				browserHistory.push('/ht/')
+			})
+		}, 1000)
+	}
+
+	updateTitle = (l) => {
+		switch (this.props.selectedAuth) {
+			case 0:
+				this.setState({ mainTitle: lang.signIn[l] })
+				break
+			case 1:
+				this.setState({ mainTitle: lang.signUp[l] })
+				break
+			case 2:
+				this.setState({ mainTitle: lang.forgotPassword[l] })
+				break
+			case 3:
+				this.setState({ mainTitle: lang.reset[l] })
+				break
+			default:
+				this.setState({ mainTitle: lang.signIn[l] })
+				break
+		}
+	}
+
 	componentWillReceiveProps = (newProps) => {
+		if (newProps.l !== this.props.l) {
+			this.updateTitle(newProps.l)
+		}
+		if (newProps.selectedAuth === 100 &&
+			newProps.selectedAuth !== this.props.selectedAuth) {
+				this.end()
+		}
 		if (newProps.selectedAuth === 2 &&
 			newProps.selectedAuth !== this.props.selectedAuth) {
 				// FROM LOGIN TO FORGOT
@@ -147,11 +186,11 @@ class Auth extends React.Component {
 		if (this.state.update) return false
 
 		const selectedAuth = this.props.selectedAuth === 0 ? 1 : 0
-		const nextColor = selectedAuth === 0 ? colors.red : '#03a9f4'
+		const nextColor = selectedAuth === 0 ? colors.red : colors.lightBlue
 		const nextFormClass = selectedAuth === 0 ? 'log' : 'reg'
 		const floatIcon = selectedAuth === 0 ? registerIcon : loginIcon
 		const mainTitle = selectedAuth === 0 ? lang.signIn[this.props.l] : lang.signUp[this.props.l]
-		const floatColor = selectedAuth === 0 ? '#03a9f4' : colors.red
+		const floatColor = selectedAuth === 0 ? colors.lightBlue : colors.red
 		this.updateComp(nextColor, nextFormClass,
 						floatIcon, mainTitle, floatColor,
 						() => {
@@ -170,13 +209,15 @@ class Auth extends React.Component {
 			rippled,
 			topCol,
 			nextColor,
-			formContainer
+			formContainer,
+			container,
 		} = this.state
 		return (
-			<div className="authComp">
+			<div className={`authComp ${container}`}>
 				<div className="topColored" style={{ backgroundColor: topCol }}>
 					<div className={rippled} style={{ backgroundColor: nextColor }}/>
 					<h1 className={titleClass}>{mainTitle}</h1>
+					<LangSelector class="langSelector"/>
 				</div>
 				<div className={logRegButton}>
 					<FloatingActionButton {...floatStyle} onClick={this.updateAuth}>

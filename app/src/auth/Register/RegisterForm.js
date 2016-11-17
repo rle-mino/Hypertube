@@ -1,10 +1,12 @@
-import React				from 'react'
-import { connect }			from 'react-redux'
-import lang					from '../../lang'
-import colors				from '../../colors/colors'
+import React					from 'react'
+import { connect }				from 'react-redux'
+import { bindActionCreators }	from 'redux'
+import { selectAuth }			from '../../action/auth'
+import lang						from '../../lang'
+import colors					from '../../colors/colors'
 
-import TextField			from 'material-ui/TextField'
-import FlatButton			from 'material-ui/FlatButton'
+import TextField				from 'material-ui/TextField'
+import FlatButton				from 'material-ui/FlatButton'
 
 const textFieldSet = {
 	className: 'textInp',
@@ -49,7 +51,6 @@ class registerForm extends React.Component {
 			passwordConfirmR: null,
 			mailR: null,
 		})
-		console.log(password, passwordConfirm)
 		if (password !== passwordConfirm) {
 			this.setState({
 				passwordConfirmR: lang.passwordAreDifferent[this.props.l]
@@ -61,6 +62,7 @@ class registerForm extends React.Component {
 			mail
 		}
 		console.log(data)
+		this.props.selectAuth(100)
 	}
 
 	render() {
@@ -112,4 +114,8 @@ const mapStateToProps = (state) => {
 	}
 }
 
-export default connect(mapStateToProps)(registerForm)
+const matchDispatchToProps = (dispatch) => {
+	return bindActionCreators({ selectAuth }, dispatch)
+}
+
+export default connect(mapStateToProps, matchDispatchToProps)(registerForm)

@@ -1,27 +1,35 @@
-@import ./colors/colors
+@import ../colors/colors
 
 .authComp
 	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)
 	position: absolute
-	left: 50%
-	top: 50%
 	width: 500px
-	min-height: 100px
-	transform: translate(-50%, -50%)
+	height: 550px
 	background-color: white
+	overflow: hidden
+	transition: all .5s cubic-bezier(0.85, 0, 0.63, 1.15)
 	animation: authIn .5s cubic-bezier(0.39,-0.02, 0.41, 0.99)
+	&.toCircle
+		border-radius: 50%
+		background:
+			image: url(../svg/ic_check_circle_white_24px.svg)
+			position: 0 0
+			size: cover
+			color: $green
+		height: 100px
+		width: 100px
+		& .topColored
+			opacity: 0
+		& .floatButton
+			opacity: 0
+
+	&.toLeave
+		transform: translate(0, 200px)
+		opacity: 0
 
 	& .formContainer
 		animation: titleIn .2s ease-out
 		transition: all .2s ease-out
-		&.log
-			height: 300px
-		&.reg
-			height: 450px
-		&.forg
-			height: 200px
-		&.res
-			height: 350px
 		&.leave
 			opacity: 0
 			animation: titleOut .2s ease-out
@@ -33,10 +41,10 @@
 		width: calc(100% - 100px)
 		min-height: calc(25% - 70px)
 		padding: 35px 50px
-		background-color: $red
 		position: relative
 		color: white
 		overflow: hidden
+		transition: opacity .5s
 
 		& .rippleTopAuth
 			width: 10px
@@ -72,6 +80,7 @@
 			left: -100px
 		transition: all .3s
 		z-index: 10
+		transition: all .5s ease-out
 		&.out
 			transform: scale(0) rotate(360deg)
 
@@ -101,6 +110,13 @@
 		opacity: 0
 		transform: translate(0, 100px)
 
+@keyframes toCircle
+	0%
+		background-color: blue
+		border-radius: 0%
+	100%
+		border-radius: 50%
+
 @keyframes titleIn
 	0%
 		opacity: 0
@@ -113,33 +129,30 @@
 @keyframes authIn
 	0%
 		opacity: 0
-		transform: translate(-50%, -40%)
+		transform: translate(0, 10%)
 
 	30%
 		opacity: 1
 
 	100%
-		transform: translate(-50%, -50%)
+		transform: translate(0, 0)
 
 @media screen and (max-width:1080px)
 	.authComp
 		width: 100%
-		height: auto
+		top: 0
 		position: relative
-		transform: translate(0%, 0%)
-		left: auto
-		top: auto
 		box-shadow: none
 		animation: none
+
+	&.toLeave, &.toCircle
+		top: 50%
+		// transition: none
+		// & .topColored
+		// 	opacity: 1
+		// & .floatButton
+		// 	opacity: 1
 
 	.formContainer
 		animation: titleIn .2s ease-out
 		transition: all .2s ease-out
-		&.log
-			height: 400px !important
-		&.reg
-			height: 400px !important
-		&.forg
-			height: 400px !important
-		&.res
-			height: 400px !important

@@ -1,4 +1,5 @@
 module.exports = {
+	language: [ 'language', 'langue' ],
 	username: [ 'username', 'nom d\'utilisateur' ],
 	password: [ 'password', 'mot de passe' ],
 	passwordConfirm: [ 'confirm your password', 'confirmez votre mot de passe' ],
