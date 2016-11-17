@@ -1,4 +1,6 @@
 import omdb from 'omdb';
+import pirate from 'thepiratebay';
+import ptn from 'parse-torrent-name';
 import Movie from './movie_schema';
 
 const update = (doc, data) => {
@@ -18,19 +20,66 @@ const update = (doc, data) => {
     doc.save();
 };
 
+const getFilmInfo = (req, res) => {
+    const { code } = req.body;
+    const title = req.body.name;
+    const magnet = req.body.magnet;
+    if (code) {
+        Movie.findOne({ code }, (err, found) => {
+            if (found && found.extended) return (res.send({ result: found, status: 'success' }));
+            omdb.get({ imdb: code }, true, (error, movie) => {
+                if (error) return (res.send({ status: 'error', details: error }));
+                update(found, movie);
+                return (res.send({ result: found, status: 'success' }));
+            });
+            return (res.send({ status: 'error', details: 'movie not found' }));
+        });
+    } else {
+        omdb.get({ title }, true, (error, movie) => {
+            if (error) return (res.send({ status: 'error', details: error }));
+            if (!movie) return (res.send({ result: { title, magnet }, status: 'success' }));
+            Movie.findOne({ code: movie.imdb.id }, (err, found) => {
+                if (found && found.extended) return (res.send({ result: found, status: 'success' }));
+                const newMovie = new Movie({ torrents: { magnet } });
+                update(newMovie, movie);
+                return (res.send({ result: newMovie, status: 'success' }));
+            });
+            return (false);
+        });
+    }
+};
+
+const tpb = async (title) => {
+    const searchResults = await pirate.search(title, {
+        category: '/search/0/99/207',
+        orderBy: 'seeds',
+        sortBy: 'desc',
+    });
+    if (!searchResults[0]) return ({ status: 'error', details: 'movie not found' });
+    const name = ptn(searchResults[0].name).title;
+    return ({ result: { name, magnet: searchResults[0].magnetLink }, status: 'success' });
+};
+
 const search = (req, res) => {
     const { title } = req.query;
-    const { year } = req.query;
-    Movie.findOne({ title, year }, (err, found) => {
-        if (found && found.extended) return (res.send({ result: found, status: 'success' }));
-        omdb.get({ title, year }, true, (error, movie) => {
+    Movie.find({ title: new RegExp(`.*${title}.*`, 'i') }, async (err, found) => {
+        if (found.length > 0) return (res.send({ results: found, status: 'success' }));
+        const tpbresult = await tpb(title);
+        if (tpbresult.status !== 'success') return (res.send({ status: 'error', details: tpbresult.details }));
+        omdb.get({ title: tpbresult.result.name }, true, (error, movie) => {
             if (error) return (res.send({ status: 'error', details: error }));
-            if (!movie) return (res.send({ status: 'error', details: 'movie not found' }));
-            if (found) update(found, movie);
-            return (res.send({ result: found, status: 'success' }));
+            if (!movie) return res.send({ result: tpbresult.result, status: 'success' });
+            return res.send({ result: {
+                name: tpbresult.result.name,
+                poster: movie.poster,
+                year: movie.year,
+                rating: movie.imdb.rating,
+                magnet: tpbresult.result.magnet,
+            },
+            status: 'success' });
         });
         return (false);
     });
 };
 
-export { search };
+export { search, getFilmInfo };
