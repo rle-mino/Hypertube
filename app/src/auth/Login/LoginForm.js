@@ -1,7 +1,7 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
 import { bindActionCreators }	from 'redux'
-import axios					from 'axios'
+// import axios					from 'axios'
 import { selectAuth }			from '../../action/auth'
 import lang						from '../../lang'
 import colors					from '../../colors/colors'
@@ -42,16 +42,17 @@ class LoginForm extends React.Component {
 			username: this.state.username,
 			password: this.state.password
 		}
-		axios({
-			url: 'http://e3r2p7.42.fr:8080/login',
-			method: 'post',
-			data,
-		}).then((response) => {
-			console.log(response)
-			if (response.data.status === true) {
-				this.props.selectAuth(100)
-			}
-		})
+		console.log(data)
+		// axios({
+		// 	url: 'http://e3r2p7.42.fr:8080/login',
+		// 	method: 'post',
+		// 	data,
+		// }).then((response) => {
+		// 	console.log(response)
+		// 	if (response.data.status === true) {
+		// 	}
+		// })
+		this.props.selectAuth(100)
 	}
 
 	checkSub = (e) => {

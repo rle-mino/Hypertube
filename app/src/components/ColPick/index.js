@@ -4,6 +4,7 @@ import { bindActionCreators }	from 'redux'
 import { selectMainColor }		from '../../action/theme'
 
 import selectedSVG				from '../../svg/ic_done_white_24px.svg'
+import MenuItem					from 'material-ui/MenuItem'
 
 import './colPick.sass'
 
@@ -20,14 +21,24 @@ class ColPick extends React.Component {
 
 	render() {
 		return (
-			<div
-				className="colSelect"
-				style={{
-					backgroundColor: this.props.color,
-					backgroundImage: this.props.color === this.props.mainColor ? `url(${selectedSVG})` : 'none'
+			<MenuItem
+				innerDivStyle={{
+					width: '30px',
+					height: '30px'
 				}}
-				onClick={() => this.props.selectMainColor(this.props.color)}
-			/>
+				style={{
+					display: 'flex',
+					justifyContent: 'center',
+					flexDirection: 'row',
+				}}
+				onTouchTap={() => this.props.selectMainColor(this.props.color)}
+			>
+				<div className="colSelect" style={{
+					backgroundColor: this.props.color,
+					marginTop: '10px',
+					backgroundImage: this.props.color === this.props.mainColor ? `url(${selectedSVG})` : 'none',
+				}}/>
+			</MenuItem>
 		)
 	}
 }
