@@ -1,4 +1,4 @@
-const l = localStorage.getItem('lang');
+const l = +localStorage.getItem('lang');
 const defaultState = {
 	l: l > 0 && l < 2 ? l : 0,
 }

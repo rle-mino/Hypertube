@@ -1,6 +1,9 @@
 @import ./colors/colors
 @import url(https://fonts.googleapis.com/css?family=Roboto)
 
+*
+	outline: none !important
+
 body
 	margin: 0
 	padding: 0
@@ -8,16 +11,36 @@ body
 	-webkit-font-smoothing: antialiased !important
 	background-color: #F0F0F0
 
-html, body, #root
+html, body, #root, #auth
 	height: 100%
 
-#root
+#auth
 	display: flex
-	justify-content: space-around
+	flex-direction: column
+	justify-content: center
 	align-items: center
+
+#app
+	height: 100vh
+	display: flex
+	flex-direction: column
+	justify-content: space-between
+	align-items: center
+
+#hyperHeader
+	width: 100%
+
+#hyperBody
+	width: 100%
+	flex-grow: 1
+
+#hyperFooter
+	width: 100%
+	background-color: $orange
 
 @media screen and(max-width:1080px)
 	body
 		background-color: transparent
-	#root
-		align-items: flex-start
+
+	#auth
+		justify-content: flex-start

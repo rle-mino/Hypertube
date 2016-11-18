@@ -1,6 +1,7 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
 import { bindActionCreators }	from 'redux'
+import axios					from 'axios'
 import { selectAuth }			from '../../action/auth'
 import lang						from '../../lang'
 import colors					from '../../colors/colors'
@@ -36,13 +37,25 @@ class LoginForm extends React.Component {
 		this._mounted = false
 	}
 
-	signin = (e) => {
+	signin = () => {
 		const data = {
 			username: this.state.username,
 			password: this.state.password
 		}
-		console.log(data)
-		this.props.selectAuth(100)
+		axios({
+			url: 'http://e3r2p7.42.fr:8080/login',
+			method: 'post',
+			data,
+		}).then((response) => {
+			console.log(response)
+			if (response.data.status === true) {
+				this.props.selectAuth(100)
+			}
+		})
+	}
+
+	checkSub = (e) => {
+		if (e.keyCode === 13) this.signin()
 	}
 
 	handleChange = (e) => {
@@ -59,7 +72,7 @@ class LoginForm extends React.Component {
 		const { l } = this.props
 		const { usernameR, passwordR } = this.state
 		return (
-			<form className="authForm" onChange={this.handleChange}>
+			<form className="authForm" onChange={this.handleChange} onKeyDown={this.checkSub}>
 				<ExtLogin />
 				<TextField
 			    	floatingLabelText={lang.username[l]}

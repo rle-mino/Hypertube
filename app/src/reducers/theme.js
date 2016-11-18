@@ -1,18 +1,32 @@
+import colors				from '../colors/colors'
+
 const defaultState = {
-	mainColor: '#f44336',
-	secondaryColor: '#607d8b',
+	mainColor: localStorage.getItem('mainColor') || colors.red,
+	secondaryColor: localStorage.getItem('mainColor') || colors.blueGrey,
+}
+
+const updateMainColor = (state, newColor) => {
+	localStorage.setItem('mainColor', newColor)
+	return {
+		...state,
+		mainColor: newColor
+	}
+}
+
+const updateSecondaryColor = (state, newColor) => {
+	localStorage.setItem('secondaryColor', newColor)
+	return {
+		...state,
+		secondaryColor: newColor,
+	}
 }
 
 export default (state = defaultState, action) => {
 	switch (action.type) {
-		case 'GET_MAIN_COLOR':
-			return state.mainColor
 		case 'UPDATE_MAIN_COLOR':
-			return state.mainColor = action.payload
-		case 'GET_SECONDARY_COLOR':
-			return state.secondaryColor
+			return updateMainColor(state, action.payload)
 		case 'UPDATE_SECONDARY_COLOR':
-			return state.secondaryColor = action.payload
+			return updateSecondaryColor(state, action.payload)
 		default:
 			return state
 	}

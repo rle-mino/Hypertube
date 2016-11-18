@@ -19,7 +19,7 @@ export default () => {
 					<Route path="forgot" component={ForgotPassForm} />
 					<Route path="reset_password" component={ResetPassForm} />
 				</Route>
-				<Route path="/ht/" component={HeadAndFoot}>
+				<Route path="/ht" component={HeadAndFoot}>
 					{/* <IndexRoute component={LoginForm} /> */}
 				</Route>
 			</Router>

@@ -9,10 +9,18 @@
 	overflow: hidden
 	transition: all .5s cubic-bezier(0.85, 0, 0.63, 1.15)
 	animation: authIn .5s cubic-bezier(0.39,-0.02, 0.41, 0.99)
+	&.log
+		height: 500px
+	&.reg
+		height: 550px
+	&.res
+		height: 550px
+	&.for
+		height: 350px
 	&.toCircle
 		border-radius: 50%
 		background:
-			image: url(../svg/ic_check_circle_white_24px.svg)
+			image: url(../svg/ic_done_white_24px.svg)
 			position: 0 0
 			size: cover
 			color: $green

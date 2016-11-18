@@ -32,8 +32,8 @@ class Auth extends React.Component {
 		topCol: colors.red,
 		update: false,
 		nextColor: 'white',
-		formContainer: 'formContainer log',
-		container: '',
+		formContainer: 'formContainer',
+		container: 'log',
 	}
 
 	componentDidMount() {
@@ -50,38 +50,42 @@ class Auth extends React.Component {
 		if (pathname === '/') {
 			this.setState({
 				floatIcon: registerIcon,
-				formContainer: 'formContainer log',
+				formContainer: 'formContainer',
 				mainTitle: lang.signIn[this.props.l],
 				floatColor: colors.blue,
-				topCol: colors.red
+				topCol: colors.red,
+				container: 'log'
 			})
 		}
 		else if (pathname === '/register') {
 			this.setState({
 				floatIcon: loginIcon,
-				formContainer: 'formContainer reg',
+				formContainer: 'formContainer',
 				mainTitle: lang.signUp[this.props.l],
 				floatColor: colors.red,
-				topCol: colors.blue
+				topCol: colors.blue,
+				container: 'reg'
 			})
 			this.props.selectAuth(1)
 
 		} else if (pathname === '/forgot') {
 			this.setState({
 				floatIcon: loginIcon,
-				formContainer: 'formContainer for',
+				formContainer: 'formContainer',
 				mainTitle: lang.forgotPassword[this.props.l],
 				floatColor: colors.red,
-				topCol: colors.deepPurple
+				topCol: colors.deepPurple,
+				container: 'for'
 			})
 			this.props.selectAuth(2)
 		} else if (pathname === '/reset_password') {
 			this.setState({
 				floatIcon: loginIcon,
 				mainTitle: lang.reset[this.props.l],
-				formContainer: 'formContainer res',
+				formContainer: 'formContainer',
 				floatColor: colors.red,
-				topCol: colors.orange
+				topCol: colors.orange,
+				container: 'res'
 			})
 			this.props.selectAuth(3)
 		}
@@ -130,9 +134,7 @@ class Auth extends React.Component {
 		this.setState({ container: 'toCircle' })
 		setTimeout(() => {
 			this.setState({ container: 'toCircle toLeave' })
-			setTimeout(() => {
-				browserHistory.push('/ht/')
-			})
+			setTimeout(() => browserHistory.push('/ht'), 1000)
 		}, 1000)
 	}
 
@@ -213,20 +215,22 @@ class Auth extends React.Component {
 			container,
 		} = this.state
 		return (
-			<div className={`authComp ${container}`}>
-				<div className="topColored" style={{ backgroundColor: topCol }}>
-					<div className={rippled} style={{ backgroundColor: nextColor }}/>
-					<h1 className={titleClass}>{mainTitle}</h1>
-					<LangSelector class="langSelector"/>
-				</div>
-				<div className={logRegButton}>
-					<FloatingActionButton {...floatStyle} onClick={this.updateAuth}>
-						{floatIcon}
-					</FloatingActionButton>
-				</div>
-				<div className="botColored">
-					<div className={formContainer}>
-						{this.props.children}
+			<div id="auth">
+				<div className={`authComp ${container}`}>
+					<div className="topColored" style={{ backgroundColor: topCol }}>
+						<div className={rippled} style={{ backgroundColor: nextColor }}/>
+						<h1 className={titleClass}>{mainTitle}</h1>
+						<LangSelector class="langSelectorAuth"/>
+					</div>
+					<div className={logRegButton}>
+						<FloatingActionButton {...floatStyle} onClick={this.updateAuth}>
+							{floatIcon}
+						</FloatingActionButton>
+					</div>
+					<div className="botColored">
+						<div className={formContainer}>
+							{this.props.children}
+						</div>
 					</div>
 				</div>
 			</div>

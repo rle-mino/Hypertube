@@ -1,0 +1,28 @@
+@import ../../colors/colors
+
+.searchForm
+	background-color: rgba(0, 0, 0, .1)
+	width: 50%
+	display: flex
+	flex-direction: row
+	justify-content: space-around
+	align-items: center
+	border-radius: 2px
+	transition: all .2s
+	& .material-icons
+		color: white
+		cursor: pointer
+	&:hover
+		background-color: rgba(0, 0, 0, .3)
+	&.isFocused
+		background-color: rgba(0, 0, 0, .3)
+
+.searchInput
+	width: 90%
+	padding: 5px
+	background: transparent
+	border: none
+	font-size: 16px
+	color: white
+	&::placeholder
+		color: white
