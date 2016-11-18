@@ -36,9 +36,7 @@ const yts = () => {
         const max = Math.ceil(body.data.movie_count / 50);
         for (let i = 1; i < max; i += 1) {
             client.get(`list_movies.json?limit=50&page=${i}`, (error, responsebis, bodybis) => {
-                bodybis.data.movies.forEach((movie) => {
-                    fill(movie);
-                });
+                if (bodybis) bodybis.data.movies.forEach((movie) => fill(movie));
             });
             if (i === max - 1) console.log('Success! Database filled from YTS');
         }
@@ -46,6 +44,3 @@ const yts = () => {
 };
 
 export { yts };
-
-
-// ajouter CRON pour recuperer les donnees

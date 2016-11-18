@@ -56,16 +56,20 @@ const tpb = async (title) => {
         orderBy: 'seeds',
         sortBy: 'desc',
     });
+    const result = searchResults[0].name;
     if (!searchResults[0]) return ({ status: 'error', details: 'movie not found' });
-    const name = ptn(searchResults[0].name).title;
+    let name = ptn(result).title;
+    if (ptn(result).season && ptn(result).episode) name = `${name} S${ptn(result).season}E${ptn(result).episode}`;
     return ({ result: { title: name, magnet: searchResults[0].magnetLink }, status: 'success' });
 };
 
 const search = (req, res) => {
-    const { title } = req.query;
+    const title = (!req.query.title || req.query.title === undefined) ? '' : req.query.title;
     Movie.find({ title: new RegExp(`.*${title}.*`, 'i') }, async (err, found) => {
 		let results = found.map(el => _.pick(el, ['title', 'poster', 'year', 'rating', 'code']));
-        results = _.sortBy(results, ['title']);
+        // if no movie > top 20 movies
+        // get better speed results for this particular query
+        results = (title !== '') ? _.sortBy(results, ['title']) : _.orderBy(results, ['rating'], ['desc']);
         if (found.length > 0) return (res.send({ results, status: 'success' }));
         const tpbresult = await tpb(title);
         if (tpbresult.status !== 'success') return (res.send({ status: 'error', details: tpbresult.details }));
