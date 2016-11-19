@@ -13,6 +13,11 @@ const fill = (movie) => {
             torrent.magnet = link;
         });
         if (!found) {
+            let pop = 0;
+            movie.torrents.forEach((torrent) => {
+                pop += torrent.seeds;
+            });
+            pop /= movie.torrents.length;
             const newMovie = new Movie({
                 title: movie.title,
                 year: movie.year,
@@ -24,6 +29,7 @@ const fill = (movie) => {
                 code: movie.imdb_code,
                 rating: movie.rating,
                 torrents: movie.torrents,
+                pop,
             });
             newMovie.save();
         }

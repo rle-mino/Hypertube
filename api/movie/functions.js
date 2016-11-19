@@ -52,41 +52,69 @@ const getFilmInfo = (req, res) => {
 
 const tpb = async (title) => {
     const searchResults = await pirate.search(title, {
-        category: '/search/0/99/207',
+        category: 'video',
         orderBy: 'seeds',
         sortBy: 'desc',
     });
-    const result = searchResults[0].name;
     if (!searchResults[0]) return ({ status: 'error', details: 'movie not found' });
+    const result = searchResults[0].name;
     let name = ptn(result).title;
     if (ptn(result).season && ptn(result).episode) name = `${name} S${ptn(result).season}E${ptn(result).episode}`;
     return ({ result: { title: name, magnet: searchResults[0].magnetLink }, status: 'success' });
 };
 
-const search = (req, res) => {
-    const title = (!req.query.title || req.query.title === undefined) ? '' : req.query.title;
-    Movie.find({ title: new RegExp(`.*${title}.*`, 'i') }, async (err, found) => {
-		let results = found.map(el => _.pick(el, ['title', 'poster', 'year', 'rating', 'code']));
-        // if no movie > top 20 movies
-        // get better speed results for this particular query
-        results = (title !== '') ? _.sortBy(results, ['title']) : _.orderBy(results, ['rating'], ['desc']);
+const fastSearch = (req, res) => {
+    const { title } = req.query;
+    if (!req.query.title || req.query.title === '') return (res.send({ status: 'error', details: 'empty field' }));
+    Movie.find({ title: new RegExp(`.*${title}.*`, 'i') }).sort({ title: 1 }).limit(5).exec(async (err, found) => {
+		const results = found.map(el => _.pick(el, ['id', 'title', 'poster', 'year', 'rating', 'code']));
         if (found.length > 0) return (res.send({ results, status: 'success' }));
+        return (res.send({ status: 'error', details: 'no movie found' }));
+    });
+    return (false);
+};
+
+const topSearch = (req, res) => {
+    Movie.find().sort({ pop: -1 }).limit(20).exec(async (err, found) => {
+        if (err || !found.length) return (res.send({ status: 'error', details: 'DB problem' }));
+        const results = found.map(el => _.pick(el, ['id', 'title', 'poster', 'year', 'rating']));
+        return (res.send({ results, status: 'success' }));
+    });
+};
+
+const search = (req, res) => {
+    if (!req.query.title || req.query.title === '') return (res.send({ status: 'error', details: 'empty field' }));
+    const page = (!req.query.page || req.query.page === '') ? 0 : req.query.page;
+    const title = req.query.title;
+    Movie.find({ title: new RegExp(`.*${title}.*`, 'i') }).sort({ title: 1 }).skip(20 * page).limit(20).exec(async (err, found) => {
+        if (found.length) {
+            const results = found.map(el => _.pick(el, ['id', 'title', 'poster', 'year', 'rating', 'code', 'pop']));
+            return (res.send({ results, status: 'success' }));
+        }
         const tpbresult = await tpb(title);
         if (tpbresult.status !== 'success') return (res.send({ status: 'error', details: tpbresult.details }));
         omdb.get({ title: tpbresult.result.title }, true, (error, movie) => {
             if (error) return (res.send({ status: 'error', details: error }));
-            if (!movie) return res.send({ result: tpbresult.result, status: 'success' });
-            return res.send({ result: {
-                title: tpbresult.result.title,
-                poster: movie.poster,
-                year: movie.year,
-                rating: movie.imdb.rating,
-                magnet: tpbresult.result.magnet,
-            },
-            status: 'success' });
+            if (!movie) {
+                const newMovie = new Movie({
+                    torrents: tpbresult.result.magnet,
+                    title: tpbresult.result.title,
+                });
+                newMovie.save();
+                return (res.send({ results: _.pick(newMovie, ['id', 'title']), status: 'success' }));
+            }
+            Movie.find({ code: movie.imdb.id }, (dberr, dbfind) => {
+                if (dberr) return (res.send({ status: 'error', details: dberr }));
+                if (dbfind.length) return (res.send({ results: _.pick(dbfind[0], ['id', 'title', 'poster', 'year', 'rating', 'code']) }));
+                const newMovie = new Movie();
+                update(newMovie, movie);
+                return (res.send({ results: _.pick(newMovie, ['id', 'title', 'poster', 'year', 'rating', 'code']) }));
+            });
+            return (false);
         });
         return (false);
     });
+    return (false);
 };
 
-export { search, getFilmInfo };
+export { search, fastSearch, topSearch, getFilmInfo };

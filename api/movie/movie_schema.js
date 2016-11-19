@@ -16,6 +16,7 @@ const movieSchema = new Schema({
   code: String,
   rating: Number,
   torrents: Array,
+  pop: Number,
   extended: { type: Boolean, default: false },
 });
 
