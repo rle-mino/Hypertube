@@ -5,13 +5,38 @@
 	width: calc(100% - 20px)
 	padding: 10px
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26)
+	animation: headIn .3s ease-out
 
 .hyperTitle
 	color: white
 	margin-top: 5px
 	margin-left: 10px
 	font-size: 30px
+	width: 50%
 	cursor: pointer
+
+.profSet
+	display: flex
+	flex-direction: row
+	width: 50%
+	justify-content: flex-end
+
+.searchBlock
+	width: 100%
+	position: relative
+	transition: all .3s
+
+	&.searchView
+		transform: translateY(100px)
+		& .searchForm
+			background-color: rgba(0, 0, 0, .5)
+
 @media screen and(max-width:1080px)
 	.hyperTitle
 		display: none
+
+@keyframes headIn
+	0%
+		transform: translate(0, -100px)
+	100%
+		transform: translate(0, 0)

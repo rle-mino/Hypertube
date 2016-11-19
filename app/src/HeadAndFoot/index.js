@@ -18,7 +18,7 @@ class HeadAndFoot extends React.Component {
 		return (
 			<div id="app">
 				<div id="hyperHeader">
-					<HyperHeader />
+					<HyperHeader location={this.props.location}/>
 				</div>
 				<div id="hyperBody">
 					{this.props.children}
@@ -31,10 +31,6 @@ class HeadAndFoot extends React.Component {
 	}
 }
 
-const mapStateToProps = (state) => {
-	return {
-		l: state.lang.l
-	}
-}
+const mapStateToProps = ({ lang }) => ({ l: lang.l })
 
 export default connect(mapStateToProps)(HeadAndFoot)

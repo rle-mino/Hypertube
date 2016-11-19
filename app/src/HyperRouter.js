@@ -8,6 +8,7 @@ import RegisterForm										from './auth/Register/RegisterForm'
 import ForgotPassForm									from './auth/Forgot/ForgotPassForm'
 import ResetPassForm									from './auth/ResetPass/ResetPassForm'
 import HeadAndFoot										from './HeadAndFoot'
+import Search											from './Search'
 
 export default () => {
 	return (
@@ -20,7 +21,7 @@ export default () => {
 					<Route path="reset_password" component={ResetPassForm} />
 				</Route>
 				<Route path="/ht" component={HeadAndFoot}>
-					{/* <IndexRoute component={LoginForm} /> */}
+					<Route path="search" component={Search}/>
 				</Route>
 			</Router>
 		</MuiThemeProvider>

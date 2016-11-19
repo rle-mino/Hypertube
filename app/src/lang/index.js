@@ -15,5 +15,8 @@ module.exports = {
 	passwordAreDifferent: [ 'passwords don\'t match', 'les mots de passe ne correspondent pas' ],
 	RESETPASS: [ 'RESET YOUR PASSWORD', 'REINITIALISER VOTRE MOT DE PASSE' ],
 	reset: [ 'Reset', 'Réinitialiser' ],
-	typeHereAnyMovieName: [ 'Enter a movie name', 'Saisir un titre de film' ]
+	typeHereAnyMovieName: [ 'Enter a movie name', 'Saisir un titre de film' ],
+	profile: [ 'profile', 'profil' ],
+	year: [ 'Year', 'Année' ],
+	rating: [ 'Rating', 'Note' ],
 }

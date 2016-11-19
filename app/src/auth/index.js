@@ -238,15 +238,11 @@ class Auth extends React.Component {
 	}
 }
 
-const matchDispatchToProps = (dispatch) => {
-	return bindActionCreators({ selectAuth }, dispatch)
-}
+const matchDispatchToProps = (dispatch) => bindActionCreators({ selectAuth }, dispatch)
 
-const mapStateToProps = (state) => {
-	return {
-		l: state.lang.l,
-		selectedAuth: state.auth
-	}
-}
+const mapStateToProps = ({ auth, lang }) => ({
+	l: lang.l,
+	selectedAuth: auth,
+})
 
 export default connect(mapStateToProps, matchDispatchToProps)(Auth)

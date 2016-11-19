@@ -1,0 +1,101 @@
+$InputRange-primaryColor: white !default
+$InputRange-neutralColor: #aaaaaa !default
+$InputRange-neutralLightColor: rgba(255, 255, 255, 0) !default
+$InputRange-disabledColor: #cccccc !default
+// InputRange-slide
+$InputRange-slider-background: $InputRange-primaryColor !default
+$InputRange-slider-border: 1px solid white !default
+$InputRange-slider-height: 1rem !default
+$InputRange-slider-width: 1rem !default
+$InputRange-slider-transition: transform 0.2s ease-out, box-shadow 0.2s ease-out !default
+$InputRange-sliderContainer-transition: left 0.2s ease-out !default
+$InputRange-slider--active-transform: scale(1.3) !default
+$InputRange-slider--is-disabled-background: $InputRange-disabledColor !default
+$InputRange-slider--is-disabled-border: 1px solid $InputRange-disabledColor !default
+// InputRange-labe
+$InputRange-label-color: white
+// InputRange-trac
+$InputRange-track-background: grey !default
+$InputRange-track-height: 0.31rem !default
+$inputRange-track-transition: left 0.2s ease-out, width 0.2s ease-out !default
+$InputRange-track--active-background: $InputRange-primaryColor !default
+$InputRange-track--is-disabled-background: $InputRange-neutralLightColor !default
+
+.InputRange
+	cursor: pointer
+	height: 10px
+	margin-top: 20px
+	position: relative
+	width: 100%
+
+.InputRange-label
+	color: $InputRange-label-color
+	font-size: 0.9rem
+	white-space: nowrap
+
+.InputRange-label--min,
+.InputRange-label--max
+	display: none
+
+.InputRange-label--min
+	left: 0
+
+.InputRange-label--value
+	margin-left: -8px
+
+.InputRange-label--max
+	right: 0
+
+.InputRange-label--value
+	position: absolute
+	top: -1.8rem
+
+.InputRange-slider
+	appearance: none
+	background: white
+	border: $InputRange-slider-border
+	border-radius: 100%
+	cursor: pointer
+	display: block
+	height: $InputRange-slider-height
+	margin-left: $InputRange-slider-width / -2
+	margin-top: $InputRange-slider-height / -2 + $InputRange-track-height / -2
+	outline: none
+	position: absolute
+	top: 50%
+	transition: $InputRange-slider-transition
+	width: $InputRange-slider-width
+	&:active
+		transform: $InputRange-slider--active-transform
+	&:focus
+		box-shadow: 0 0 0 5px transparentize($InputRange-slider-background, 0.8)
+
+	& .InputRange.is-disabled
+		background: $InputRange-slider--is-disabled-background
+		border: $InputRange-slider--is-disabled-border
+		box-shadow: none
+		transform: none
+
+.InputRange-sliderContainer
+	transition: $InputRange-sliderContainer-transition
+
+.InputRange-track
+	background: $InputRange-track-background
+	border-radius: $InputRange-track-height
+	display: block
+	height: $InputRange-track-height
+	position: relative
+	transition: $inputRange-track-transition
+	& .InputRange.is-disabled
+		background: $InputRange-track--is-disabled-background
+
+
+.InputRange-track--container
+	left: 0
+	margin-top: -0.5 * $InputRange-track-height
+	position: absolute
+	right: 0
+	top: 50%
+
+.InputRange-track--active
+	background: $InputRange-track--active-background

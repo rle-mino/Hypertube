@@ -55,10 +55,6 @@ class ExtLogin extends React.Component {
 	}
 }
 
-const mapStateToProps = (state) => {
-	return {
-		l: state.lang.l,
-	}
-}
+const mapStateToProps = ({ lang }) => ({ l: lang.l })
 
 export default connect(mapStateToProps)(ExtLogin)

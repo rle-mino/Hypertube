@@ -1,19 +1,23 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
 import { browserHistory }		from 'react-router'
-// import axios					from 'axios'
-// import lang						from '../lang'
+import axios					from 'axios'
 
 import IconMenu					from 'material-ui/IconMenu'
 import IconButton				from 'material-ui/IconButton'
 import SearchForm				from '../components/SearchForm'
 import LangPicker				from '../components/LangPicker'
 import ColorPicker				from '../components/ColorPicker'
+import ProfileIcon				from '../components/ProfileIcon'
 
 import './sass/header.sass'
 
 class HyperHeader extends React.Component {
 	_mounted = false
+
+	state = {
+		userData: null,
+	}
 
 	componentDidMount() {
 		this._mounted = true
@@ -25,6 +29,17 @@ class HyperHeader extends React.Component {
 		// })
 	}
 
+	componentWillMount() {
+		axios.get('http://localhost:8081/api/user/profile')
+			.then(({ data }) => {
+				if (!this._mounted) return false
+				if (data.status === 'success') {
+					this.setState({ userData: data.result })
+				}
+			}
+		)
+	}
+
 	componentWillUnmount() {
 		this._mounted = false
 	}
@@ -32,34 +47,36 @@ class HyperHeader extends React.Component {
 	goHome = () => browserHistory.push('/ht')
 
 	render() {
-		const { mainColor } = this.props
+		const { mainColor, location } = this.props
+		const { userData } = this.state
 		return (
 			<div style={{ backgroundColor: mainColor }} className="headerContainer">
 				<span className="hyperTitle" onClick={this.goHome}>HYPERTUBE</span>
-				<SearchForm />
-				<IconMenu
-					style={{ marginRight: '10px' }}
-					iconButtonElement={
-						<IconButton iconStyle={{ color: 'white' }}>
-							<i className="material-icons">more_vert</i>
-						</IconButton>
-					}
-					anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
-					targetOrigin={{ horizontal: 'right', vertical: 'top' }}
-				>
-					<ColorPicker />
-					<LangPicker />
-				</IconMenu>
+				<SearchForm location={location}/>
+				<div className="profSet">
+					<ProfileIcon image={userData ? userData.image : null} />
+					<IconMenu
+						style={{ marginRight: '10px' }}
+						anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+						targetOrigin={{ horizontal: 'right', vertical: 'top' }}
+						iconButtonElement={
+							<IconButton iconStyle={{ color: 'white' }}>
+								<i className="material-icons">more_vert</i>
+							</IconButton>
+						}
+					>
+						<ColorPicker />
+						<LangPicker />
+					</IconMenu>
+				</div>
 			</div>
 		)
 	}
 }
 
-const mapStateToProps = (state) => {
-	return {
-		l: state.lang.l,
-		mainColor: state.theme.mainColor
-	}
-}
+const mapStateToProps = ({ lang, theme }) => ({
+	l: lang.l,
+	mainColor: theme.mainColor,
+})
 
 export default connect(mapStateToProps)(HyperHeader)

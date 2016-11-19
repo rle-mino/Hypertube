@@ -43,15 +43,11 @@ class ColPick extends React.Component {
 	}
 }
 
-const mapStateToProps = (state) => {
-	return {
-		l: state.lang.l,
-		mainColor: state.theme.mainColor,
-	}
-}
+const mapStateToProps = ({ lang, theme }) => ({
+	l: lang.l,
+	mainColor: theme.mainColor,
+})
 
-const matchDispatchToProps = (dispatch) => {
-	return bindActionCreators({ selectMainColor }, dispatch)
-}
+const matchDispatchToProps = (dispatch) => bindActionCreators({ selectMainColor }, dispatch)
 
 export default connect(mapStateToProps, matchDispatchToProps)(ColPick)

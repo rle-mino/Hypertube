@@ -62,14 +62,8 @@ class LangSelector extends React.Component {
 	}
 }
 
-const mapStateToProps = (state) => {
-	return {
-		l: state.lang.l
-	}
-}
+const mapStateToProps = ({ lang }) => ({ l: lang.l })
 
-const matchDispatchToProps = (dispatch) => {
-	return bindActionCreators({ selectLang }, dispatch)
-}
+const matchDispatchToProps = (dispatch) => bindActionCreators({ selectLang }, dispatch)
 
 export default connect(mapStateToProps, matchDispatchToProps)(LangSelector)

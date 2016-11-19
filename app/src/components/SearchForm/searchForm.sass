@@ -2,7 +2,6 @@
 
 .searchForm
 	background-color: rgba(0, 0, 0, .1)
-	width: 50%
 	display: flex
 	flex-direction: row
 	justify-content: space-around
@@ -26,6 +25,15 @@
 	color: white
 	&::placeholder
 		color: white
+
+.fastSearchList
+	background-color: white
+	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)
+	margin-top: 10px
+	width: 100%
+
 @media screen and (max-width:1080px)
 	.searchForm
 		width: 80%
+	.fastSearchList
+		width: 95vw
