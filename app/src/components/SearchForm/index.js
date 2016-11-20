@@ -1,5 +1,4 @@
 import React				from 'react'
-import { connect }			from 'react-redux'
 import _					from 'lodash'
 import { browserHistory }	from 'react-router'
 import axios				from 'axios'
@@ -12,7 +11,7 @@ import LargeMovie			from '../LargeMovie'
 
 import './searchForm.sass'
 
-class SearchForm extends React.Component {
+export default class SearchForm extends React.Component {
 	_mounted = false
 
 	state = {
@@ -38,7 +37,7 @@ class SearchForm extends React.Component {
 
 	componentWillReceiveProps = (newProps) => {
 		if (newProps.location.pathname.includes('/ht/search')) {
-			this.setState({ searchView: true })
+			this.setState({ searchView: true, results: [] })
 		} else if (this.state.searchView) {
 			this.setState({ searchView: false })
 		}
@@ -70,9 +69,15 @@ class SearchForm extends React.Component {
 		browserHistory.push(`/ht/search?title=${e.target.title.value}`)
 	}
 
+	createResultsList = () => {
+		const { results } = this.state
+		return results ?
+			results.map((el) => <LargeMovie key={el.id} data={el} />) :
+			<div></div>
+	}
+
 	render() {
 		const { focused, results, searchView } = this.state
-		const resultsList = results ? results.map((el) => <LargeMovie key={el.id} data={el}/>) : <div></div>
 		return (
 			<div className={`searchBlock ${searchView ? 'searchView' : ''}`}>
 				<form className={`searchForm ${focused ? 'isFocused' : ''}`} onSubmit={this.handleSubmit}>
@@ -91,16 +96,12 @@ class SearchForm extends React.Component {
 					/>
 					<input type="submit" hidden={true} />
 				</form>
-				{(resultsList && resultsList.length && focused &&
+				{(results && results.length && focused &&
 					<List style={{ position: 'absolute' }} className="fastSearchList">
-						{resultsList}
+						{this.createResultsList()}
 					</List>) || <div />
 				}
 			</div>
 		)
 	}
 }
-
-const mapStateToProps = ({ lang }) => ({ l: lang.l })
-
-export default connect(mapStateToProps)(SearchForm)

@@ -5,10 +5,10 @@ import axios					from 'axios'
 
 import IconMenu					from 'material-ui/IconMenu'
 import IconButton				from 'material-ui/IconButton'
-import SearchForm				from '../components/SearchForm'
-import LangPicker				from '../components/LangPicker'
-import ColorPicker				from '../components/ColorPicker'
-import ProfileIcon				from '../components/ProfileIcon'
+import SearchForm				from '../../components/SearchForm'
+import LangPicker				from '../../components/LangPicker'
+import ColorPicker				from '../../components/ColorPicker'
+import ProfileIcon				from '../../components/ProfileIcon'
 
 import './sass/header.sass'
 
@@ -47,14 +47,14 @@ class HyperHeader extends React.Component {
 	goHome = () => browserHistory.push('/ht')
 
 	render() {
-		const { mainColor, location } = this.props
+		const { mainColor, location, l, dispatch } = this.props
 		const { userData } = this.state
 		return (
 			<div style={{ backgroundColor: mainColor }} className="headerContainer">
 				<span className="hyperTitle" onClick={this.goHome}>HYPERTUBE</span>
-				<SearchForm location={location}/>
+				<SearchForm location={location} l={l} />
 				<div className="profSet">
-					<ProfileIcon image={userData ? userData.image : null} />
+					<ProfileIcon image={userData ? userData.image : null} l={l}/>
 					<IconMenu
 						style={{ marginRight: '10px' }}
 						anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
@@ -65,8 +65,8 @@ class HyperHeader extends React.Component {
 							</IconButton>
 						}
 					>
-						<ColorPicker />
-						<LangPicker />
+						<ColorPicker mainColor={mainColor} dispatch={dispatch} />
+						<LangPicker l={l} dispatch={dispatch} />
 					</IconMenu>
 				</div>
 			</div>

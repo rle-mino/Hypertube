@@ -1,0 +1,54 @@
+@import ../../../colors/colors
+
+.searchFormContainer
+	display: flex
+	flex-direction: column
+	justify-content: center
+	align-items: center
+
+	& .iconContainer
+		background-color: white
+		box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26)
+		border-radius: 50%
+		display: flex
+		justify-content: center
+		align-items: center
+		transition: all .3s
+		&:hover
+			box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.26)
+
+.moreButton
+	transition: all .2s
+	&.reversed
+		transform: rotateX(180deg) translateY(2px) !important
+
+.searchFormDetailed
+	display: flex
+	position: relative
+	flex-direction: column
+	justify-content: center
+	align-items: center
+	margin: 10px
+	background-color: rgba(0, 0, 0, .5)
+	width: 350px
+	height: 275px
+	transition: all .3s
+	padding-bottom: 10px
+	border-radius: 0%
+	overflow: hidden
+
+	&.invisible
+		width: 0
+		border-radius: 50%
+		height: 0
+		opacity: 0
+		pointer-events: none
+
+.selector
+	width: 70%
+	color: white
+	margin: 15px 0
+	display: flex
+	flex-direction: column
+	justify-content: center
+	align-items: center

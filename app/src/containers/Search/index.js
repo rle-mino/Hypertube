@@ -1,9 +1,9 @@
 import React				from 'react'
 import { connect }			from 'react-redux'
 import axios				from 'axios'
-import apiConnect			from '../apiConnect'
+import apiConnect			from '../../apiConnect'
 
-import SearchFormDetailed	from './SearchFormDetailed'
+import SearchFormDetailed	from '../../components/SearchFormDetailed'
 
 class Search extends React.Component {
 	_mounted = false
@@ -16,9 +16,10 @@ class Search extends React.Component {
 		this._mounted = false
 	}
 
-	requestFilms = (data) => {
-		axios.get(`${apiConnect}/api/movie/search`, data)
+	requestFilms = (reqSet) => {
+		axios.get(`${apiConnect}/api/movie/search`, reqSet)
 			.then(({ data }) => {
+				this.setState({  })
 				console.log(data)
 			}
 		)
@@ -32,10 +33,16 @@ class Search extends React.Component {
 		this.requestFilms({ params: { title: newProps.location.query.title } })
 	}
 
+	// drawResults = () => this.state.results.map((result) => )
+
 	render() {
+		const { l } = this.props
 		return (
 			<div className="comp searchComp">
-				<SearchFormDetailed />
+				<SearchFormDetailed l={l}/>
+				<div className="resultsContainer">
+					{/* {this.drawResults()} */}
+				</div>
 			</div>
 		)
 	}

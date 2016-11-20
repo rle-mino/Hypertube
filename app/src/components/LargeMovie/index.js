@@ -1,13 +1,11 @@
 import React			from 'react'
-import { connect }		from 'react-redux'
-// import lang				from '../../lang'
 
 import { Link }			from 'react-router'
 import { ListItem }		from 'material-ui/List'
 
 import './largeMovie.sass'
 
-const LargeMovie = ({ data, l }) =>
+export default ({ data }) =>
 	<Link to={`/ht/movie/${data.id}`} className="largeMovie">
 		<ListItem
 			className="largeMovie"
@@ -23,7 +21,3 @@ const LargeMovie = ({ data, l }) =>
 			<p>{data.rating ? `${data.rating} / 10` : 'unknown'}</p>
 		</ListItem>
 	</Link>
-
-const mapStateToProps = ({ lang }) => ({ l: lang.l })
-
-export default connect(mapStateToProps)(LargeMovie)

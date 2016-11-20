@@ -1,15 +1,14 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
-import { bindActionCreators }	from 'redux'
 import { browserHistory }		from 'react-router'
-import lang						from '../lang'
-import colors					from '../colors/colors'
-import { selectAuth }			from '../action/auth'
+import lang						from '../../lang'
+import colors					from '../../colors/colors'
+import { selectAuth }			from '../../action/auth'
 
 import FloatingActionButton		from 'material-ui/FloatingActionButton'
-import LangSelector				from '../components/LangSelector'
+import LangSelector				from '../../components/LangSelector'
 
-import './auth.sass'
+import './sass/auth.sass'
 
 const loginIcon =
 	<i className="fa fa-sign-in" style={{ color: 'white', fontSize: '20px' }} />
@@ -46,6 +45,7 @@ class Auth extends React.Component {
 
 	setupAuth = (props) => {
 		const { pathname } = props.location
+		const { dispatch } = props
 
 		if (pathname === '/') {
 			this.setState({
@@ -66,7 +66,7 @@ class Auth extends React.Component {
 				topCol: colors.blue,
 				container: 'reg'
 			})
-			this.props.selectAuth(1)
+			dispatch(selectAuth(1))
 
 		} else if (pathname === '/forgot') {
 			this.setState({
@@ -77,7 +77,7 @@ class Auth extends React.Component {
 				topCol: colors.deepPurple,
 				container: 'for'
 			})
-			this.props.selectAuth(2)
+			dispatch(selectAuth(2))
 		} else if (pathname === '/reset_password') {
 			this.setState({
 				floatIcon: loginIcon,
@@ -87,7 +87,7 @@ class Auth extends React.Component {
 				topCol: colors.orange,
 				container: 'res'
 			})
-			this.props.selectAuth(3)
+			dispatch(selectAuth(3))
 		}
 	}
 
@@ -186,6 +186,7 @@ class Auth extends React.Component {
 
 	updateAuth = async () => {
 		if (this.state.update) return false
+		const { dispatch } = this.props
 
 		const selectedAuth = this.props.selectedAuth === 0 ? 1 : 0
 		const nextColor = selectedAuth === 0 ? colors.red : colors.lightBlue
@@ -196,7 +197,7 @@ class Auth extends React.Component {
 		this.updateComp(nextColor, nextFormClass,
 						floatIcon, mainTitle, floatColor,
 						() => {
-			this.props.selectAuth(selectedAuth)
+			dispatch(selectAuth(selectedAuth))
 			browserHistory.push(selectedAuth === 0 ? '/' : '/register')
 		})
 	}
@@ -214,13 +215,14 @@ class Auth extends React.Component {
 			formContainer,
 			container,
 		} = this.state
+		const { l, children, dispatch } = this.props
 		return (
 			<div id="auth">
 				<div className={`authComp ${container}`}>
 					<div className="topColored" style={{ backgroundColor: topCol }}>
 						<div className={rippled} style={{ backgroundColor: nextColor }}/>
 						<h1 className={titleClass}>{mainTitle}</h1>
-						<LangSelector class="langSelectorAuth"/>
+						<LangSelector className="langSelectorAuth" l={l} dispatch={dispatch}/>
 					</div>
 					<div className={logRegButton}>
 						<FloatingActionButton {...floatStyle} onClick={this.updateAuth}>
@@ -229,7 +231,7 @@ class Auth extends React.Component {
 					</div>
 					<div className="botColored">
 						<div className={formContainer}>
-							{this.props.children}
+							{children}
 						</div>
 					</div>
 				</div>
@@ -238,11 +240,9 @@ class Auth extends React.Component {
 	}
 }
 
-const matchDispatchToProps = (dispatch) => bindActionCreators({ selectAuth }, dispatch)
-
 const mapStateToProps = ({ auth, lang }) => ({
 	l: lang.l,
 	selectedAuth: auth,
 })
 
-export default connect(mapStateToProps, matchDispatchToProps)(Auth)
+export default connect(mapStateToProps)(Auth)

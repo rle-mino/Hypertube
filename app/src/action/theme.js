@@ -1,15 +1,9 @@
-const selectMainColor = (value) => {
-	return {
-		type: 'UPDATE_MAIN_COLOR',
-		payload: value,
-	}
-}
+export const selectMainColor = (value) => ({
+	type: 'UPDATE_MAIN_COLOR',
+	payload: value,
+})
 
-const selectSecondaryColor = (value) => {
-	return {
-		type: 'UPDATE_SECONDARY_COLOR',
-		payload: value,
-	}
-}
-
-export { selectMainColor, selectSecondaryColor }
+export const selectSecondaryColor = (value) => ({
+	type: 'UPDATE_SECONDARY_COLOR',
+	payload: value,
+})

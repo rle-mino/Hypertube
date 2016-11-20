@@ -1,9 +1,8 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
-import { bindActionCreators }	from 'redux'
-import { selectAuth }			from '../../action/auth'
-import lang						from '../../lang'
-import colors					from '../../colors/colors'
+import { selectAuth }			from '../../../action/auth'
+import lang						from '../../../lang'
+import colors					from '../../../colors/colors'
 
 import TextField				from 'material-ui/TextField'
 import FlatButton				from 'material-ui/FlatButton'
@@ -11,22 +10,22 @@ import FlatButton				from 'material-ui/FlatButton'
 const textFieldSet = {
 	className: 'textInp',
 	autoComplete: 'off',
-	floatingLabelFocusStyle: { color: colors.lightBlue },
-	underlineFocusStyle: { borderColor: colors.lightBlue }
+	floatingLabelFocusStyle: { color: colors.orange },
+	underlineFocusStyle: { borderColor: colors.orange }
 }
 
-class registerForm extends React.Component {
+class ResetPassForm extends React.Component {
 	_mounted = false
 
 	state = {
 		username: null,
 		password: null,
 		passwordConfirm: null,
-		mail: null,
+		code: null,
 		usernameR: null,
 		passwordR: null,
 		passwordConfirmR: null,
-		mailR: null,
+		codeR: null,
 	}
 
 	componentDidMount() {
@@ -37,37 +36,38 @@ class registerForm extends React.Component {
 		this._mounted = false
 	}
 
+	resetPass = (e) => {
+		const { username, password, passwordConfirm, code } = this.state
+		const { dispatch } = this.props
+		this.setState({
+			usernameR: null,
+			passwordR: null,
+			passwordConfirmR: null,
+			codeR: null,
+		})
+		if (password !== passwordConfirm) {
+			this.setState({
+				passwordConfirmR: lang.passwordAreDifferent[this.props.l],
+			})
+		}
+		const data = {
+			username,
+			password,
+			code,
+		}
+		console.log(data)
+		dispatch(selectAuth(100))
+	}
+
 	handleChange = (e) => {
 		const up = {}
 		up[e.target.name] = e.target.value
 		this.setState({ ...up })
 	}
 
-	signUp = () => {
-		const { username, password, passwordConfirm, mail } = this.state
-		this.setState({
-			usernameR: null,
-			passwordR: null,
-			passwordConfirmR: null,
-			mailR: null,
-		})
-		if (password !== passwordConfirm) {
-			this.setState({
-				passwordConfirmR: lang.passwordAreDifferent[this.props.l]
-			})
-		}
-		const data = {
-			username,
-			password,
-			mail
-		}
-		console.log(data)
-		this.props.selectAuth(100)
-	}
-
 	render() {
+		const { usernameR, passwordR, passwordConfirmR, codeR } = this.state
 		const { l } = this.props
-		const { usernameR, passwordR, mailR, passwordConfirmR } = this.state
 		return (
 			<form className="authForm" onChange={this.handleChange}>
 				<TextField
@@ -75,33 +75,33 @@ class registerForm extends React.Component {
 					name="username"
 					type="text"
 					errorText={usernameR}
-					{ ...textFieldSet }
+					{...textFieldSet}
     			/>
 				<TextField
-			    	floatingLabelText={lang.mail[l]}
-					name="mail"
-					type="mail"
-					errorText={mailR}
-					{ ...textFieldSet }
+			    	floatingLabelText={lang.code[l]}
+					name="code"
+					type="text"
+					errorText={codeR}
+					{...textFieldSet}
     			/>
 				<TextField
 			    	floatingLabelText={lang.password[l]}
 					name="password"
 					type="password"
 					errorText={passwordR}
-					{ ...textFieldSet }
+					{...textFieldSet}
     			/>
 				<TextField
 			    	floatingLabelText={lang.passwordConfirm[l]}
 					name="passwordConfirm"
 					type="password"
 					errorText={passwordConfirmR}
-					{ ...textFieldSet }
+					{...textFieldSet}
     			/>
 				<FlatButton
-					label={lang.SIGNUP[l]}
+					label={lang.RESETPASS[l]}
 					style={{ width: '80%', marginTop: '20px' }}
-					onClick={this.signUp}
+					onClick={this.resetPass}
 				/>
 			</form>
 		)
@@ -110,6 +110,4 @@ class registerForm extends React.Component {
 
 const mapStateToProps = ({ lang }) => ({ l: lang.l })
 
-const matchDispatchToProps = (dispatch) => bindActionCreators({ selectAuth }, dispatch)
-
-export default connect(mapStateToProps, matchDispatchToProps)(registerForm)
+export default connect(mapStateToProps)(ResetPassForm)

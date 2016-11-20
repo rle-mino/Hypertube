@@ -1,6 +1,4 @@
 import React					from 'react'
-import { connect }				from 'react-redux'
-import { bindActionCreators }	from 'redux'
 import { selectLang }			from '../../action/lang'
 import lang						from '../../lang'
 
@@ -11,7 +9,7 @@ import { Popover }				from 'material-ui/Popover'
 
 import './langSelector.sass'
 
-class LangSelector extends React.Component {
+export default class LangSelector extends React.Component {
 	state = {
 		open: false
 	}
@@ -26,20 +24,23 @@ class LangSelector extends React.Component {
 	}
 
 	setLang = (newValue) => {
-		this.props.selectLang(newValue)
+		const { dispatch } = this.props
+		dispatch(selectLang(newValue))
 		this.setState({ open: false })
 	}
 
 	render() {
+		const { className, l } = this.props
+		const { open, anchorEl } = this.state
 		return (
-			<div className={this.props.class}>
+			<div className={className}>
 				<RaisedButton
 					onTouchTap={this.handleTouchTap}
-    				label={lang.language[this.props.l]}
+    				label={lang.language[l]}
 	  			/>
 				<Popover
-			        open={this.state.open}
-			        anchorEl={this.state.anchorEl}
+			        open={open}
+			        anchorEl={anchorEl}
 			        anchorOrigin={{ horizontal: 'middle', vertical: 'bottom' }}
 			        targetOrigin={{ horizontal: 'middle', vertical: 'top' }}
 			        onRequestClose={this.handleRequestClose}
@@ -61,9 +62,3 @@ class LangSelector extends React.Component {
 		)
 	}
 }
-
-const mapStateToProps = ({ lang }) => ({ l: lang.l })
-
-const matchDispatchToProps = (dispatch) => bindActionCreators({ selectLang }, dispatch)
-
-export default connect(mapStateToProps, matchDispatchToProps)(LangSelector)

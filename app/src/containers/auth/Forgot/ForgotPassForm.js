@@ -1,9 +1,8 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
-import { bindActionCreators }	from 'redux'
-import { selectAuth }			from '../../action/auth'
-import lang						from '../../lang'
-import colors					from '../../colors/colors'
+import { selectAuth }			from '../../../action/auth'
+import lang						from '../../../lang'
+import colors					from '../../../colors/colors'
 
 import TextField				from 'material-ui/TextField'
 import FlatButton				from 'material-ui/FlatButton'
@@ -42,7 +41,7 @@ class ForgotPassForm extends React.Component {
 			mail: this.state.mail,
 		}
 		console.log(data)
-		this.props.selectAuth(3)
+		this.props.dispatch(selectAuth(3))
 	}
 
 	render() {
@@ -69,6 +68,4 @@ class ForgotPassForm extends React.Component {
 
 const mapStateToProps = ({ lang }) => ({ l: lang.l })
 
-const matchDispatchToProps = (dispatch) => bindActionCreators({ selectAuth }, dispatch)
-
-export default connect(mapStateToProps, matchDispatchToProps)(ForgotPassForm)
+export default connect(mapStateToProps)(ForgotPassForm)

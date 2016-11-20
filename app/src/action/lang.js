@@ -1,8 +1,4 @@
-const selectLang = (value) => {
-	return {
-		type: 'UPDATE_LANG',
-		payload: value,
-	}
-}
-
-export { selectLang }
+export const selectLang = (value) => ({
+	type: 'UPDATE_LANG',
+	payload: value,
+})

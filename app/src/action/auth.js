@@ -1,8 +1,4 @@
-const selectAuth = (value) => {
-	return {
-		type: 'UPDATE_AUTH',
-		payload: value,
-	}
-}
-
-export { selectAuth }
+export const selectAuth = (value) => ({
+	type: 'UPDATE_AUTH',
+	payload: value,
+})
