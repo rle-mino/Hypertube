@@ -1,8 +1,7 @@
 import React				from 'react'
 import _					from 'lodash'
 import { browserHistory }	from 'react-router'
-import axios				from 'axios'
-import apiConnect			from '../../apiConnect'
+import api					from '../../apiCall'
 import lang					from '../../lang'
 
 import IconButton			from 'material-ui/IconButton'
@@ -45,18 +44,17 @@ export default class SearchForm extends React.Component {
 
 	updateFocus = () => this.setState({ focused: !this.state.focused })
 
-	searchFilm = (e) => {
+	searchFilm = async (e) => {
 		if (this.state.searchView) return false
 		if (!e.target.value || e.target.value.length < 1) {
 			this.setState({ results: [] })
 		}
-		axios.get(`${apiConnect}/api/movie/fast_search`, {
-			params: {
-				title: e.target.value
-			}
-		}).then(({ data }) => {
-			this.setState({ results: data.results })
+		const { data } = await api.fastSearch({
+			params: { title: e.target.value }
 		})
+		if (data.status.includes('success')) {
+			this.setState({ results: data.results })
+		}
 	}
 
 	debouncedSearchFilm = (e) => {
