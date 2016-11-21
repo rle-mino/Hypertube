@@ -6,7 +6,7 @@ import Movie from './movie_schema';
 
 const update = (doc, data) => {
     doc.title = data.title;
-    doc.year = data.year;
+    if (Number.isInteger(data.year)) doc.year = data.year;
     doc.rated = data.rated;
     doc.runtime = data.runtime;
     doc.countries = data.countries;
@@ -58,9 +58,10 @@ const tpb = async (title) => {
     });
     if (!searchResults[0]) return ({ status: 'error', details: 'movie not found' });
     const result = searchResults[0].name;
-    let name = ptn(result).title;
-    if (ptn(result).season && ptn(result).episode) name = `${name} S${ptn(result).season}E${ptn(result).episode}`;
-    return ({ result: { title: name, magnet: searchResults[0].magnetLink }, status: 'success' });
+    const name = ptn(result).title;
+    const season = ptn(result).season || '';
+    const episode = ptn(result).episode || '';
+    return ({ result: { title: name, season, episode, magnet: searchResults[0].magnetLink }, status: 'success' });
 };
 
 const fastSearch = (req, res) => {
@@ -82,39 +83,64 @@ const topSearch = (req, res) => {
     });
 };
 
-const search = (req, res) => {
-    if (!req.query.title || req.query.title === '') return (res.send({ status: 'error', details: 'empty field' }));
-    const page = (!req.query.page || req.query.page === '') ? 0 : req.query.page;
-    const title = req.query.title;
-    Movie.find({ title: new RegExp(`.*${title}.*`, 'i') }).sort({ title: 1 }).skip(20 * page).limit(20).exec(async (err, found) => {
-        if (found.length) {
-            const results = found.map(el => _.pick(el, ['id', 'title', 'poster', 'year', 'rating', 'code', 'pop']));
-            return (res.send({ results, status: 'success' }));
-        }
-        const tpbresult = await tpb(title);
-        if (tpbresult.status !== 'success') return (res.send({ status: 'error', details: tpbresult.details }));
-        omdb.get({ title: tpbresult.result.title }, true, (error, movie) => {
-            if (error) return (res.send({ status: 'error', details: error }));
-            if (!movie) {
-                const newMovie = new Movie({
-                    torrents: tpbresult.result.magnet,
-                    title: tpbresult.result.title,
-                });
-                newMovie.save();
-                return (res.send({ results: _.pick(newMovie, ['id', 'title']), status: 'success' }));
-            }
+const getOmdb = async (tpbresult, res) => {
+    omdb.get({ title: tpbresult.result.title }, true, (error, movie) => {
+        if (error) return (res.send({ status: 'error', details: error }));
+        if (movie) {
             Movie.find({ code: movie.imdb.id }, (dberr, dbfind) => {
                 if (dberr) return (res.send({ status: 'error', details: dberr }));
                 if (dbfind.length) return (res.send({ results: _.pick(dbfind[0], ['id', 'title', 'poster', 'year', 'rating', 'code']) }));
                 const newMovie = new Movie();
                 update(newMovie, movie);
-                return (res.send({ results: _.pick(newMovie, ['id', 'title', 'poster', 'year', 'rating', 'code']) }));
+                return (res.send({ results: [_.pick(newMovie, ['id', 'title', 'poster', 'year', 'rating', 'code'])] }));
             });
-            return (false);
-        });
-        return (false);
+        } else {
+            console.log('aaaaa');
+            Movie.find({ title: tpbresult.result.title }, (err, found) => {
+                if (err) return (res.send({ status: 'error', details: err }));
+                if (found.length) return (res.send({ results: [_.pick(found[0], ['id', 'title'])] }));
+                const newMovie = new Movie({
+                    torrents: tpbresult.result.magnet,
+                    title: tpbresult.result.title,
+                });
+                newMovie.save();
+                return (res.send({ results: [_.pick(newMovie, ['id', 'title'])], status: 'success' }));
+            });
+        }
     });
-    return (false);
+};
+
+const handleSearch = (req) => {
+    const page = (!req.query.page || req.query.page === '') ? 0 : req.query.page;
+    const title = (!req.query.title || req.query.title === '') ? '' : req.query.title;
+    let sortBy = { title: 1 };
+    if (req.query.sort === 'year') sortBy = { year: -1 };
+    if (req.query.sort === 'rating') sortBy = { rating: -1 };
+    const minyear = 1900;
+    const maxyear = 2016;
+    const minrating = 0;
+    const maxrating = 10;
+    const genre = 'Comedy';
+    return ({ page, sortBy, title, minyear, maxyear, minrating, maxrating, genre });
+};
+
+const search = (req, res) => {
+    const handled = handleSearch(req);
+    Movie.find({
+        title: new RegExp(`.*${handled.title}.*`, 'i'),
+        year: { $gte: handled.minyear, $lte: handled.maxyear },
+        rating: { $gte: handled.minrating, $lte: handled.maxrating },
+        genres: handled.genre,
+    }).sort(handled.sortBy).skip(20 * handled.page).limit(20).exec(async (err, found) => {
+        if (found.length) {
+            const results = found.map(el => _.pick(el, ['id', 'title', 'poster', 'year', 'rating', 'code']));
+            return (res.send({ results, status: 'success' }));
+        }
+        const tpbresult = await tpb(handled.title);
+        if (tpbresult.status !== 'success') return (res.send({ status: 'error', details: tpbresult.details }));
+        await getOmdb(tpbresult, res);
+        return false;
+    });
 };
 
 export { search, fastSearch, topSearch, getFilmInfo };
