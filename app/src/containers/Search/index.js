@@ -1,12 +1,20 @@
 import React				from 'react'
 import { connect }			from 'react-redux'
-import axios				from 'axios'
-import apiConnect			from '../../apiConnect'
+import lang					from '../../lang'
+import api					from '../../apiCall'
 
 import SearchFormDetailed	from '../../components/SearchFormDetailed'
+import MiniMovie			from '../../components/MiniMovie'
+
+import './sass/search.sass'
 
 class Search extends React.Component {
 	_mounted = false
+
+	state  = {
+		results: [],
+		serverStatus: null
+	}
 
 	componentDidMount() {
 		this._mounted = true
@@ -16,13 +24,14 @@ class Search extends React.Component {
 		this._mounted = false
 	}
 
-	requestFilms = (reqSet) => {
-		axios.get(`${apiConnect}/api/movie/search`, reqSet)
-			.then(({ data }) => {
-				this.setState({  })
-				console.log(data)
-			}
-		)
+	requestFilms = async (reqSet) => {
+		const { data } = await api.search(reqSet)
+		console.log(data);
+		if (data.status.includes('success')) {
+			this.setState({ results: data.results })
+		} else {
+			this.setState({ serverStatus: lang.noResultsFound[this.props.l] })
+		}
 	}
 
 	componentWillMount() {
@@ -33,16 +42,24 @@ class Search extends React.Component {
 		this.requestFilms({ params: { title: newProps.location.query.title } })
 	}
 
-	// drawResults = () => this.state.results.map((result) => )
+	drawResults = () => {
+		const { results } = this.state
+		if (!results) return false
+		return this.state.results.map((result) =>
+			<MiniMovie data={result} key={result.id} />
+		)
+	}
 
 	render() {
 		const { l } = this.props
+		const { serverStatus } = this.state
 		return (
 			<div className="comp searchComp">
 				<SearchFormDetailed l={l}/>
-				<div className="resultsContainer">
-					{/* {this.drawResults()} */}
-				</div>
+				<h3 className="resultsStatus">{serverStatus}</h3>
+				<ul className="resultsContainer">
+					{this.drawResults()}
+				</ul>
 			</div>
 		)
 	}
