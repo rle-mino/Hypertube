@@ -4,9 +4,37 @@
 	margin: 5px
 	transition: all .2s
 	cursor: pointer
+	overflow: hidden
+	position: relative
 	background:
 		size: contain
 		color: white
+		position: center
 	&:hover
 		box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)
 		z-index: 2
+		& .miniInfo
+			transform: translate(0px, 0px) scale(1)
+			border-radius: 0%
+.miniInfo
+	background-color: white
+	color: black
+	width: calc(100% - 10px)
+	padding: 5px
+	position: absolute
+	transition: all .2s
+	bottom: 0
+	transform: translate(0, 200px) scale(0)
+	border-radius: 50%
+
+	& > h3
+		text-align: center
+		padding: 0
+		margin: 0
+	& > div
+		display: flex
+		justify-content: center
+		margin-top: 4px
+		& > h4
+			padding: 0
+			margin: 0 5px

@@ -17,6 +17,7 @@ export default class SearchForm extends React.Component {
 		focused: false,
 		results: [],
 		searchView: false,
+		title: '',
 	}
 
 	componentDidMount() {
@@ -58,13 +59,14 @@ export default class SearchForm extends React.Component {
 	}
 
 	debouncedSearchFilm = (e) => {
+		this.setState({ title: e.target.value })
 		e.persist()
 		this.searchFilm(e)
 	}
 
 	handleSubmit = (e) => {
 		e.preventDefault()
-		browserHistory.push(`/ht/search?title=${e.target.title.value}`)
+		browserHistory.push(`/ht/search?title=${this.state.title}`)
 	}
 
 	createResultsList = () => {
@@ -75,11 +77,11 @@ export default class SearchForm extends React.Component {
 	}
 
 	render() {
-		const { focused, results, searchView } = this.state
+		const { focused, results, searchView, title } = this.state
 		return (
 			<div className={`searchBlock ${searchView ? 'searchView' : ''}`}>
 				<form className={`searchForm ${focused ? 'isFocused' : ''}`} onSubmit={this.handleSubmit}>
-					<IconButton onClick={this.searchFilm}>
+					<IconButton onTouchTap={this.handleSubmit}>
 						<i className="material-icons">search</i>
 					</IconButton>
 					<input
@@ -90,6 +92,7 @@ export default class SearchForm extends React.Component {
 						onFocus={this.updateFocus}
 						onBlur={this.updateFocus}
 						onChange={this.debouncedSearchFilm}
+						value={title}
 						autoComplete="off"
 					/>
 					<input type="submit" hidden={true} />

@@ -28,6 +28,7 @@ module.exports = {
 		[ 'year', 'année' ],
 	],
 	categories: [
+		[ 'all', 'toutes' ],
 		[ 'Action', 'Action' ],
 		[ 'Comedy', 'Comédie' ],
 		[ 'Drama', 'Drame' ],
@@ -49,4 +50,5 @@ module.exports = {
 		[ 'Sport', 'Sport' ],
 		[ 'War', 'Guerre' ],
 	],
+	noResultsFound: [ 'No results found', 'Pas de résultat' ],
 }
