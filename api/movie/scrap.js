@@ -7,6 +7,7 @@ import Serie from './serie_schema';
 const addSerie = (serie) => {
     const title = serie.title;
     Movie.findOne({ code: serie.imdb_id }, (err, found) => {
+        if (!serie.episodes || !serie.episodes.length) return;
         if (!found) {
             omdb.get({ imdb: serie.imdb_id }, false, (error, movie) => {
                 if (error) return (console.log('err: ', error));
@@ -51,10 +52,9 @@ const addSerie = (serie) => {
 };
 
 const addMovie = (movie) => {
-    const { title } = movie;
-    const { year } = movie;
-    Movie.findOne({ title, year }, (err, found) => {
-        if (!movie.torrents) return;
+    const title = movie.title;
+    Movie.findOne({ code: movie.imdb_code }, (err, found) => {
+        if (!movie.torrents || !movie.torrents.length) return;
         movie.torrents.forEach((torrent) => {
             const trackers = '&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://glotorrents.pw:6969/announce';
             const name = movie.title.replace(' ', '+');
