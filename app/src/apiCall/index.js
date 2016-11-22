@@ -7,7 +7,11 @@ const search = async (data) =>
 const fastSearch = async (data) =>
 	await axios.get(`${apiConnect}/api/movie/fast_search`, data)
 
+const topSearch = async () =>
+	await axios.get(`${apiConnect}/api/movie/top_search`)
+
 module.exports = {
 	search,
 	fastSearch,
+	topSearch,
 }

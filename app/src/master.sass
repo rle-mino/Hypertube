@@ -36,6 +36,10 @@ html, body, #root, #auth
 	display: flex
 	flex-direction: column
 	align-items: center
+	transition: all .3s
+	&.bodyOut
+		transform: translate(0, 100px)
+		opacity: 0
 
 #hyperFooter
 	width: 100%
@@ -46,9 +50,19 @@ html, body, #root, #auth
 .comp
 	width: 80%
 	position: relative
+	overflow: hidden
+	margin-top: 50px
 
 .searchComp
 	margin-top: 100px
+
+@keyframes compIn
+	0%
+		transform: translate(0, 100px)
+		opacity: 0
+	100%
+		transform: translate(0, 0px)
+		opacity: 1
 
 @media screen and(max-width:1080px)
 	body

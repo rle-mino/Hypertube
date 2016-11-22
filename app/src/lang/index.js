@@ -51,4 +51,5 @@ module.exports = {
 		[ 'War', 'Guerre' ],
 	],
 	noResultsFound: [ 'No results found', 'Pas de résultat' ],
+	error: [ 'An error occurred', 'Une erreur est survenue' ],
 }

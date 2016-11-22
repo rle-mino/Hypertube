@@ -2,6 +2,7 @@ import React					from 'react'
 import { connect }				from 'react-redux'
 import { browserHistory }		from 'react-router'
 import axios					from 'axios'
+import * as bodyDis				from '../../action/body'
 
 import IconMenu					from 'material-ui/IconMenu'
 import IconButton				from 'material-ui/IconButton'
@@ -44,7 +45,14 @@ class HyperHeader extends React.Component {
 		this._mounted = false
 	}
 
-	goHome = () => browserHistory.push('/ht')
+	goHome = () => {
+		const { dispatch } = this.props
+		dispatch(bodyDis.bOut())
+		setTimeout(() => {
+			dispatch(bodyDis.bIn())
+			browserHistory.push('/ht')
+		}, 500)
+	}
 
 	render() {
 		const { mainColor, location, l, dispatch } = this.props
@@ -52,7 +60,7 @@ class HyperHeader extends React.Component {
 		return (
 			<div style={{ backgroundColor: mainColor }} className="headerContainer">
 				<span className="hyperTitle" onClick={this.goHome}>HYPERTUBE</span>
-				<SearchForm location={location} l={l} />
+				<SearchForm location={location} l={l} dispatch={dispatch}/>
 				<div className="profSet">
 					<ProfileIcon image={userData ? userData.image : null} l={l}/>
 					<IconMenu

@@ -1,6 +1,7 @@
 import React				from 'react'
 import _					from 'lodash'
 import { browserHistory }	from 'react-router'
+import * as bodyDis			from '../../action/body'
 import api					from '../../apiCall'
 import lang					from '../../lang'
 
@@ -66,7 +67,16 @@ export default class SearchForm extends React.Component {
 
 	handleSubmit = (e) => {
 		e.preventDefault()
-		browserHistory.push(`/ht/search?title=${this.state.title}`)
+		if (this.props.location.pathname.includes('/ht/search')) {
+			browserHistory.push(`/ht/search?title=${this.state.title}`)
+		} else {
+			this.props.dispatch(bodyDis.bOut())
+			this.setState({ results: [] })
+			setTimeout(() => {
+				this.props.dispatch(bodyDis.bIn())
+				browserHistory.push(`/ht/search?title=${this.state.title}`)
+			}, 500)
+		}
 	}
 
 	createResultsList = () => {

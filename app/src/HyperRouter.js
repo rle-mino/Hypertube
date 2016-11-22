@@ -9,6 +9,7 @@ import ForgotPassForm									from './containers/auth/Forgot/ForgotPassForm'
 import ResetPassForm									from './containers/auth/ResetPass/ResetPassForm'
 import HeadAndFoot										from './containers/HeadAndFoot'
 import Search											from './containers/Search'
+import HomePage											from './containers/HomePage'
 
 export default () => {
 	return (
@@ -21,6 +22,7 @@ export default () => {
 					<Route path="reset_password" component={ResetPassForm} />
 				</Route>
 				<Route path="/ht" component={HeadAndFoot}>
+					<IndexRoute component={HomePage} />
 					<Route path="search" component={Search}/>
 				</Route>
 			</Router>
