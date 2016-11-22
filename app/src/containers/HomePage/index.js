@@ -20,14 +20,17 @@ class HomePage extends React.Component {
 		if (data.status === false) {
 			this.setState({ error: true, pending: false })
 		} else {
-			this.setState({ dataCar: data.results.slice(0, 10), dataAft: data.results.slice(10, 20) , pending: false })
+			this.setState({
+				dataCar: data.results.slice(0, 10),
+				dataAft: data.results.slice(10, 20),
+				pending: false
+			})
 		}
 	}
 
 	render() {
 		const { l/*, dispatch*/, mainColor } = this.props
 		const { error, pending, dataCar } = this.state
-		console.log(this.state)
 		return (
 			<div className="comp">
 				{error &&
