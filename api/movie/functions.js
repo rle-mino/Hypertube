@@ -1,6 +1,7 @@
 import omdb from 'omdb';
 import _ from 'lodash';
 import Movie from './movie_schema';
+import Serie from './serie_schema';
 
 const update = (doc, data) => {
     doc.title = data.title;

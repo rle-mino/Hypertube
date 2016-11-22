@@ -4,12 +4,14 @@ import omdb from 'omdb';
 import Movie from './movie_schema';
 import Serie from './serie_schema';
 
-const addSerie = async (serie) => {
+const addSerie = (serie) => {
     const title = serie.title;
-    omdb.get({ imdb: serie.imdb_id }, false, (error, movie) => {
-        if (error || !movie) return console.log(serie.imdb_id, serie.title);
-        Serie.findOne({ title }, (err, found) => {
-            if (!found) {
+    Movie.findOne({ code: serie.imdb_id }, (err, found) => {
+        if (!found) {
+            omdb.get({ imdb: serie.imdb_id }, false, (error, movie) => {
+                if (error) return (console.log('err: ', error));
+                if (!movie) return (console.log('movie error'));
+                console.log(title);
                 const episodes = [];
                 serie.episodes.forEach((episode) => {
                     const torrent = Object.values(episode.torrents).pop();
@@ -30,7 +32,7 @@ const addSerie = async (serie) => {
                         genres.push(_.capitalize(genre));
                     }
                 });
-                const newSerie = new Serie({
+                const newMovie = new Movie({
                     title,
                     year: serie.year,
                     runtime: serie.runtime,
@@ -42,9 +44,9 @@ const addSerie = async (serie) => {
                     rating: movie.imdb.rating,
                     pop: serie.rating.percentage, // les seeds sont tous à 0
                 });
-                newSerie.save();
-            }
-        });
+                newMovie.save();
+            });
+        }
     });
 };
 
@@ -61,6 +63,7 @@ const addMovie = (movie) => {
         });
         if (!found) {
             let pop = 0;
+            console.log(title);
             movie.torrents.forEach((torrent) => {
                 pop += torrent.seeds;
             });
@@ -68,7 +71,7 @@ const addMovie = (movie) => {
             const newMovie = new Movie({
                 title: movie.title,
                 year: movie.year,
-                rated: movie.mpa_rating,
+                // rated: movie.mpa_rating,
                 runtime: movie.runtime,
                 poster: movie.large_cover_image,
                 genres: movie.genres,

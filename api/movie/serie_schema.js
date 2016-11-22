@@ -13,7 +13,7 @@ const serieSchema = new Schema({
   rating: Number,
   episodes: Array,
   pop: Number,
-  extended: { type: Boolean, default: false },
+  // extended: { type: Boolean, default: false },
 });
 
 const Serie = mongoose.model('Serie', serieSchema);

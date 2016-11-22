@@ -5,19 +5,20 @@ const Schema = mongoose.Schema;
 const movieSchema = new Schema({
   title: String,
   year: Number,
-  rated: String,
   runtime: Number,
-  countries: [String],
   poster: String,
   genres: [String],
-  director: String,
-  actors: [String],
   plot: String,
   code: String,
   rating: Number,
   torrents: Array,
+  episodes: Array,
   pop: Number,
-  extended: { type: Boolean, default: false },
+  // rated: String,
+  // countries: [String],
+  // director: String,
+  // actors: [String],
+  // extended: { type: Boolean, default: false },
 });
 
 const Movie = mongoose.model('Movie', movieSchema);
