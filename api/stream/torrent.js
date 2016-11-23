@@ -48,38 +48,48 @@ const torrentRoute = async (req, res, next) => {
 
 const authorizeFileTransfer = (movie) => {
     return ({success: true, status: 'success', message: "torrent file should be downloaded", data: {
-            "title" : "Scoop",
-            "year" : 2006,
-            "rated" : "PG-13",
-            "runtime" : 96,
-            "poster" : "https://yts.ag/assets/images/movies/scoop_2006/large-cover.jpg",
-            "plot" : "In the funeral of the famous British journalist Joe Strombel, his colleagues and friends recall how obstinate he was while seeking for a scoop. Meanwhile the deceased Joe discloses the identity of the tarot card serial killer of London. He cheats the Reaper and appears to the American student of journalism Sondra Pransky, who is on the stage in the middle of a magic show of the magician Sidney Waterman in London, and tells her that the murderer is the aristocrat Peter Lyman. Sondra drags Sid in her investigation, seeking for evidences that Peter is the killer. However, she falls in love with him and questions if Joe Strombel is right in his scoop.",
-            "code" : "tt0457513",
-            "rating" : 6.7,
-            "pop" : 58,
-            "extended" : false,
-            "torrents" : [
-            {
-                "date_uploaded_unix" : 1467309532,
-                "date_uploaded" : "2016-06-30 13:58:52",
-                "size_bytes" : 730700186,
-                "size" : "696.85 MB",
-                "peers" : 10,
-                "seeds" : 58,
-                "quality" : "720p",
-                "hash" : "51913A05D8AA6DF4E26450109BD4794FEFE08335",
-                "url" : "https://yts.ag/torrent/download/59F43E533D483B157847C29FED0A54A07E6D1DB4.torrent"
-            }
-        ],
-            "actors" : [],
-            "genres" : [
-            "Action",
-            "Comedy",
-            "Crime",
-            "Mystery"
-        ],
-            "countries" : [],
-            "__v" : 0
+        "title" : "Burn After Reading",
+        "year" : 2008,
+        "runtime" : 96,
+        "poster" : "https://yts.ag/assets/images/movies/Burn_After_Reading_2008/large-cover.jpg",
+        "plot" : "Osbourne Cox, a Balkan expert, resigned from the CIA because of a drinking problem, so he begins a memoir. His wife wants a divorce and expects her lover, Harry, a philandering State Department marshal, to leave his wife. A CD-ROM falls out of a gym bag at a Georgetown fitness center. Two employees there try to turn it into cash: Linda, who wants money for cosmetic surgery, and Chad, an amiable goof. Information on the disc leads them to Osbourne who rejects their sales pitch; then they visit the Russian embassy. To sweeten the pot, they decide they need more of Osbourne's secrets. Meanwhile, Linda's boss likes her, and Harry's wife leaves for a book tour. All roads lead to Osbourne's house.",
+        "code" : "tt0887883",
+        "rating" : 7,
+        "pop" : 54.5,
+        "episodes" : [],
+        "torrents" : [
+        {
+            "magnet" : "magnet:?xt=urn:btih:861B3B729C5C61A4D13E606AC2AF144E55606983&dn=Burn+After%20Reading&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://glotorrents.pw:6969/announce",
+            "date_uploaded_unix" : 1446344125,
+            "date_uploaded" : "2015-10-31 22:15:25",
+            "size_bytes" : 734045143,
+            "size" : "700.04 MB",
+            "peers" : 8,
+            "seeds" : 67,
+            "quality" : "720p",
+            "hash" : "861B3B729C5C61A4D13E606AC2AF144E55606983",
+            "url" : "https://yts.ag/torrent/download/861B3B729C5C61A4D13E606AC2AF144E55606983"
+        },
+        {
+            "magnet" : "magnet:?xt=urn:btih:69c854a7ee83eae559f6a6b552963a032c6e9853&dn=The.Night.Of.S01E01.HDTV.x264-BATV%5Beztv%5D.mkv%5Beztv%5D&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A80&tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969",
+            "date_uploaded_unix" : 1446344127,
+            "date_uploaded" : "2015-10-31 22:15:27",
+            "size_bytes" : 1395864371,
+            "size" : "1.30 GB",
+            "peers" : 4,
+            "seeds" : 42,
+            "quality" : "1080p",
+            "hash" : "B55CC9E26250A65FB1915DFA4DE6EA8D74551DBA",
+            "url" : "https://yts.ag/torrent/download/861B3B729C5C61A4D13E606AC2AF144E55606983"
+        }
+    ],
+        "genres" : [
+        "Action",
+        "Comedy",
+        "Crime",
+        "Drama"
+    ],
+        "__v" : 0
     }})
     try {
         if (!!movie && true) { // should verify download conditions in database
@@ -98,17 +108,32 @@ const selectTorrent = (torrents) => {
             selected = torrents.filter(e => {
                 return (e.quality === _validResolution[i])
             })
-        if (selected.length > 0) return ( !!selected[0].magnet ? selected[0].magnet : selected[0].url)
+        if (selected.length > 0) return ( !!selected[0].url ? selected[0].url : selected[0].magnet)
         }
 
     }
 }
 
 const torrentFromMagnet = magnet => {
-        let magnetInfo = magnet2torrent(magnet)
-    if (magnet && magnetInfo) {
-        return magnetInfo['torrentURL']
-        }
+    if (magnet) {
+        https.get(magnet, res => {
+            let rawData = Buffer.from('')
+            res.on('data', chunk => {
+                let chunkBuf = Buffer.from(chunk)
+                rawData = Buffer.concat([rawData, chunkBuf], rawData.length + chunkBuf.length)
+            }).on('error', e => {
+                res.resume()
+                throw e
+            })
+            res.on('end', () => {
+                try {
+                } catch (e) {
+                    throw e
+                }
+            })
+        })
+    }
+    return null
 }
 
 const torrentFromFile = (url, cb) => {
@@ -118,7 +143,6 @@ const torrentFromFile = (url, cb) => {
             let chunkBuf = Buffer.from(chunk)
             rawData = Buffer.concat([rawData, chunkBuf], rawData.length + chunkBuf.length)
         }).on('error', e => {
-            log(e.message)
             res.resume()
             throw e
         })
@@ -127,7 +151,7 @@ const torrentFromFile = (url, cb) => {
                 let torrent = bencode.decode(rawData, 'utf8')
                 cb(torrent)
             } catch (e) {
-                log(e.message)
+                throw e
             }
         })
     })
@@ -149,6 +173,7 @@ const startDownload = torrent => {
 }
 
 const torrent = async (movie, next) => {
+
     // this downloads the movie to fs and updates database
     // then next() is called to start streaming process. next() call should happen when streaming process an be started
     // AND EXECUTED IN FULL without the need for some more buffering.
@@ -160,7 +185,9 @@ const torrent = async (movie, next) => {
         if (/^magnet/.test(magnet)) {
             magnet = torrentFromMagnet(magnet)
         }
-        torrentFromFile(magnet, startDownload)
+        if (magnet) {
+            torrentFromFile(magnet, startDownload)
+        }
     } catch (e) {
         console.log(`Torrent API master error: ${e}`)
     }

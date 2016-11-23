@@ -3,31 +3,46 @@
  */
 import Piece from './piece'
 
+const log = m => console.log(chalk.blue(m))
+const ilog = m => process.stdout.write(chalk.cyan(m))
+const elog = m => process.stdout.write(chalk.red(m))
+
 module.exports = TorrentFile
 
 function TorrentFile(trackers, pieces, length, totalLength, files) {
     if (!(this instanceof TorrentFile)) return new TorrentFile(trackers, pieces, length, totalLength, files)
 
-    this.trackers = trackers
+    this.tracker = trackers
     this._pieces = pieces
     this.length = length
     this.totalLength = totalLength
     this.files = files || []
 
-    this.Pieces = []
+    this.Pieces = [] // this is a list of movie Pieces downloaders
 
-    let piecesBuf  = Buffer.from(pieces)
-    for (let i = 0; i * this.length < totalLength; i++) {
-        let pieceBuf = Buffer.from('')
-        pieceBuf = piecesBuf.slice(i * 20, (i + 1) * 20)
+    let piecesBuf = Buffer.from(this._pieces)
+    this.movie = Buffer.alloc(this.totalLength) // this is the actual file being downloaded by Pieces
+
+    this.createPiece = (i, len) => {
+        if (len = 0) return
+        let pieceBuf = piecesBuf.slice(i * 20, (i + 1) * 20)
+        let moviePiece = this.movie.slice(i * this.length, len)
         this.Pieces[i] = new Piece(this.length)
-        this.Pieces[i].init(pieceBuf, trackers, i)
+        this.Pieces[i].init(pieceBuf, moviePiece, this.tracker, i)
     }
-
-    console.log(this.pieces)
+    let i
+    for (i = 0; i < 3; i++) {
+        this.createPiece(i, this.length)
+    }
+    this.createPiece(i, this.totalLength % this.length)
 }
 
 TorrentFile.prototype.init = function() {
+    this.info()
+}
 
-    console.log(this.pieces)
+TorrentFile.prototype.info = () => {
+    this.movie.forEach(e => {
+        if (!e) {elog('|')} else {ilog('|')}
+    })
 }

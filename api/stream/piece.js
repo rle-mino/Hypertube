@@ -6,11 +6,18 @@ import chalk from 'chalk'
 import crypto from 'crypto'
 import {EventEmitter} from 'events'
 import inherits from 'inherits'
+import dgram from 'dgram'
+import bencode from 'bencode'
+import anon from './anonymizer'
+
+const urlParse = require('url').parse
 
 inherits(Piece, EventEmitter)
 module.exports = Piece
 
 const log = m => console.log(chalk.blue(m))
+const ilog = m => process.stdout.write(chalk.cyan(m))
+const elog = m => process.stdout.write(chalk.red(m))
 
 function Piece (length) {
     EventEmitter.call(this)
@@ -23,39 +30,46 @@ function Piece (length) {
     this.status = 'empty'
 }
 
-Piece.prototype.init = function (hash, trackers, id) {
+Piece.prototype.init = function (hash, moviePiece, tracker, id) {
     this.id = id
-    this.trackers = trackers
-    this.hash = hash
-    this.Buffer = Buffer.from('')
+    this.tracker = tracker
+    this._tracker = urlParse(this.tracker.toString('utf8'))
+    this.info_hash = hash
+    this.key = ''
+    this.peer_id = anon.newId()
+    this.port = 6881
+    this.downloaded = 0
+    this.left = this.length
+    this.uploaded = 0
+    this.compact = ''
+    this.Buffer = moviePiece
     this.status = 'ready'
-    console.log(id, hash, trackers)
+    this.connect()
 }
 
-Piece.prototype.download = () => {
-    this.status = 'initialized'
-
-    // get query should be updated
-
-    https.get(url, res => {
-        this.status = 'downloading'
-        res.on('data', chunk => {
-            log(`downloaded ${this.Buffer.length} of ${this.length} from piece ${id}`)
-            let chunkBuf = Buffer.from(chunk)
-            this.Buffer = Buffer.concat([this.Buffer, chunkBuf], this.Buffer.length + chunkBuf.length)
-        }).on('error', e => {
-            res.resume()
-            this.status = 'error'
-            this.download()
-            log(e.message + " : RESTARTING...")
-        })
-        res.on('end', () => {
-            this.completed = true
-            this.status = 'complete'
-            // copy file from Buffer to fs
-        })
+Piece.prototype.info = () => {
+    this.Buffer.forEach(e => {
+        if (!e) {elog('|')} else {ilog('|')}
     })
 }
+
+Piece.prototype.connect = function() {
+    this.status = 'initialized'
+
+    const p = this._tracker.port,
+        h = this._tracker.host
+
+    // get query should be updated url + trackers
+    const MSG = Buffer.from('Le petit chat', 'utf8')
+    this.client.send(MSG, 0, MSG.length, p, h, (err ) => {
+        log(err.message)
+    })
+    this.client.on('message', msg => {
+        ilog('.')
+    })
+}
+
+Piece.prototype.client = dgram.createSocket('udp4')
 
 Piece.prototype.check = () => {
 // get hash from downloaded piece and compare to hash from torrent file
