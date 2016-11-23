@@ -37,7 +37,7 @@ const addSerie = (serie) => {
                     title,
                     year: serie.year,
                     runtime: serie.runtime,
-                    poster: serie.images.poster,
+                    poster: movie.poster,
                     genres,
                     plot: serie.synopsis,
                     code: serie.imdb_id,
@@ -62,26 +62,30 @@ const addMovie = (movie) => {
             torrent.magnet = link;
         });
         if (!found) {
-            let pop = 0;
-            console.log(title);
-            movie.torrents.forEach((torrent) => {
-                pop += torrent.seeds;
+            omdb.get({ imdb: movie.imdb_code }, false, (error, data) => {
+                if (error) return (console.log('err: ', error));
+                if (!data) return (console.log('movie error'));
+                let pop = 0;
+                console.log(title);
+                movie.torrents.forEach((torrent) => {
+                    pop += torrent.seeds;
+                });
+                pop /= movie.torrents.length;
+                const newMovie = new Movie({
+                    title: movie.title,
+                    year: movie.year,
+                    // rated: movie.mpa_rating,
+                    runtime: movie.runtime,
+                    poster: data.poster,
+                    genres: movie.genres,
+                    plot: movie.summary,
+                    code: movie.imdb_code,
+                    rating: movie.rating,
+                    torrents: movie.torrents,
+                    pop,
+                });
+                newMovie.save();
             });
-            pop /= movie.torrents.length;
-            const newMovie = new Movie({
-                title: movie.title,
-                year: movie.year,
-                // rated: movie.mpa_rating,
-                runtime: movie.runtime,
-                poster: movie.large_cover_image,
-                genres: movie.genres,
-                plot: movie.summary,
-                code: movie.imdb_code,
-                rating: movie.rating,
-                torrents: movie.torrents,
-                pop,
-            });
-            newMovie.save();
         }
     });
 };
@@ -90,7 +94,7 @@ const yts = () => {
     const client = request.createClient('https://yts.ag/api/v2/');
     client.get('list_movies.json', (error, response, body) => {
         const max = Math.ceil(body.data.movie_count / 50);
-        for (let i = 1; i < max; i += 1) {
+        for (let i = 1; i <= max; i += 1) {
             client.get(`list_movies.json?limit=50&page=${i}`, (err, res, data) => {
                 if (typeof data === 'object') data.data.movies.forEach((movie) => addMovie(movie));
             });
