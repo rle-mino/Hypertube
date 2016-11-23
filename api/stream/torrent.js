@@ -19,6 +19,7 @@ import https from 'https'
 import axios from 'axios'
 import magnet2torrent from 'magnet2torrenturl'
 import Piece from './piece'
+import tracker from './tracker'
 import TorrentFile from './Torrentfile'
 
 // inherits(torrent, EventEmitter)
@@ -158,18 +159,14 @@ const torrentFromFile = (url, cb) => {
 }
 
 const startDownload = torrent => {
-    let pieces = torrent.info.pieces,
-        length = torrent.info['piece length'],
-        files = torrent.info.files,
-        trackers = torrent.announce,
-        size = 0
+    let size = 0
     if (files && (files instanceof Array)) {
         files.forEach(e => {
             size += e.length
         })
     }
     let totalLength = torrent.info.length || size
-    let torrentFile = new TorrentFile(trackers, pieces, length, totalLength, files)
+    let torrentFile = new TorrentFile(torrent, totalLength)
 }
 
 const torrent = async (movie, next) => {
