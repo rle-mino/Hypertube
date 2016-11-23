@@ -2,6 +2,7 @@
  * Created by opichou on 11/21/16.
  */
 import Piece from './piece'
+import torrentParser from './torrent-parser'
 
 const log = m => console.log(chalk.blue(m))
 const ilog = m => process.stdout.write(chalk.cyan(m))
@@ -9,16 +10,17 @@ const elog = m => process.stdout.write(chalk.red(m))
 
 module.exports = TorrentFile
 
-function TorrentFile(trackers, pieces, length, totalLength, files) {
-    if (!(this instanceof TorrentFile)) return new TorrentFile(trackers, pieces, length, totalLength, files)
+function TorrentFile(torrent, totalLength) {
+    if (!(this instanceof TorrentFile)) return new TorrentFile(torrent, totalLength)
 
-    this.tracker = trackers
-    this._pieces = pieces
-    this.length = length
+    this.torrent = torrent
     this.totalLength = totalLength
-    this.files = files || []
 
     this.Pieces = [] // this is a list of movie Pieces downloaders
+
+    tracker.getPeers(torrent, peers => {
+        console.log('Peers: ', peers)
+    })
 
     let piecesBuf = Buffer.from(this._pieces)
     this.movie = Buffer.alloc(this.totalLength) // this is the actual file being downloaded by Pieces
