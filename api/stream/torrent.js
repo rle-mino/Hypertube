@@ -20,7 +20,7 @@ import axios from 'axios'
 import magnet2torrent from 'magnet2torrenturl'
 import Piece from './piece'
 import TorrentFile from './Torrentfile'
-import magnetURIDecode from 'magnet-parser'
+import magnetURIDecode from './magnet-parser'
 
 // inherits(torrent, EventEmitter)
 
