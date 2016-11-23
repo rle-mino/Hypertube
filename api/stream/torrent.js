@@ -19,8 +19,8 @@ import https from 'https'
 import axios from 'axios'
 import magnet2torrent from 'magnet2torrenturl'
 import Piece from './piece'
-import tracker from './tracker'
 import TorrentFile from './Torrentfile'
+import magnetURIDecode from 'magnet-parser'
 
 // inherits(torrent, EventEmitter)
 
@@ -81,7 +81,7 @@ const authorizeFileTransfer = (movie) => {
             "seeds" : 42,
             "quality" : "1080p",
             "hash" : "B55CC9E26250A65FB1915DFA4DE6EA8D74551DBA",
-            "url" : "https://yts.ag/torrent/download/861B3B729C5C61A4D13E606AC2AF144E55606983"
+            "url" : "https://piratebay.to/Downloader.php?ID=2570871&Filename=Star+Trek+Renegades+2015+HDRip+XviD+AC3-EVO"
         }
     ],
         "genres" : [
@@ -109,7 +109,7 @@ const selectTorrent = (torrents) => {
             selected = torrents.filter(e => {
                 return (e.quality === _validResolution[i])
             })
-        if (selected.length > 0) return ( !!selected[0].url ? selected[0].url : selected[0].magnet)
+        if (selected.length > 0) return ( !!selected[0].magnet ? selected[0].magnet : selected[0].url)
         }
 
     }
@@ -117,22 +117,8 @@ const selectTorrent = (torrents) => {
 
 const torrentFromMagnet = magnet => {
     if (magnet) {
-        https.get(magnet, res => {
-            let rawData = Buffer.from('')
-            res.on('data', chunk => {
-                let chunkBuf = Buffer.from(chunk)
-                rawData = Buffer.concat([rawData, chunkBuf], rawData.length + chunkBuf.length)
-            }).on('error', e => {
-                res.resume()
-                throw e
-            })
-            res.on('end', () => {
-                try {
-                } catch (e) {
-                    throw e
-                }
-            })
-        })
+        let torrent = magnetURIDecode(magnet)
+        cb(torrent)
     }
     return null
 }
@@ -150,6 +136,7 @@ const torrentFromFile = (url, cb) => {
         res.on('end', () => {
             try {
                 let torrent = bencode.decode(rawData, 'utf8')
+                if (!torrent.announce || !(/^udp/.test(torrent.announce))) { throw new Error('improper torrent entry')}
                 cb(torrent)
             } catch (e) {
                 throw e
@@ -159,14 +146,7 @@ const torrentFromFile = (url, cb) => {
 }
 
 const startDownload = torrent => {
-    let size = 0
-    if (files && (files instanceof Array)) {
-        files.forEach(e => {
-            size += e.length
-        })
-    }
-    let totalLength = torrent.info.length || size
-    let torrentFile = new TorrentFile(torrent, totalLength)
+    let torrentFile = new TorrentFile(torrent)
 }
 
 const torrent = async (movie, next) => {
