@@ -3,6 +3,7 @@ import { connect }			from 'react-redux'
 import lang					from '../../../lang'
 
 import IconButton			from 'material-ui/IconButton'
+// import Popout				from 'react-popout'
 
 const iconSet = {
 	touch: false,
@@ -13,12 +14,26 @@ const iconSet = {
 class ExtLogin extends React.Component {
 	_mounted = false
 
+	state = {
+		popout: false,
+		selectedStrat: null,
+		selectedURL: null,
+	}
+
 	componentDidMount() {
 		this._mounted = true
 	}
 
 	componentWillUnmount() {
 		this._mounted = false
+	}
+
+	ftLogin = (e) => {
+		window.open('http://localhost:8080/api/user/auth/42?next=http://localhost:3000/ht', 'login with 42', 'width=600,height=600')
+	}
+
+	popoutClosed = (e) => {
+		this.setState({ popout: false })
 	}
 
 	render() {
@@ -48,6 +63,7 @@ class ExtLogin extends React.Component {
 				<IconButton
 					tooltip={`${lang.signInWith[l]} 42`}
 					iconClassName="icon"
+					onTouchTap={this.ftLogin}
 					{...iconSet}
 				/>
 			</div>

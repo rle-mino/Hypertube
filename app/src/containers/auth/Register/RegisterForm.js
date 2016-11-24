@@ -22,10 +22,14 @@ class registerForm extends React.Component {
 		password: null,
 		passwordConfirm: null,
 		mail: null,
+		firstname: null,
+		lastname: null,
 		usernameR: null,
 		passwordR: null,
 		passwordConfirmR: null,
 		mailR: null,
+		firstnameR: null,
+		lastnameR: null,
 	}
 
 	componentDidMount() {
@@ -43,10 +47,19 @@ class registerForm extends React.Component {
 	}
 
 	signUp = () => {
-		const { username, password, passwordConfirm, mail } = this.state
+		const {
+			username,
+			password,
+			passwordConfirm,
+			mail,
+			firstname,
+			lastname,
+		} = this.state
 		this.setState({
 			usernameR: null,
 			passwordR: null,
+			firstnameR: null,
+			lastnameR: null,
 			passwordConfirmR: null,
 			mailR: null,
 		})
@@ -58,7 +71,9 @@ class registerForm extends React.Component {
 		const data = {
 			username,
 			password,
-			mail
+			mail,
+			lastname,
+			firstname,
 		}
 		console.log(data)
 		this.props.dispatch(selectAuth(100))
@@ -66,7 +81,14 @@ class registerForm extends React.Component {
 
 	render() {
 		const { l } = this.props
-		const { usernameR, passwordR, mailR, passwordConfirmR } = this.state
+		const {
+			usernameR,
+			passwordR,
+			mailR,
+			passwordConfirmR,
+			firstnameR,
+			lastnameR,
+		} = this.state
 		return (
 			<form className="authForm" onChange={this.handleChange}>
 				<TextField
@@ -74,6 +96,20 @@ class registerForm extends React.Component {
 					name="username"
 					type="text"
 					errorText={usernameR}
+					{ ...textFieldSet }
+    			/>
+				<TextField
+					floatingLabelText={lang.lastname[l]}
+					name="lastname"
+					type="text"
+					errorText={lastnameR}
+					{ ...textFieldSet }
+				/>
+				<TextField
+			    	floatingLabelText={lang.firstname[l]}
+					name="firstname"
+					type="text"
+					errorText={firstnameR}
 					{ ...textFieldSet }
     			/>
 				<TextField

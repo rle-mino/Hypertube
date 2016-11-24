@@ -1,13 +1,38 @@
-.carousel
+.slider
 	width: 100%
 	height: 300px
 	overflow: hidden
 
-.imgInCarousel
+.carousel
 	width: 100%
-	height: 100%
-	filter: blur(3px)
+	position: relative
+	transition: margin-top .3s
+
+.IMGBlock
+	height: 300px
+	position: relative
+	cursor: pointer
+
+.blurredIMG
+	width: 100%
+	height: 300px
+	filter: blur(10px)
+	position: relative
+	z-index: 1
 	background:
 		repeat: no-repeat
 		position: center
 		size: 100%
+
+.frontIMG
+	width: 200px
+	height: 100%
+	margin-top: -300px
+	position: absolute
+	left: 50%
+	transform: translate(-50%)
+	z-index: 2
+	background:
+		repeat: no-repeat
+		position: center
+		size: cover
