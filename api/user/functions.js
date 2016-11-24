@@ -55,6 +55,7 @@ module.exports = (app, passport) => {
 		},
 
 		schoolLogin: (req, res, next) => {
+			console.log(req.query, '1');
 			passport.authenticate('42', (err, user) => {
 				if (err) return res.send(err);
 				if (!user) {
@@ -63,6 +64,7 @@ module.exports = (app, passport) => {
 				const token = jwt.sign({ _id: user._id, username: user.username }, cfg.jwtSecret);
 				res.set('Access-Control-Expose-Headers', 'x-access-token');
 				res.set('x-access-token', token);
+				// return res.redirect(`http://localhost:3000/`)
 				return res.send({ status: 'success', user });
 			})(req, res, next);
 		},

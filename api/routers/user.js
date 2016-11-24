@@ -25,9 +25,21 @@ export default (app) => {
 
 	app.put('/api/user/login', userFonc.login);
 
-	app.get('/api/user/auth/42', passport.authenticate('42'));
+	app.get('/api/user/auth/42', (req, res, next) => {
+		console.log(req.query);
+		next();
+	}, passport.authenticate('42'));
 
-	app.get('/api/user/auth/42/callback', userFonc.schoolLogin);
+  	app.get('/api/user/auth/42/callback',
+  passport.authenticate('42', { failureRedirect: '/login' }),
+  function(req, res) {
+   console.log(1);
+
+    // Successful authentication, redirect home.
+    res.redirect('http://e3r1p6.42.fr:3000/ht?token=1');
+  });
+
+	// app.get('/api/user/auth/42/callback', userFonc.schoolLogin);
 
 	app.get('/api/user/auth/facebook', passport.authenticate('facebook'));
 

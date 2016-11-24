@@ -44,29 +44,30 @@ passport.use('facebook', new FacebookStrategy({
     clientID: configAuth.facebookAuth.clientID,
     clientSecret: configAuth.facebookAuth.clientSecret,
     callbackURL: configAuth.facebookAuth.callbackURL,
-	// profileFields: ['id', 'email', 'first_name', 'last_name'],
+	profileFields: ['id', 'email', 'first_name', 'last_name', 'photos'],
 }, (accessToken, refreshToken, profile, done) => {
 	process.nextTick(() => {
 		console.log(profile);
-			User.findOne({ $and: [{ username: profile.username }, { provider: 'facebook' }] }, (err, user) => {
-				if (err) return done(err, { status: false, details: 'Cant connect to db' });
-				if (!user) {
-					const newUser = new User({
-						id: profile.id,
-						username: profile.username,
-						mail: profile.emails[0].value,
-						image: profile.photos[0].value,
-						provider: 'facebook',
-					});
-					newUser.save((erro) => {
-						if (erro) return done(erro);
-						return done(null, user, { status: true, details: 'success' });
-					});
-				} else {
+		const username = profile._json.first_name + profile._json.last_name;
+		User.findOne({ $and: [{ username }, { provider: 'facebook' }] }, (err, user) => {
+			if (err) return done(err, { status: false, details: 'Cant connect to db' });
+			if (!user) {
+				const newUser = new User({
+					id: profile._json.id,
+					username,
+					mail: profile._json.email,
+					// image: profile.photos[0].value,
+					provider: 'facebook',
+				});
+				newUser.save((erro) => {
+					if (erro) return done(erro);
+					return done(null, user, { status: true, details: 'success' });
+				});
+			} else {
 				return done(null, user, { status: true, details: 'success' });
 			}
 			return (false);
-			});
+		});
 		return (false);
 	});
 }));
