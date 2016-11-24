@@ -2,12 +2,33 @@ import request from 'request-json';
 import _ from 'lodash';
 import omdb from 'omdb';
 import Movie from './movie_schema';
-import Serie from './serie_schema';
+// import Serie from './serie_schema';
+
+const updateEpisodes = (episodes) => {
+    const newEpisodes = [];
+    episodes.forEach((episode) => {
+        const torrent = Object.values(episode.torrents).pop();
+        if (torrent) {
+            newEpisodes.push({
+                magnet: torrent.url,
+                season: episode.season,
+                episode: episode.episode,
+                eptitle: episode.title,
+            });
+        }
+    });
+    return newEpisodes;
+};
 
 const addSerie = (serie) => {
     const title = serie.title;
     Movie.findOne({ code: serie.imdb_id }, (err, found) => {
         if (!serie.episodes || !serie.episodes.length) return;
+        if (found && found.episodes.length !== serie.episodes.length) {
+            console.log(title);
+            found.episodes = updateEpisodes(serie.episodes);
+            found.save();
+        }
         if (!found) {
             omdb.get({ imdb: serie.imdb_id }, false, (error, movie) => {
                 if (error) return (console.log('err: ', error));
