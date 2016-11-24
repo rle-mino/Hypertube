@@ -23,22 +23,20 @@ const getToken = (req) => {
     return null;
 };
 
-const checkTokenMid = async(req, res, next) => {
+const checkTokenMid = async (req, res, next) => {
 	if (safePath.indexOf(req.path) !== -1) return next();
 	const token = getToken(req);
 	if (!token) return res.send({ status: 'error', details: 'user not authorized' });
-	jwt.verify(token, cfg.jwtSecret, async(err, decoded) => {
+	jwt.verify(token, cfg.jwtSecret, async (err, decoded) => {
 		if (err) return res.send({ status: 'error', details: 'invalid token' });
-		else {
-			try {
-				await User.findOne({ username: decoded.username }, (err, user) => {
-					if (err) return res.send({ status: 'error', details: 'cant connect to db' });
-					req.loggedUser = user
-					return next()
-				})
-			} catch (e) {
-				return res.send({ status: 'error', details: 'an error occured' });
-			}
+		try {
+			await User.findOne({ username: decoded.username }, (err, user) => {
+				if (err) return res.send({ status: 'error', details: 'cant connect to db' });
+				req.loggedUser = user;
+				return next();
+			});
+		} catch (e) {
+			return res.send({ status: 'error', details: 'an error occured' });
 		}
 		return (true);
 	});

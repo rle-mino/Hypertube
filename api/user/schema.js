@@ -39,7 +39,9 @@ UserSchema.pre('save', function(next) {
 			user.password = hash;
 			next();
 		});
+		return (false);
 	});
+	return (false);
 });
 
 UserSchema.methods.comparePassword = function(candidatePassword, cb) {
@@ -47,6 +49,6 @@ UserSchema.methods.comparePassword = function(candidatePassword, cb) {
 		if (err) return cb(err);
 		cb(null, isMatch);
 	});
-}
+};
 
 module.exports = mongoose.model('User', UserSchema);
