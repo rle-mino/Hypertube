@@ -14,7 +14,6 @@ export default (app) => {
 	app.get('/api/movie/refreshyts', scrap.yts);
 	app.get('/api/movie/refresheztv', scrap.eztv);
 
-
 	// scrap.yts(); //	UNCOMMENT THIS WHEN PROJECT IS FINISHED -- commented for compliance issues
 
 	const CronJob = cron.CronJob;
