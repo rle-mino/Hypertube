@@ -45,10 +45,13 @@ module.exports = (app, passport) => {
 
 						newUser.save((err) => {
 							if (err) return res.send({ status: false, details: 'a problem occured' });
-							const token = jwt.sign({ _id: user._id, username: user.username }, cfg.jwtSecret);
-							res.set('Access-Control-Expose-Headers', 'x-access-token');
-							res.set('x-access-token', token);
-							return res.send({ status: true, details: 'success' });
+							User.findOne({ $and: [{ username: newUser.username }, { provider: 'local' }] }, (err, user) => {
+								if (err) return res.send({ status: false, details: 'Cant connect to db' });
+								const token = jwt.sign({ _id: user._id, username: user.username }, cfg.jwtSecret);
+								res.set('Access-Control-Expose-Headers', 'x-access-token');
+								res.set('x-access-token', token);
+								return res.send({ status: true, details: 'success' });
+							})
 						});
 						return (false);
 					});
@@ -64,7 +67,7 @@ module.exports = (app, passport) => {
 				if (!user) {
 					return res.send({ status: false, details: 'error occured' });
 				}
-				const token = jwt.sign({ _id: user._id, username: user.username }, cfg.jwtSecret);
+				const token = jwt.sign({ _id: user._id, username: user.username, provider: '42' }, cfg.jwtSecret);
 				res.set('Access-Control-Expose-Headers', 'x-access-token');
 				res.set('x-access-token', token);
 				return res.redirect(`${req.session.query.next}?token=${token}`);

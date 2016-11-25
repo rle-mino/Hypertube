@@ -8,16 +8,16 @@ import ctrlGen				from '../user/functions';
 
 export default (app) => {
 	app.use(passport.initialize());
-	// app.use(expressJwt({
-	// 	secret: cfg.jwtSecret,
-	// }).unless({ path: userController.safePath }));
+	app.use(expressJwt({
+		secret: cfg.jwtSecret,
+	}).unless({ path: userController.safePath }));
 	app.use(userController.error);
 	app.use(session({
 		secret: 'ssshhhhh',
 		resave: false,
 		saveUninitialized: false,
 	}));
-	// app.use(userController.checkTokenMid);
+	app.use(userController.checkTokenMid);
 
 	passportStrat(passport);
 	const userFonc = ctrlGen(app, passport);
@@ -26,6 +26,7 @@ export default (app) => {
 		res.send('USER ROUTER: OK');
 	});
 
+	app.get('/api/user/get_picture', userController.getPicture);
 
 	app.post('/api/user/regi', userFonc.register);
 
@@ -38,17 +39,17 @@ export default (app) => {
 
 	app.get('/api/user/auth/42/callback', userFonc.schoolLogin);
 
-	app.get('/api/user/auth/facebook', passport.authenticate('facebook'));
-
-app.get('/api/user/auth/facebook/callback', (req, res, next) => {
-	passport.authenticate('facebook', (err, user, info) => {
-		if (err) return res.send(err);
-		if (!user) {
-			return res.send({ status: false, details: 'error occured' });
-		} else {
-			return res.send(user);
-		}
-	})(req, res, next)
-})
+// 	app.get('/api/user/auth/facebook', passport.authenticate('facebook'));
+//
+// app.get('/api/user/auth/facebook/callback', (req, res, next) => {
+// 	passport.authenticate('facebook', (err, user, info) => {
+// 		if (err) return res.send(err);
+// 		if (!user) {
+// 			return res.send({ status: false, details: 'error occured' });
+// 		} else {
+// 			return res.send(user);
+// 		}
+// 	})(req, res, next)
+// })
 
 };
