@@ -54,7 +54,7 @@ module.exports = (app, passport) => {
 								const token = jwt.sign({ _id: user._id, username: user.username, provider: 'local' }, cfg.jwtSecret);
 								res.set('Access-Control-Expose-Headers', 'x-access-token');
 								res.set('x-access-token', token);
-								return res.send({ status: true, details: 'success' });
+								return res.send({ status: 'success', details: 'success' });
 							})
 						});
 						return (false);

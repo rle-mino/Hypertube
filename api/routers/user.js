@@ -60,6 +60,7 @@ export default (app) => {
 	app.get('/api/user/auth/twitter/callback', userFonc.twitterLogin, (req, res) => {
 		res.set('Access-Control-Expose-Headers', 'x-access-token');
 		res.set('x-access-token', req.session.token);
+		console.log(req.session.token);
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
 	});
 
