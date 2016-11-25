@@ -34,7 +34,7 @@ function magnetURIDecode (uri) {
                 result[key].push(val)
             } else {
                 const old = result[key]
-                result[key] = val
+                result[key] = [old, val]
             }
         } else {
             result[key] = val
@@ -54,7 +54,8 @@ if (result.xt) {
         }
     })
 }
-
+if (result.infoHash) result.infoHashBuffer = new Buffer(result.infoHash, 'hex')
+if (result.infoHashBuffer) result.infoHashBinary = result.infoHashBuffer.toString('binary')
 if (result.dn) result.name = result.dn
 if (result.kt) result.keywords = result.kt
 

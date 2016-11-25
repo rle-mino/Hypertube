@@ -16,6 +16,7 @@ import {EventEmitter} from 'events'
 import inherits from 'inherits'
 import chalk from 'chalk'
 import https from 'https'
+import http from 'http'
 import axios from 'axios'
 import magnet2torrent from 'magnet2torrenturl'
 import Piece from './piece'
@@ -49,49 +50,48 @@ const torrentRoute = async (req, res, next) => {
 
 const authorizeFileTransfer = (movie) => {
     return ({success: true, status: 'success', message: "torrent file should be downloaded", data: {
-        "title" : "Burn After Reading",
-        "year" : 2008,
-        "runtime" : 96,
-        "poster" : "https://yts.ag/assets/images/movies/Burn_After_Reading_2008/large-cover.jpg",
-        "plot" : "Osbourne Cox, a Balkan expert, resigned from the CIA because of a drinking problem, so he begins a memoir. His wife wants a divorce and expects her lover, Harry, a philandering State Department marshal, to leave his wife. A CD-ROM falls out of a gym bag at a Georgetown fitness center. Two employees there try to turn it into cash: Linda, who wants money for cosmetic surgery, and Chad, an amiable goof. Information on the disc leads them to Osbourne who rejects their sales pitch; then they visit the Russian embassy. To sweeten the pot, they decide they need more of Osbourne's secrets. Meanwhile, Linda's boss likes her, and Harry's wife leaves for a book tour. All roads lead to Osbourne's house.",
-        "code" : "tt0887883",
-        "rating" : 7,
-        "pop" : 54.5,
-        "episodes" : [],
-        "torrents" : [
+    "title" : "Life",
+    "year" : 2015,
+    "runtime" : 111,
+    "poster" : "https://images-na.ssl-images-amazon.com/images/M/MV5BMTA3Mzc5Nzk0ODReQTJeQWpwZ15BbWU4MDA2ODQxMTcx._V1_SX300.jpg",
+    "plot" : "A snapshot in time-the film chronicles the story behind the 1955 LIFE magazine photo thread by Dennis Stock of then-rising star, James Dean, and gives us an inside look at some of Hollywood's most iconic images and into the life of a gifted, but troubled man.",
+    "code" : "tt2948840",
+    "rating" : 6.1,
+    "pop" : 12.5,
+    "episodes" : [],
+    "torrents" : [
         {
-            "magnet" : "magnet:?xt=urn:btih:861B3B729C5C61A4D13E606AC2AF144E55606983&dn=Burn+After%20Reading&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://glotorrents.pw:6969/announce",
-            "date_uploaded_unix" : 1446344125,
-            "date_uploaded" : "2015-10-31 22:15:25",
-            "size_bytes" : 734045143,
-            "size" : "700.04 MB",
-            "peers" : 8,
-            "seeds" : 67,
+            "magnet" : "magnet:?xt=urn:btih:FCD0E4E2455203C7AD100A9BFCC9D4A52028ADD8&dn=Life&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://glotorrents.pw:6969/announce",
+            "date_uploaded_unix" : 1452798893,
+            "date_uploaded" : "2016-01-14 14:14:53",
+            "size_bytes" : 870234194,
+            "size" : "829.92 MB",
+            "peers" : 4,
+            "seeds" : 11,
             "quality" : "720p",
-            "hash" : "861B3B729C5C61A4D13E606AC2AF144E55606983",
-            "url" : "https://yts.ag/torrent/download/861B3B729C5C61A4D13E606AC2AF144E55606983"
+            "hash" : "FCD0E4E2455203C7AD100A9BFCC9D4A52028ADD8",
+            "url" : "https://yts.ag/torrent/download/FCD0E4E2455203C7AD100A9BFCC9D4A52028ADD8"
         },
         {
-            "magnet" : "magnet:?xt=urn:btih:69c854a7ee83eae559f6a6b552963a032c6e9853&dn=The.Night.Of.S01E01.HDTV.x264-BATV%5Beztv%5D.mkv%5Beztv%5D&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A80&tr=udp%3A%2F%2Fglotorrents.pw%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969",
-            "date_uploaded_unix" : 1446344127,
-            "date_uploaded" : "2015-10-31 22:15:27",
-            "size_bytes" : 1395864371,
-            "size" : "1.30 GB",
-            "peers" : 4,
-            "seeds" : 42,
+            "magnet" : "magnet:?xt=urn:btih:D410CD9245AD33F8E6F385866193ECD60CB699F9&dn=Life&xl=1825361101&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce",
+            "date_uploaded_unix" : 1452809070,
+            "date_uploaded" : "2016-01-14 17:04:30",
+            "size_bytes" : 1825361101,
+            "size" : "1.7 GB",
+            "peers" : 1,
+            "seeds" : 14,
             "quality" : "1080p",
-            "hash" : "B55CC9E26250A65FB1915DFA4DE6EA8D74551DBA",
-            "url" : "https://piratebay.to/Downloader.php?ID=2570871&Filename=Star+Trek+Renegades+2015+HDRip+XviD+AC3-EVO"
+            "hash" : "D410CD9245AD33F8E6F385866193ECD60CB699F9",
+            "url" : "https://yts.ag/torrent/download/D410CD9245AD33F8E6F385866193ECD60CB699F9"
         }
     ],
-        "genres" : [
+    "genres" : [
         "Action",
-        "Comedy",
-        "Crime",
+        "Biography",
         "Drama"
     ],
-        "__v" : 0
-    }})
+    "__v" : 0
+}})
     try {
         if (!!movie && true) { // should verify download conditions in database
             return {success: true, status: 'success', message: "torrent file should be downloaded", data: movie}
@@ -105,17 +105,20 @@ const selectTorrent = (torrents) => {
     if (!torrents || torrents.length < 1) throw new Error('no torrent available in database')
     else {
         let selected = []
-        for (let i = _validResolution.indexOf(_preferredResolution); (selected.length === 0 || i < _validResolution.length); i++) {
+        for (let i = _validResolution.indexOf(_preferredResolution);
+		(selected.length === 0 || i < _validResolution.length);
+		i++)
+		{
             selected = torrents.filter(e => {
                 return (e.quality === _validResolution[i])
             })
-        if (selected.length > 0) return ( !!selected[0].magnet ? selected[0].magnet : selected[0].url)
+        if (selected.length > 0) return selected[0]
         }
 
     }
 }
 
-const torrentFromMagnet = magnet => {
+const torrentFromMagnet = (magnet, cb) => {
     if (magnet) {
         let torrent = magnetURIDecode(magnet)
         cb(torrent)
@@ -124,25 +127,26 @@ const torrentFromMagnet = magnet => {
 }
 
 const torrentFromFile = (url, cb) => {
-    https.get(url, res => {
-        let rawData = Buffer.from('')
-        res.on('data', chunk => {
-            let chunkBuf = Buffer.from(chunk)
-            rawData = Buffer.concat([rawData, chunkBuf], rawData.length + chunkBuf.length)
-        }).on('error', e => {
-            res.resume()
-            throw e
-        })
-        res.on('end', () => {
-            try {
+	try {
+	    https.get(url, res => {
+	        let rawData = Buffer.from('')
+	        res.on('data', chunk => {
+	            let chunkBuf = Buffer.from(chunk)
+	            rawData = Buffer.concat([rawData, chunkBuf], rawData.length + chunkBuf.length)
+	        }).on('error', e => {
+	            res.resume()
+	            throw e
+	        })
+	        res.on('end', () => {
                 let torrent = bencode.decode(rawData, 'utf8')
                 if (!torrent.announce || !(/^udp/.test(torrent.announce))) { throw new Error('improper torrent entry')}
                 cb(torrent)
-            } catch (e) {
-                throw e
-            }
-        })
-    })
+
+	        })
+	    })
+	} catch (e) {
+		throw e
+	}
 }
 
 const startDownload = torrent => {
@@ -157,20 +161,18 @@ const torrent = async (movie, next) => {
 
     try {
         const torrents = movie.torrents
-        let magnet = selectTorrent(torrents)
-        let torrent = {}
-        if (/^magnet/.test(magnet)) {
-            magnet = torrentFromMagnet(magnet)
-        }
-        if (magnet) {
-            torrentFromFile(magnet, startDownload)
+        let torrent = selectTorrent(torrents)
+        if (torrent.magnet) {
+            torrentFromMagnet(torrent.magnet, startDownload)
+        } else {
+            torrentFromFile(torrent.url, startDownload)
         }
     } catch (e) {
         console.log(`Torrent API master error: ${e}`)
     }
-    
 
-    
+
+
 }
 
 // inverts two values in a list

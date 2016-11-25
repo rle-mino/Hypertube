@@ -5,7 +5,7 @@
   "main": "server.js",
   "repository": "https://github.com/rle-mino/Hypertube",
   "scripts": {
-    "babel-node": "babel-node --presets=es2015",
+    "babel-node": "babel-node --debug --presets=es2015",
     "start": "nodemon --exec npm run babel-node -- server.js",
     "prod": "babel-node --presets=es2015 -- server.js"
   },

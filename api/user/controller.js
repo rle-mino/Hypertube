@@ -10,6 +10,7 @@ const safePath = [
 	'/api/user/confirm_mail',
 	'/api/user/auth/42',
 	'/api/user/auth/42/callback',
+	'/api/stream',
 ];
 
 const error = (err, req, res, next) => next();

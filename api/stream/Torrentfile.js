@@ -4,10 +4,12 @@
 import Piece from './piece'
 import torrentParser from './torrent-parser'
 import tracker from './tracker'
+import chalk from 'chalk'
 
 const log = m => console.log(chalk.blue(m))
 const ilog = m => process.stdout.write(chalk.cyan(m))
 const elog = m => process.stdout.write(chalk.red(m))
+const ylog = m => process.stdout.write(chalk.yellow(m))
 
 module.exports = TorrentFile
 
@@ -16,10 +18,10 @@ function TorrentFile(torrent) {
 
     this.torrent = torrent
 
-    this.Pieces = [] // this is a list of movie Pieces downloaders
+    this.Pieces = [] // this is a list of movie Pieces
 
     tracker.getPeers(torrent, peers => {
-        console.log('Peers: ', peers)
+        peers.forEach(() => {ylog('|')})
     })
 
     // let piecesBuf = Buffer.from(this._pieces)

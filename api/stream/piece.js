@@ -28,63 +28,25 @@ function Piece (length) {
     this.reserved = 0
     this.completed = false
     this.status = 'empty'
+	this.received = new Array(size).fill(false)
+	this.requested = new Array(size).fill(false)
 }
 
-Piece.prototype.init = function (hash, moviePiece, tracker, id) {
-    this.id = id
-    this.tracker = tracker
-    this._tracker = urlParse(this.tracker.toString('utf8'))
-    this.info_hash = hash
-    this.key = ''
-    this.peer_id = anon.newId()
-    this.port = 6881
-    this.downloaded = 0
-    this.left = this.length
-    this.uploaded = 0
-    this.compact = ''
-    this.Buffer = moviePiece
-    this.status = 'ready'
-    this.connect()
+Piece.prototype.addRequested = pieceIndex => {
+	this.requested[pieceIndex] = true
 }
 
-Piece.prototype.info = () => {
-    this.Buffer.forEach(e => {
-        if (!e) {elog('|')} else {ilog('|')}
-    })
+Piece.prototype.addReceived = pieceIndex => {
+	this.received[pieceIndex] = true
 }
 
-Piece.prototype.connect = function() {
-    this.status = 'initialized'
-
-    const p = this._tracker.port,
-        h = this._tracker.host
-
-    // get query should be updated url + trackers
-    const MSG = Buffer.from('Le petit chat', 'utf8')
-    this.client.send(MSG, 0, MSG.length, p, h, (err ) => {
-        log(err.message)
-    })
-    this.client.on('message', msg => {
-        ilog('.')
-    })
+Piece.prototype.needed = pieceIndex => {
+	if (this.requested.every(i => i === true)) {
+		this.requested = this.received.slice()
+	}
+	return !this.requested[pieceIndex]
 }
 
-Piece.prototype.client = dgram.createSocket('udp4')
-
-Piece.prototype.check = () => {
-// get hash from downloaded piece and compare to hash from torrent file
-    if (true) {
-        this.status = 'finished'
-        this.emit('done')
-    } else {
-        this.status = 'error'
-        this.download()
-    }
+Piece.prototype.isDone = () => {
+	return this.received.every(i => i === true)
 }
-
-Piece.prototype.destroy = () => {
-    this.status = 'autodestroy'
-    // this should empty Buffer, reset all keys and call for parent object unsetKey method of this.id property
-}
-
-Piece.prototype.status = () => {return this.status}
