@@ -35,8 +35,13 @@ class Auth extends React.Component {
 		container: 'log',
 	}
 
-	componentDidMount() {
+	componentDidMount = () => {
 		this._mounted = true
+		const { token } = this.props.location.query
+		if (token) {
+			localStorage.setItem('logToken', token)
+			this.props.dispatch(selectAuth(100))
+		}
 	}
 
 	componentWillUnmount() {

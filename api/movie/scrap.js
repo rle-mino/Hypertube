@@ -2,7 +2,6 @@ import request from 'request-json';
 import _ from 'lodash';
 import omdb from 'omdb';
 import Movie from './movie_schema';
-// import Serie from './serie_schema';
 
 const updateEpisodes = (episodes) => {
     const newEpisodes = [];
@@ -64,7 +63,7 @@ const addSerie = (serie) => {
                     code: serie.imdb_id,
                     episodes,
                     rating: movie.imdb.rating,
-                    pop: serie.rating.percentage, // les seeds sont tous à 0
+                    pop: serie.rating.votes, // les seeds sont tous à 0
                 });
                 newMovie.save();
             });
@@ -79,7 +78,7 @@ const addMovie = (movie) => {
         movie.torrents.forEach((torrent) => {
             const trackers = '&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://glotorrents.pw:6969/announce';
             const name = movie.title.replace(' ', '+');
-            const link = encodeURI(`magnet:?xt=urn:btih:${torrent.hash}&dn=${name}${trackers}`);
+            const link = encodeURI(`magnet:?xt=urn:btih:${torrent.hash}&dn=${name}${trackers}&xl=${torrent.size_bytes}`);
             torrent.magnet = link;
         });
         if (!found) {

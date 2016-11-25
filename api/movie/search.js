@@ -1,23 +1,6 @@
 import _ from 'lodash';
 import Movie from './movie_schema';
 
-// const update = (doc, data) => {
-//     doc.title = data.title;
-//     if (Number.isInteger(data.year)) doc.year = data.year;
-//     doc.rated = data.rated;
-//     doc.runtime = data.runtime;
-//     doc.countries = data.countries;
-//     doc.poster = data.poster;
-//     doc.genres = data.genres;
-//     doc.director = data.director;
-//     doc.actors = data.actors;
-//     doc.plot = data.plot;
-//     doc.code = data.imdb.id;
-//     doc.rating = data.imdb.rating;
-//     doc.extended = true;
-//     doc.save();
-// };
-
 const fastSearch = (req, res) => {
     const { title } = req.query;
     if (!req.query.title || req.query.title === '') return (res.send({ status: 'error', details: 'empty field' }));
@@ -30,10 +13,15 @@ const fastSearch = (req, res) => {
 };
 
 const topSearch = (req, res) => {
-    Movie.find().sort({ pop: -1 }).limit(20).exec(async (err, found) => {
+    Movie.find({ 'episodes.0': { $exists: true } }).sort({ pop: -1 }).limit(10).exec(async (err, found) => {
         if (err || !found.length) return (res.send({ status: 'error', details: 'DB problem' }));
-        const results = found.map(el => _.pick(el, ['id', 'title', 'poster', 'year', 'rating']));
-        return (res.send({ results, status: 'success' }));
+        let results = found.map(el => _.pick(el, ['id', 'title', 'poster', 'year', 'rating']));
+        Movie.find({ 'episodes.0': { $exists: false } }).sort({ pop: -1 }).limit(10).exec(async (err1, found1) => {
+            if (err1 || !found1.length) return (res.send({ status: 'error', details: 'DB problem' }));
+            const results1 = found1.map(el => _.pick(el, ['id', 'title', 'poster', 'year', 'rating']));
+            results = results.concat(results1).sort(() => 0.5 - Math.random());
+            return (res.send({ results, status: 'success' }));
+        });
     });
 };
 

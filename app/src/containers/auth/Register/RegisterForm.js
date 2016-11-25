@@ -1,5 +1,6 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
+import api						from '../../../apiCall'
 import { selectAuth }			from '../../../action/auth'
 import lang						from '../../../lang'
 import colors					from '../../../colors/colors'
@@ -18,12 +19,12 @@ class registerForm extends React.Component {
 	_mounted = false
 
 	state = {
-		username: null,
-		password: null,
-		passwordConfirm: null,
-		mail: null,
-		firstname: null,
-		lastname: null,
+		username: '',
+		password: '',
+		passwordConfirm: '',
+		mail: '',
+		firstname: '',
+		lastname: '',
 		usernameR: null,
 		passwordR: null,
 		passwordConfirmR: null,
@@ -46,7 +47,7 @@ class registerForm extends React.Component {
 		this.setState({ ...up })
 	}
 
-	signUp = () => {
+	signUp = async () => {
 		const {
 			username,
 			password,
@@ -62,21 +63,63 @@ class registerForm extends React.Component {
 			lastnameR: null,
 			passwordConfirmR: null,
 			mailR: null,
+			serverResponse: null,
 		})
 		if (password !== passwordConfirm) {
 			this.setState({
 				passwordConfirmR: lang.passwordAreDifferent[this.props.l]
 			})
 		}
-		const data = {
+		const cred = {
 			username,
 			password,
 			mail,
 			lastname,
 			firstname,
 		}
-		console.log(data)
-		this.props.dispatch(selectAuth(100))
+		const { data, headers } = await api.register(cred)
+		const { l } = this.props
+
+		/*
+		*	ERROR
+		*/
+		if ((data.status && data.status.includes('error')) || !data.status)
+		{
+			// ERROR : USER ENTRY
+			if (data.details.includes('invalid request')) {
+				const error = {}
+				data.error.forEach((el) => {
+					if (!error[`${el.path}R`]) {
+						error[`${el.path}R`] = lang.errorP[el.type][l]
+					}
+				})
+				this.setState({ ...error })
+
+			// ERROR : ALREADY USED | USERNAME
+			} else if (data.details.includes('username already used')) {
+				this.setState({ usernameR: lang.alreadyUsed[l] })
+
+			// ERROR : ALREADY USED | MAIL
+			} else if (data.details.includes('mail already used')) {
+				this.setState({ mailR: lang.alreadyUsed[l] })
+
+			// ERROR : OTHER
+			} else {
+				this.setState({ serverResponse: lang.error[l] })
+			}
+		}
+		/*
+		*	SUCCESS
+		*/
+		else if (data.status.includes('success'))
+		{
+			const token = headers['x-access-token']
+			if (token) {
+				localStorage.setItem('logToken', token)
+				this.props.dispatch(selectAuth(100))
+			}
+			else this.setState({ serverResponse: lang.error[l] })
+		}
 	}
 
 	render() {

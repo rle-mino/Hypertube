@@ -1,7 +1,7 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
 import { browserHistory }		from 'react-router'
-import axios					from 'axios'
+import api						from '../../apiCall'
 import * as bodyDis				from '../../action/body'
 
 import IconMenu					from 'material-ui/IconMenu'
@@ -10,6 +10,8 @@ import SearchForm				from '../../components/SearchForm'
 import LangPicker				from '../../components/LangPicker'
 import ColorPicker				from '../../components/ColorPicker'
 import ProfileIcon				from '../../components/ProfileIcon'
+import LogoutButton				from '../../components/LogoutButton'
+import noImage					from '../../../public/No-image-found.jpg'
 
 import './sass/header.sass'
 
@@ -17,28 +19,27 @@ class HyperHeader extends React.Component {
 	_mounted = false
 
 	state = {
-		userData: null,
+		image: null,
 	}
 
-	componentDidMount() {
+	componentDidMount = async () => {
 		this._mounted = true
-		// axios({
-		// 	url: 'http://e3r2p7.42.fr:8080/test',
-		// 	method: 'post',
-		// }).then((response) => {
-		// 	console.log(response.data)
-		// })
+		const { data } = await api.getPict()
+		if (data.status.includes('success')) {
+			this.setState({ image: data.image })
+		} else {
+			if (data.details.includes('user not authorized') ||
+				data.details.includes('invalid token')
+			) {
+				browserHistory.push('/')
+			} else {
+				this.setState({ image: noImage })
+				// no image
+			}
+		}
 	}
 
 	componentWillMount() {
-		axios.get('http://localhost:8081/api/user/profile')
-			.then(({ data }) => {
-				if (!this._mounted) return false
-				if (data.status === 'success') {
-					this.setState({ userData: data.result })
-				}
-			}
-		)
 	}
 
 	componentWillUnmount() {
@@ -56,13 +57,13 @@ class HyperHeader extends React.Component {
 
 	render() {
 		const { mainColor, location, l, dispatch } = this.props
-		const { userData } = this.state
+		const { image } = this.state
 		return (
 			<div style={{ backgroundColor: mainColor }} className="headerContainer">
 				<span className="hyperTitle" onClick={this.goHome}>HYPERTUBE</span>
 				<SearchForm location={location} l={l} dispatch={dispatch}/>
 				<div className="profSet">
-					<ProfileIcon image={userData ? userData.image : null} l={l}/>
+					<ProfileIcon image={image ? image : null} l={l} />
 					<IconMenu
 						style={{ marginRight: '10px' }}
 						anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
@@ -75,6 +76,7 @@ class HyperHeader extends React.Component {
 					>
 						<ColorPicker mainColor={mainColor} dispatch={dispatch} />
 						<LangPicker l={l} dispatch={dispatch} />
+						<LogoutButton l={l} />
 					</IconMenu>
 				</div>
 			</div>
