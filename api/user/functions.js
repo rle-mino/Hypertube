@@ -68,6 +68,9 @@ module.exports = (app, passport) => {
 		schoolLogin: (req, res, next) => {
 			passport.authenticate('42', (err, user, next) => {
 				if (err) return res.send(err);
+				if (!user) {
+					return res.send({ status: 'error', details: 'error occured' });
+				}
 				const token = jwt.sign({ _id: user._id, username: user.username, provider: '42' }, cfg.jwtSecret);
 				res.set('Access-Control-Expose-Headers', 'x-access-token');
 				res.set('x-access-token', token);
@@ -76,22 +79,34 @@ module.exports = (app, passport) => {
 		},
 
 		facebookLogin: (req, res, next) => {
-			passport.authenticate('facebook', (err, user, next) => {
+			passport.authenticate('facebook', (err, user) => {
 				if (err) return res.send(err);
+				if (!user) {
+					return next();
+				}
 				const token = jwt.sign({ _id: user._id, username: user.username, provider: 'facebook' }, cfg.jwtSecret);
-				res.set('Access-Control-Expose-Headers', 'x-access-token');
-				res.set('x-access-token', token);
-				return res.redirect(`${req.session.query.next}?token=${token}`);
+				req.session.token = token;
+				return next();
 			})(req, res, next);
 		},
 
 		twitterLogin: (req, res, next) => {
-			passport.authenticate('twitter', (err, user, next) => {
+			passport.authenticate('twitter', (err, user) => {
 				if (err) return res.send(err);
+				if (!user) return next();
 				const token = jwt.sign({ _id: user._id, username: user.username, provider: 'twitter' }, cfg.jwtSecret);
-				res.set('Access-Control-Expose-Headers', 'x-access-token');
-				res.set('x-access-token', token);
-				return res.redirect(`${req.session.query.next}?token=${token}`);
+				req.session.token = token;
+				return next();
+			})(req, res, next);
+		},
+
+		githubLogin: (req, res, next) => {
+			passport.authenticate('github', (err, user) => {
+				if (err) return res.send(err);
+				if (!user) return next();
+				const token = jwt.sign({ _id: user._id, username: user.username, provider: 'github' }, cfg.jwtSecret);
+				req.session.token = token;
+				return next();
 			})(req, res, next);
 		},
 

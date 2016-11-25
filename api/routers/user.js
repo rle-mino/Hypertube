@@ -1,5 +1,6 @@
 import passport				from 'passport';
 import expressJwt			from 'express-jwt';
+import jwt 			from 'jsonwebtoken';
 import session				from 'express-session';
 import * as userController	from '../user/controller';
 import * as cfg				from '../user/jwt/config';
@@ -45,13 +46,32 @@ export default (app) => {
 		next();
 	}, passport.authenticate('facebook'));
 
-	app.get('/api/user/auth/facebook/callback', userFonc.facebookLogin);
+	app.get('/api/user/auth/facebook/callback', userFonc.facebookLogin, (req, res) => {
+		res.set('Access-Control-Expose-Headers', 'x-access-token');
+		res.set('x-access-token', req.session.token);
+		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
+	});
 
 	app.get('/api/user/auth/twitter', (req, res, next) => {
 		req.session.query = req.query;
 		next();
 	}, passport.authenticate('twitter'));
 
-	app.get('/api/user/auth/twitter/callback', userFonc.twitterLogin);
+	app.get('/api/user/auth/twitter/callback', userFonc.twitterLogin, (req, res) => {
+		res.set('Access-Control-Expose-Headers', 'x-access-token');
+		res.set('x-access-token', req.session.token);
+		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
+	});
+
+	app.get('/api/user/auth/github', (req, res, next) => {
+		req.session.query = req.query;
+		next();
+	}, passport.authenticate('github'));
+
+	app.get('/api/user/auth/github/callback', userFonc.githubLogin, (req, res) => {
+		res.set('Access-Control-Expose-Headers', 'x-access-token');
+		res.set('x-access-token', req.session.token);
+		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
+	});
 
 };

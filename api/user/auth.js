@@ -23,7 +23,7 @@ module.exports = {
 	'gitAuth'		: {
 		clientID: 'bb85a0e60a62ade6beb6',
 		clientSecret: '75c04ad8145804405b0fe6afaad683bbfd549bc7',
-		callbackURL: 'http://localhost:8080/auth/github/callback',
+		callbackURL: 'http://localhost:8080/api/user/auth/github/callback',
 	},
 	'linkedinAuth'		: {
 		consumerKey: '77kvoydynh5mzh',

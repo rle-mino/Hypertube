@@ -7,7 +7,7 @@ const FortyTwoStrategy 	= 		require('passport-42').Strategy;
 // const BnetStrategy 		= 		require('passport-bnet').Strategy;
 const TwitterStrategy 	= 		require('passport-twitter').Strategy;
 // const LinkedInStrategy 	= 		require('passport-linkedin').Strategy;
-// const gitHubStrategy	=		require('passport-github2').Strategy;
+const gitHubStrategy	=		require('passport-github2').Strategy;
 // const GoogleStrategy	=		require('passport-google-oauth20').Strategy;
 
 module.exports = (passport) => {
@@ -63,6 +63,7 @@ passport.use('facebook', new FacebookStrategy({
 		const username = profile._json.first_name + profile._json.last_name;
 		User.findOne({ $and: [{ username }, { provider: 'facebook' }] }, (err, user) => {
 			if (err) return done(err, { status: 'error', details: 'Cant connect to db' });
+			console.log(username);
 			if (!user) {
 				const newUser = new User({
 					id: profile._json.id,
@@ -129,7 +130,6 @@ passport.use('twitter', new TwitterStrategy({
 	includeEmail: true,
 	// profileFields: ['id', 'email', 'first_name', 'last_name', 'photos'],
 }, (accessToken, refreshToken, profile, done) => {
-	console.log(profile.id);
 	process.nextTick(() => {
 		const username = profile.username;
 		User.findOne({ $and: [{ username }, { provider: 'twitter' }] }, (err, user) => {
@@ -154,22 +154,43 @@ passport.use('twitter', new TwitterStrategy({
 		return (false);
 	});
 }));
+
 // ////////////////////////////////////////////////////////////////////////////////
 // //                  Github Strategy                  	                      //
 // ////////////////////////////////////////////////////////////////////////////////
 //
-// passport.use('github', new gitHubStrategy({
-//     clientID: configAuth.gitAuth.clientID,
-//     clientSecret: configAuth.gitAuth.clientSecret,
-//     callbackURL: configAuth.gitAuth.callbackURL,
-// },function (accessToken, refreshToken, profile, done) {
-//             process.nextTick(function () {
-// 				console.log(profile)
-// 				console.log(accessToken);
-// 				console.log(refreshToken);
-//             });
-//         }
-//     ));
+passport.use('github', new gitHubStrategy({
+    clientID: configAuth.gitAuth.clientID,
+    clientSecret: configAuth.gitAuth.clientSecret,
+    callbackURL: configAuth.gitAuth.callbackURL,
+	scope: [ 'user:email' ],
+	// profileFields: ['id', 'email', 'first_name', 'last_name', 'photos'],
+}, (accessToken, refreshToken, profile, done) => {
+	process.nextTick(() => {
+		console.log(profile._json );
+		const username = profile._json.login;
+		User.findOne({ $and: [{ username }, { provider: 'github' }] }, (err, user) => {
+			if (err) return done(err, { status: 'error', details: 'Cant connect to db' });
+			if (!user) {
+				const newUser = new User({
+					id: profile._json.id,
+					username,
+					mail: profile.emails[0].value,
+					image: profile._json.avatar_url,
+					provider: 'github',
+				});
+				newUser.save((erro) => {
+					if (erro) return done(erro);
+					return done(null, user, { status: true, details: 'success' });
+				});
+			} else {
+				return done(null, user, { status: true, details: 'success' });
+			}
+			return (false);
+		});
+		return (false);
+	});
+}));
 //
 // ////////////////////////////////////////////////////////////////////////////////
 // //                  Linkdin Strategy                  	                      //
