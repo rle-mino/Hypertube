@@ -66,12 +66,11 @@ module.exports = (app, passport) => {
 		},
 
 		schoolLogin: (req, res, next) => {
-			passport.authenticate('42', (err, user, nextSchool) => {
+			passport.authenticate('42', (err, user, next) => {
 				if (err) return res.send(err);
-				if (!user) return nextSchool();
-				// if (!user) {
-				// 	return res.send({ status: 'error', details: 'error occured' });
-				// }
+				if (!user) {
+					return res.send({ status: 'error', details: 'error occured' });
+				}
 				const token = jwt.sign({ _id: user._id, username: user.username, provider: '42' }, cfg.jwtSecret);
 				res.set('Access-Control-Expose-Headers', 'x-access-token');
 				res.set('x-access-token', token);
