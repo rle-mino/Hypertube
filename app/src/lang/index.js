@@ -56,6 +56,8 @@ module.exports = {
 		'any.empty': [ 'required', 'requis' ],
 		'string.alphanum': [ 'alpha-numeric characters only', 'caractères alpha-numerique uniquement' ],
 		'string.min': [ '3 characters minimum', '3 caractères minimum' ],
+		'string.regex.base': [ 'unsecure', 'non sécurisé' ],
+		'string.email': [ 'invalid', 'invalide' ],
 	},
 	userDoesntExist: [ 'Wrong login or password', 'Mauvais mot de login ou mot de passe' ],
 	noResultsFound: [ 'No results found', 'Pas de résultats' ],

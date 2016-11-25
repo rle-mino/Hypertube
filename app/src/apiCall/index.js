@@ -10,6 +10,13 @@ const login = async (data) =>
 		data,
 	})
 
+const register = async (data) =>
+	await axios({
+		url: `${apiConnect}/api/user/register`,
+		method: 'post',
+		data,
+	})
+
 const search = async (data) =>
 	await axios.get(`${apiConnect}/api/movie/search`,
 		{...data, ...getToken()}
@@ -38,4 +45,5 @@ module.exports = {
 	topSearch,
 	getPict,
 	login,
+	register,
 }

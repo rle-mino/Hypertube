@@ -45,13 +45,14 @@ class LoginForm extends React.Component {
 		this.setState({
 			usernameR: '',
 			passwordR: '',
+			serverResponse: null,
 		})
 		const cred = {
 			username: this.state.username,
 			password: this.state.password
 		}
-		const { data } = await api.login(cred)
-		console.log(data)
+		const { data, headers } = await api.login(cred)
+		console.log(data, headers)
 		if (data.status === undefined) return false
 		if (data.status.includes('error')) {
 			if (data.details.includes('invalid request')) {
@@ -63,15 +64,15 @@ class LoginForm extends React.Component {
 				})
 				this.setState({ ...error })
 			} else if (data.details) {
-				if (data.details.includes('user doenst exist')) {
+				if (data.details.includes('user doenst exist') || data.details.includes('wrong password')) {
 					this.setState({ serverResponse: lang.userDoesntExist[this.props.l] })
 				} else {
 					this.setState({ serverResponse: lang.error[this.props.l] })
 				}
 			}
 		} else {
-
-			// this.props.dispatch(selectAuth(100))
+			localStorage.setItem('logToken', headers['x-access-token'])
+			this.props.dispatch(selectAuth(100))
 		}
 	}
 
