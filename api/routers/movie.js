@@ -1,6 +1,7 @@
 import cron from 'cron';
 import * as search from '../movie/search';
 import * as scrap from '../movie/scrap';
+import * as info from '../movie/info';
 
 export default (app) => {
 	app.get('/api/movie', (req, res) => {
@@ -13,6 +14,8 @@ export default (app) => {
 
 	app.get('/api/movie/refreshyts', scrap.yts);
 	app.get('/api/movie/refresheztv', scrap.eztv);
+
+	app.get('/api/movie/:id', info.getData);
 
 	// scrap.yts(); //	UNCOMMENT THIS WHEN PROJECT IS FINISHED -- commented for compliance issues
 

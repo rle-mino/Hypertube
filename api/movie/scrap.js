@@ -2,7 +2,6 @@ import request from 'request-json';
 import _ from 'lodash';
 import omdb from 'omdb';
 import Movie from './movie_schema';
-// import Serie from './serie_schema';
 
 const updateEpisodes = (episodes) => {
     const newEpisodes = [];

@@ -22,7 +22,6 @@ const topSearch = (req, res) => {
             results = results.concat(results1).sort(() => 0.5 - Math.random());
             return (res.send({ results, status: 'success' }));
         });
-        // return (res.send({ results, status: 'success' }));
     });
 };
 
