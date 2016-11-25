@@ -42,8 +42,12 @@ module.exports = (app, passport) => {
 							password,
 							provider: 'local',
 						});
+
 						newUser.save((err) => {
 							if (err) return res.send({ status: false, details: 'a problem occured' });
+							const token = jwt.sign({ _id: user._id, username: user.username }, cfg.jwtSecret);
+							res.set('Access-Control-Expose-Headers', 'x-access-token');
+							res.set('x-access-token', token);
 							return res.send({ status: true, details: 'success' });
 						});
 						return (false);
@@ -55,8 +59,7 @@ module.exports = (app, passport) => {
 		},
 
 		schoolLogin: (req, res, next) => {
-			console.log(req.query, '1');
-			passport.authenticate('42', (err, user) => {
+			passport.authenticate('42', (err, user, next) => {
 				if (err) return res.send(err);
 				if (!user) {
 					return res.send({ status: false, details: 'error occured' });
@@ -64,8 +67,7 @@ module.exports = (app, passport) => {
 				const token = jwt.sign({ _id: user._id, username: user.username }, cfg.jwtSecret);
 				res.set('Access-Control-Expose-Headers', 'x-access-token');
 				res.set('x-access-token', token);
-				// return res.redirect(`http://localhost:3000/`)
-				return res.send({ status: 'success', user });
+				return res.redirect(`${req.session.query.next}?token=${token}`);
 			})(req, res, next);
 		},
 	};

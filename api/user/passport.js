@@ -47,7 +47,6 @@ passport.use('facebook', new FacebookStrategy({
 	profileFields: ['id', 'email', 'first_name', 'last_name', 'photos'],
 }, (accessToken, refreshToken, profile, done) => {
 	process.nextTick(() => {
-		console.log(profile);
 		const username = profile._json.first_name + profile._json.last_name;
 		User.findOne({ $and: [{ username }, { provider: 'facebook' }] }, (err, user) => {
 			if (err) return done(err, { status: false, details: 'Cant connect to db' });
