@@ -1,6 +1,6 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
-// import axios					from 'axios'
+import api						from '../../../apiCall'
 import { selectAuth }			from '../../../action/auth'
 import lang						from '../../../lang'
 import colors					from '../../../colors/colors'
@@ -30,28 +30,49 @@ class LoginForm extends React.Component {
 
 	componentDidMount() {
 		this._mounted = true
+		const { token } = this.props.location.query
+		if (token) {
+			localStorage.setItem('logToken', token)
+			this.props.dispatch(selectAuth(100))
+		}
 	}
 
 	componentWillUnmount() {
 		this._mounted = false
 	}
 
-	signin = () => {
-		const data = {
+	signin = async () => {
+		this.setState({
+			usernameR: '',
+			passwordR: '',
+		})
+		const cred = {
 			username: this.state.username,
 			password: this.state.password
 		}
+		const { data } = await api.login(cred)
 		console.log(data)
-		// axios({
-		// 	url: 'http://e3r2p7.42.fr:8080/login',
-		// 	method: 'post',
-		// 	data,
-		// }).then((response) => {
-		// 	console.log(response)
-		// 	if (response.data.status === true) {
-		// 	}
-		// })
-		this.props.dispatch(selectAuth(100))
+		if (data.status === undefined) return false
+		if (data.status.includes('error')) {
+			if (data.details.includes('invalid request')) {
+				const error = {}
+				data.error.forEach((el) => {
+					if (!error[`${el.path}R`]) {
+						error[`${el.path}R`] = lang.errorP[el.type][this.props.l]
+					}
+				})
+				this.setState({ ...error })
+			} else if (data.details) {
+				if (data.details.includes('user doenst exist')) {
+					this.setState({ serverResponse: lang.userDoesntExist[this.props.l] })
+				} else {
+					this.setState({ serverResponse: lang.error[this.props.l] })
+				}
+			}
+		} else {
+
+			// this.props.dispatch(selectAuth(100))
+		}
 	}
 
 	checkSub = (e) => {
@@ -70,9 +91,10 @@ class LoginForm extends React.Component {
 
 	render() {
 		const { l } = this.props
-		const { usernameR, passwordR } = this.state
+		const { usernameR, passwordR, serverResponse } = this.state
 		return (
 			<form className="authForm" onChange={this.handleChange} onKeyDown={this.checkSub}>
+				<div className="serverResponse">{serverResponse}</div>
 				<ExtLogin />
 				<TextField
 			    	floatingLabelText={lang.username[l]}

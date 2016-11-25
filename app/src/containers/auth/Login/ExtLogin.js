@@ -29,7 +29,9 @@ class ExtLogin extends React.Component {
 	}
 
 	ftLogin = (e) => {
-		window.open('http://localhost:8080/api/user/auth/42?next=http://localhost:3000/ht', 'login with 42', 'width=600,height=600')
+		window.location.replace(
+			'http://localhost:8080/api/user/auth/42?next=http://localhost:3000'
+		)
 	}
 
 	popoutClosed = (e) => {
