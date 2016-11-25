@@ -7,13 +7,15 @@ import User			from './schema';
 module.exports = (app, passport) => {
 	const self = {
 		login: (req, res, next) => {
-			const { error } = Joi.validate(req.body, schema.loginSchema,
-				{ abortEarly: false, stripUnknown: true });
-			if (error) return res.send({ status: false, details: error.details });
+			const { error } = Joi.validate(req.body, schema.loginSchema, {
+				abortEarly: false,
+				stripUnknown: true
+			});
+			if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
 			passport.authenticate('local-login', (err, user, info) => {
 				if (err) { return res.send(err); }
 				if (!user) { return res.send(info); }
-				const token = jwt.sign({ _id: user._id, username: user.username }, cfg.jwtSecret);
+				const token = jwt.sign({ _id: user._id, username: user.username, provider: 'local'}, cfg.jwtSecret);
 				res.set('Access-Control-Expose-Headers', 'x-access-token');
 				res.set('x-access-token', token);
 				res.send({ status: 'success', user });
@@ -23,17 +25,19 @@ module.exports = (app, passport) => {
 		},
 
 		register: (req, res) => {
-			const { error } = Joi.validate(req.body, schema.registerSchema,
-				{ abortEarly: false, stripUnknown: true });
-			if (error) return res.send({ status: false, details: error.details });
+			const { error } = Joi.validate(req.body, schema.registerSchema, {
+				abortEarly: false,
+				stripUnknown: true
+			});
+			if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
 			const { username, password, firstname, lastname, mail } = req.body;
 			process.nextTick(() => {
 				User.findOne({ $and: [{ username }, { provider: 'local' }] }, (err, user) => {
-					if (err) return res.send({ status: false, details: 'Cant connect to db' });
-					if (user) return res.send({ status: false, details: 'username already used' });
+					if (err) return res.send({ status: 'error', details: 'Cant connect to db' });
+					if (user) return res.send({ status: 'error', details: 'username already used' });
 					User.findOne({ $and: [{ mail }, { provider: 'local' }]}, (err, user) => {
-						if (err) return res.send({ status: false, details: 'Cant connect to db' });
-						if (user) return res.send({ status: false, details: 'mail already used' });
+						if (err) return res.send({ status: 'error', details: 'Cant connect to db' });
+						if (user) return res.send({ status: 'error', details: 'mail already used' });
 						const newUser = new User({
 							mail,
 							username,
@@ -44,10 +48,10 @@ module.exports = (app, passport) => {
 						});
 
 						newUser.save((err) => {
-							if (err) return res.send({ status: false, details: 'a problem occured' });
+							if (err) return res.send({ status: 'error', details: 'a problem occured' });
 							User.findOne({ $and: [{ username: newUser.username }, { provider: 'local' }] }, (err, user) => {
-								if (err) return res.send({ status: false, details: 'Cant connect to db' });
-								const token = jwt.sign({ _id: user._id, username: user.username }, cfg.jwtSecret);
+								if (err) return res.send({ status: 'error', details: 'Cant connect to db' });
+								const token = jwt.sign({ _id: user._id, username: user.username, provider: 'local' }, cfg.jwtSecret);
 								res.set('Access-Control-Expose-Headers', 'x-access-token');
 								res.set('x-access-token', token);
 								return res.send({ status: true, details: 'success' });
@@ -65,7 +69,7 @@ module.exports = (app, passport) => {
 			passport.authenticate('42', (err, user, next) => {
 				if (err) return res.send(err);
 				if (!user) {
-					return res.send({ status: false, details: 'error occured' });
+					return res.send({ status: 'error', details: 'error occured' });
 				}
 				const token = jwt.sign({ _id: user._id, username: user.username, provider: '42' }, cfg.jwtSecret);
 				res.set('Access-Control-Expose-Headers', 'x-access-token');
@@ -73,6 +77,22 @@ module.exports = (app, passport) => {
 				return res.redirect(`${req.session.query.next}?token=${token}`);
 			})(req, res, next);
 		},
+
+		facebookLogin: (req, res, next) => {
+			passport.authenticate('facebook', (err, user, next) => {
+				console.log(1);
+				if (err) return res.send(err);
+				if (!user) {
+					return res.send({ status: 'error', details: 'error occured' });
+				}
+				const token = jwt.sign({ _id: user._id, username: user.username, provider: 'facebook' }, cfg.jwtSecret);
+				res.set('Access-Control-Expose-Headers', 'x-access-token');
+				res.set('x-access-token', token);
+				return res.redirect(`${req.session.query.next}?token=${token}`);
+			})(req, res, next);
+		},
+
+
 	};
 	return self;
 };

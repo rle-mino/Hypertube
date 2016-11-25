@@ -4,12 +4,14 @@ import User			from './schema';
 
 const safePath = [
 	'/api/user/login',
-	'/api/user/regi',
+	'/api/user/register',
 	'/api/user/forgot_password',
 	'/api/user/reset_password',
 	'/api/user/confirm_mail',
 	'/api/user/auth/42',
 	'/api/user/auth/42/callback',
+	'/api/user/auth/facebook',
+	'/api/user/auth/facebook/callback',
 ];
 
 const error = (err, req, res, next) => next();
@@ -30,7 +32,6 @@ const checkTokenMid = async (req, res, next) => {
 	jwt.verify(token, cfg.jwtSecret, async (err, decoded) => {
 		if (err) return res.send({ status: 'error', details: 'invalid token' });
 		try {
-			console.log(decoded);
 			await User.findOne({ username: decoded.username , 'provider': decoded.provider }, (err, user) => {
 				if (err) return res.send({ status: 'error', details: 'cant connect to db' });
 				req.loggedUser = user;
@@ -45,8 +46,6 @@ const checkTokenMid = async (req, res, next) => {
 };
 
 const getPicture = (req, res) => {
-	console.log(req.loggedUser.image.length);
-	console.log(req.loggedUser);
 	if (req.loggedUser.image.length > 0) return res.send({ status: 'success', image: req.loggedUser.image[0] });
 	return res.send({ status: 'error', details: 'no picture' });
 }
