@@ -10,6 +10,8 @@ import MiniMovie			from '../../components/MiniMovie'
 import './sass/homePage.sass'
 
 class HomePage extends React.Component {
+	_mounted = false
+
 	state = {
 		error: false,
 		pending: true,
@@ -18,9 +20,11 @@ class HomePage extends React.Component {
 	}
 
 	componentDidMount = async () => {
+		this._mounted = true
 		const { data } = await api.topSearch()
-		if (!data.status) return (false)
-		if (data.status === false) {
+		if (!this._mounted) return false
+		if (!data.status) return false
+		if (data.status === 'error') {
 			this.setState({ error: true, pending: false })
 		} else {
 			this.setState({
@@ -29,6 +33,10 @@ class HomePage extends React.Component {
 				pending: false
 			})
 		}
+	}
+
+	componentWillUnmount() {
+		this._mounted = false
 	}
 
 	drawTopSearch = () => this.state.dataAft.map((el) =>

@@ -78,7 +78,7 @@ class registerForm extends React.Component {
 			firstname,
 		}
 		const { data, headers } = await api.register(cred)
-		console.log(data, headers)
+		const { l } = this.props
 
 		/*
 		*	ERROR
@@ -90,31 +90,35 @@ class registerForm extends React.Component {
 				const error = {}
 				data.error.forEach((el) => {
 					if (!error[`${el.path}R`]) {
-						error[`${el.path}R`] = lang.errorP[el.type][this.props.l]
+						error[`${el.path}R`] = lang.errorP[el.type][l]
 					}
 				})
 				this.setState({ ...error })
 
 			// ERROR : ALREADY USED | USERNAME
 			} else if (data.details.includes('username already used')) {
-				this.setState({ usernameR: lang.alreadyUsed[this.props.l] })
+				this.setState({ usernameR: lang.alreadyUsed[l] })
 
 			// ERROR : ALREADY USED | MAIL
 			} else if (data.details.includes('mail already used')) {
-				this.setState({ mailR: lang.alreadyUsed[this.props.l] })
+				this.setState({ mailR: lang.alreadyUsed[l] })
 
 			// ERROR : OTHER
 			} else {
-				this.setState({ serverResponse: lang.error[this.props.l] })
+				this.setState({ serverResponse: lang.error[l] })
 			}
+		}
 		/*
 		*	SUCCESS
 		*/
-		}
 		else if (data.status.includes('success'))
 		{
-			console.log('ok')
-			// this.props.dispatch(selectAuth(100))
+			const token = headers['x-access-token']
+			if (token) {
+				localStorage.setItem('logToken', token)
+				this.props.dispatch(selectAuth(100))
+			}
+			else this.setState({ serverResponse: lang.error[l] })
 		}
 	}
 

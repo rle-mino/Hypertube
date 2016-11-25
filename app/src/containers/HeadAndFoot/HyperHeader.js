@@ -10,6 +10,8 @@ import SearchForm				from '../../components/SearchForm'
 import LangPicker				from '../../components/LangPicker'
 import ColorPicker				from '../../components/ColorPicker'
 import ProfileIcon				from '../../components/ProfileIcon'
+import LogoutButton				from '../../components/LogoutButton'
+import noImage					from '../../../public/No-image-found.jpg'
 
 import './sass/header.sass'
 
@@ -26,10 +28,12 @@ class HyperHeader extends React.Component {
 		if (data.status.includes('success')) {
 			this.setState({ image: data.image })
 		} else {
-			if (data.details.includes('user not authorized')) {
+			if (data.details.includes('user not authorized') ||
+				data.details.includes('invalid token')
+			) {
 				browserHistory.push('/')
 			} else {
-				console.log(data)
+				this.setState({ image: noImage })
 				// no image
 			}
 		}
@@ -72,6 +76,7 @@ class HyperHeader extends React.Component {
 					>
 						<ColorPicker mainColor={mainColor} dispatch={dispatch} />
 						<LangPicker l={l} dispatch={dispatch} />
+						<LogoutButton l={l} />
 					</IconMenu>
 				</div>
 			</div>

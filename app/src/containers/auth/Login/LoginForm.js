@@ -30,11 +30,6 @@ class LoginForm extends React.Component {
 
 	componentDidMount() {
 		this._mounted = true
-		const { token } = this.props.location.query
-		if (token) {
-			localStorage.setItem('logToken', token)
-			this.props.dispatch(selectAuth(100))
-		}
 	}
 
 	componentWillUnmount() {
@@ -52,7 +47,6 @@ class LoginForm extends React.Component {
 			password: this.state.password
 		}
 		const { data, headers } = await api.login(cred)
-		console.log(data, headers)
 		if (data.status === undefined) return false
 		if (data.status.includes('error')) {
 			if (data.details.includes('invalid request')) {

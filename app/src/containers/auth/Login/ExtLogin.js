@@ -38,6 +38,18 @@ class ExtLogin extends React.Component {
 		)
 	}
 
+	githubLogin = (e) => {
+		window.location.replace(
+			'http://localhost:8080/api/user/auth/github?next=http://localhost:3000'
+		)
+	}
+
+	twitterLogin = (e) => {
+		window.location.replace(
+			'http://localhost:8080/api/user/auth/twitter?next=http://localhost:3000'
+		)
+	}
+
 	popoutClosed = (e) => {
 		this.setState({ popout: false })
 	}
@@ -60,11 +72,13 @@ class ExtLogin extends React.Component {
 				<IconButton
 					tooltip={`${lang.signInWith[l]} twitter`}
 					iconClassName="fa fa-twitter"
+					onTouchTap={this.twitterLogin}
 					{...iconSet}
 				/>
 				<IconButton
 					tooltip={`${lang.signInWith[l]} github`}
 					iconClassName="fa fa-github"
+					onTouchTap={this.githubLogin}
 					{...iconSet}
 				/>
 				<IconButton
