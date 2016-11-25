@@ -12,6 +12,8 @@ const safePath = [
 	'/api/user/auth/42/callback',
 	'/api/user/auth/facebook',
 	'/api/user/auth/facebook/callback',
+	'/api/user/auth/twitter',
+	'/api/user/auth/twitter/callback',
 ];
 
 const error = (err, req, res, next) => next();

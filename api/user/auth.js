@@ -7,7 +7,7 @@ module.exports = {
 	'twitterAuth'	: {
 		consumerKey: 'v6xSlEADAKxCEQZFTQqECRASK',
 		consumerSecret: '3wXtE4eERnQTyJ3QZE9DgMoaamvSN9hrSTRgSXGqxTcMkoVqAv',
-		callbackURL: 'http://localhost:8080/auth/twitter',
+		callbackURL: 'http://localhost:8080/api/user/auth/twitter/callback',
 	},
 	'bnetAuth'		: {
 		clientId: 'ym56jk5vnpnf36xnypqvvu5tsnhrse49',

@@ -5,7 +5,7 @@ const LocalStrategy 	= 		require('passport-local').Strategy;
 const FacebookStrategy 	= 		require('passport-facebook').Strategy;
 const FortyTwoStrategy 	= 		require('passport-42').Strategy;
 // const BnetStrategy 		= 		require('passport-bnet').Strategy;
-// const TwitterStrategy 	= 		require('passport-twitter').Strategy;
+const TwitterStrategy 	= 		require('passport-twitter').Strategy;
 // const LinkedInStrategy 	= 		require('passport-linkedin').Strategy;
 // const gitHubStrategy	=		require('passport-github2').Strategy;
 // const GoogleStrategy	=		require('passport-google-oauth20').Strategy;
@@ -122,19 +122,38 @@ passport.use('42', new FortyTwoStrategy({
 //                  Twitter Strategy                  	                      //
 // /////////////////////////////////////////////////////////////////////////////
 
-// passport.use('twitter', new TwitterStrategy({
-//     consumerKey: configAuth.twitterAuth.consumerKey,
-//     consumerSecret: configAuth.twitterAuth.consumerSecret,
-//     callbackURL: configAuth.twitterAuth.callbackURL,
-// },function (accessToken, refreshToken, profile, done) {
-//             process.nextTick(function () {
-// 				console.log(profile)
-// 				console.log(accessToken);
-// 				console.log(refreshToken);
-//             });
-//         }
-//     ));
-//
+passport.use('twitter', new TwitterStrategy({
+    consumerKey: configAuth.twitterAuth.consumerKey,
+    consumerSecret: configAuth.twitterAuth.consumerSecret,
+    callbackURL: configAuth.twitterAuth.callbackURL,
+	includeEmail: true,
+	// profileFields: ['id', 'email', 'first_name', 'last_name', 'photos'],
+}, (accessToken, refreshToken, profile, done) => {
+	console.log(profile.id);
+	process.nextTick(() => {
+		const username = profile.username;
+		User.findOne({ $and: [{ username }, { provider: 'twitter' }] }, (err, user) => {
+			if (err) return done(err, { status: 'error', details: 'Cant connect to db' });
+			if (!user) {
+				const newUser = new User({
+					id: profile.id,
+					username,
+					mail: profile.emails[0].value,
+					image: profile.photos[0].value,
+					provider: 'twitter',
+				});
+				newUser.save((erro) => {
+					if (erro) return done(erro);
+					return done(null, user, { status: true, details: 'success' });
+				});
+			} else {
+				return done(null, user, { status: true, details: 'success' });
+			}
+			return (false);
+		});
+		return (false);
+	});
+}));
 // ////////////////////////////////////////////////////////////////////////////////
 // //                  Github Strategy                  	                      //
 // ////////////////////////////////////////////////////////////////////////////////

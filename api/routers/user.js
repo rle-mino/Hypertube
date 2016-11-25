@@ -47,15 +47,11 @@ export default (app) => {
 
 	app.get('/api/user/auth/facebook/callback', userFonc.facebookLogin);
 
-// app.get('/api/user/auth/facebook/callback', (req, res, next) => {
-// 	passport.authenticate('facebook', (err, user, info) => {
-// 		if (err) return res.send(err);
-// 		if (!user) {
-// 			return res.send({ status: false, details: 'error occured' });
-// 		} else {
-// 			return res.send(user);
-// 		}
-// 	})(req, res, next)
-// })
+	app.get('/api/user/auth/twitter', (req, res, next) => {
+		req.session.query = req.query;
+		next();
+	}, passport.authenticate('twitter'));
+
+	app.get('/api/user/auth/twitter/callback', userFonc.twitterLogin);
 
 };
