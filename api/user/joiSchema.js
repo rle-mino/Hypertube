@@ -9,7 +9,7 @@ const registerSchema = Joi.object().keys({
 });
 
 const loginSchema = Joi.object().keys({
-	username: Joi.string().alphanum().min(3).max(30).required(),
+	username: Joi.string().min(3).max(30).required(),
 	password: Joi.string().required(),
 });
 

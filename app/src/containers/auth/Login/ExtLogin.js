@@ -3,7 +3,6 @@ import { connect }			from 'react-redux'
 import lang					from '../../../lang'
 
 import IconButton			from 'material-ui/IconButton'
-// import Popout				from 'react-popout'
 
 const iconSet = {
 	touch: false,
@@ -33,6 +32,11 @@ class ExtLogin extends React.Component {
 			'http://localhost:8080/api/user/auth/42?next=http://localhost:3000'
 		)
 	}
+	facebookLogin = (e) => {
+		window.location.replace(
+			'http://localhost:8080/api/user/auth/facebook?next=http://localhost:3000'
+		)
+	}
 
 	popoutClosed = (e) => {
 		this.setState({ popout: false })
@@ -50,6 +54,7 @@ class ExtLogin extends React.Component {
 				<IconButton
 					tooltip={`${lang.signInWith[l]} facebook`}
 					iconClassName="fa fa-facebook-official"
+					onTouchTap={this.facebookLogin}
 					{...iconSet}
 				/>
 				<IconButton
