@@ -148,18 +148,18 @@
 @media screen and (max-width:1080px)
 	.authComp
 		width: 100%
-		top: 0
 		position: relative
 		box-shadow: none
 		animation: none
+		overflow: auto
 
 	&.toLeave, &.toCircle
 		top: 50%
-		// transition: none
-		// & .topColored
-		// 	opacity: 1
-		// & .floatButton
-		// 	opacity: 1
+		overflow: hidden
+
+	& .botColored
+		overflow: visible
+		height: 100%
 
 	.formContainer
 		animation: titleIn .2s ease-out

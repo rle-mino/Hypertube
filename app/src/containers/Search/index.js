@@ -1,6 +1,8 @@
 import React				from 'react'
 import { connect }			from 'react-redux'
 import _					from 'lodash'
+import { browserHistory }	from 'react-router'
+import * as bodyDis			from '../../action/body'
 import lang					from '../../lang'
 import api					from '../../apiCall'
 
@@ -95,9 +97,18 @@ class Search extends React.Component {
 		} })
 	}
 
+	goMoviePage = (id) => {
+		const { dispatch } = this.props
+		dispatch(bodyDis.bOut())
+		setTimeout(() => {
+			browserHistory.push(`/ht/movie/${id}`)
+			dispatch(bodyDis.bIn())
+		}, 500)
+	}
+
 	drawResults = () => {
 		const { results } = this.state
-		return results.map((result, key) => <MiniMovie data={result} key={key} />)
+		return results.map((result, key) => <MiniMovie data={result} key={key} click={() => this.goMoviePage(result.id)}/>)
 	}
 
 	loadMore = () => {
@@ -132,16 +143,14 @@ class Search extends React.Component {
 				}
 				<SearchFormDetailed l={l} ref="searchFormDetailed"/>
 				<h3 className="resultsStatus">{noResults ? lang.noResultsFound[this.props.l] : null}</h3>
-				<ul >
-					<InfiniteScroll
-						pageStart={0}
-						loadMore={this.loadMore}
-						hasMore={more}
-						className="resultsContainer"
-					>
-						{this.drawResults()}
-					</InfiniteScroll>
-				</ul>
+				<InfiniteScroll
+					pageStart={0}
+					loadMore={this.loadMore}
+					hasMore={more}
+					className="resultsContainer"
+				>
+					{this.drawResults()}
+				</InfiniteScroll>
 			</div>
 		)
 	}

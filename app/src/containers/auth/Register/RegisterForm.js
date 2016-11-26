@@ -8,11 +8,23 @@ import colors					from '../../../colors/colors'
 import TextField				from 'material-ui/TextField'
 import FlatButton				from 'material-ui/FlatButton'
 
-const textFieldSet = {
-	className: 'textInp',
-	autoComplete: 'off',
-	floatingLabelFocusStyle: { color: colors.lightBlue },
-	underlineFocusStyle: { borderColor: colors.lightBlue }
+const styles = {
+	textFieldSet: {
+		className: 'textInp',
+		autoComplete: 'off',
+		floatingLabelFocusStyle: { color: colors.lightBlue },
+		underlineFocusStyle: { borderColor: colors.lightBlue }
+	},
+	imageInput: {
+    cursor: 'pointer',
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: 0,
+    left: 0,
+    width: '100%',
+    opacity: 0,
+  },
 }
 
 class registerForm extends React.Component {
@@ -139,46 +151,49 @@ class registerForm extends React.Component {
 					name="username"
 					type="text"
 					errorText={usernameR}
-					{ ...textFieldSet }
+					{ ...styles.textFieldSet }
     			/>
 				<TextField
 					floatingLabelText={lang.lastname[l]}
 					name="lastname"
 					type="text"
 					errorText={lastnameR}
-					{ ...textFieldSet }
+					{ ...styles.textFieldSet }
 				/>
 				<TextField
 			    	floatingLabelText={lang.firstname[l]}
 					name="firstname"
 					type="text"
 					errorText={firstnameR}
-					{ ...textFieldSet }
+					{ ...styles.textFieldSet }
     			/>
 				<TextField
 			    	floatingLabelText={lang.mail[l]}
 					name="mail"
 					type="mail"
 					errorText={mailR}
-					{ ...textFieldSet }
+					{ ...styles.textFieldSet }
     			/>
 				<TextField
 			    	floatingLabelText={lang.password[l]}
 					name="password"
 					type="password"
 					errorText={passwordR}
-					{ ...textFieldSet }
+					{ ...styles.textFieldSet }
     			/>
 				<TextField
 			    	floatingLabelText={lang.passwordConfirm[l]}
 					name="passwordConfirm"
 					type="password"
 					errorText={passwordConfirmR}
-					{ ...textFieldSet }
+					{ ...styles.textFieldSet }
     			/>
+				<FlatButton label="Choose an Image" labelPosition="before">
+			      <input type="file" style={styles.imageInput} />
+			    </FlatButton>
 				<FlatButton
 					label={lang.SIGNUP[l]}
-					style={{ width: '80%', marginTop: '20px' }}
+					style={{ width: '80%', margin: '20px 0' }}
 					onClick={this.signUp}
 				/>
 			</form>

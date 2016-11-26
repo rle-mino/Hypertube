@@ -39,6 +39,9 @@ const getPict = async () =>
 		getToken()
 	)
 
+const getMovie = async (id) =>
+	await axios.get(`${apiConnect}/api/movie/${id}`, getToken())
+
 module.exports = {
 	search,
 	fastSearch,
@@ -46,4 +49,5 @@ module.exports = {
 	getPict,
 	login,
 	register,
+	getMovie,
 }

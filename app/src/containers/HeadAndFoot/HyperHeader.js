@@ -25,6 +25,7 @@ class HyperHeader extends React.Component {
 	componentDidMount = async () => {
 		this._mounted = true
 		const { data } = await api.getPict()
+		if (!this._mounted) return false
 		if (data.status.includes('success')) {
 			this.setState({ image: data.image })
 		} else {

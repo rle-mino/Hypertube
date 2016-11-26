@@ -3,6 +3,7 @@ import { browserHistory }	from 'react-router'
 import * as bodyDis			from '../../action/body'
 
 import noImage				from '../../../public/No-image-found.jpg'
+import MiniMovie			from '../../components/MiniMovie'
 
 import './sass/carousel.sass'
 
@@ -27,10 +28,16 @@ export default class Carousel extends React.Component {
 					className="blurredIMG"
 					style={{ backgroundImage: `url('${el.poster}'), url('${noImage}')` }}
 				/>
-				<div
+				<MiniMovie data={el} key={key}/>
+				{/* <div
 					className="frontIMG"
 					style={{ backgroundImage: `url('${el.poster}'), url('${noImage}')` }}
-				/>
+				/> */}
+				{/* <div className="dataMovie">
+					<h3>{el.title}</h3>
+					<h4>{el.year}</h4>
+					<h5>{el.rating}</h5>
+				</div> */}
 			</div>
 	)
 

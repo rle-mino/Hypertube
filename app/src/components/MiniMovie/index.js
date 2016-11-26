@@ -6,10 +6,11 @@ import './miniMovie.sass'
 
 export default class MiniMovie extends React.Component {
 	render() {
-		const { data } = this.props
+		const { data, click } = this.props
 		return (
 			<div
 				className="miniMovie"
+				onClick={click}
 				style={{
 					backgroundImage: `url('${data.poster || noImage}')`, backgroundRepeat: !data.poster ? 'no-repeat' : 'repeat',
 				}}>

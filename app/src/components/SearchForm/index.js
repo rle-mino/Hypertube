@@ -44,7 +44,13 @@ export default class SearchForm extends React.Component {
 		}
 	}
 
-	updateFocus = () => this.setState({ focused: !this.state.focused })
+	updateFocus = (e) => {
+		if (e.type.includes('blur')) {
+			setTimeout(() => this.setState({ focused: !this.state.focused }), 200)
+		} else {
+			this.setState({ focused: !this.state.focused })
+		}
+	}
 
 	searchFilm = async (e) => {
 		if (this.state.searchView) return false
@@ -79,10 +85,22 @@ export default class SearchForm extends React.Component {
 		}
 	}
 
+	goMoviePage = (id) => {
+		const { dispatch } = this.props
+		dispatch(bodyDis.bOut())
+		setTimeout(() => {
+			browserHistory.push(`/ht/movie/${id}`)
+			dispatch(bodyDis.bIn())
+		}, 500)
+	}
+
 	createResultsList = () => {
 		const { results } = this.state
 		return results ?
-			results.map((el) => <LargeMovie key={el.id} data={el} />) :
+			results.map((el) => <LargeMovie
+				key={el.id}
+				data={el}
+				click={() => this.goMoviePage(el.id)} />) :
 			<div></div>
 	}
 

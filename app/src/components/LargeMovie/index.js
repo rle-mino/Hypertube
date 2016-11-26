@@ -1,16 +1,16 @@
 import React			from 'react'
 
-import { Link }			from 'react-router'
 import { ListItem }		from 'material-ui/List'
 
 import './largeMovie.sass'
 
-export default ({ data }) =>
-	<Link to={`/ht/movie/${data.id}`} className="largeMovie">
+export default ({ data, click }) => {
+	return (
 		<ListItem
 			className="largeMovie"
 			style={{}}
 			innerDivStyle={{ padding: '3px 0px', margin: '0' }}
+			onTouchTap={click}
 		>
 			<div
 				className="thumbMovie"
@@ -20,4 +20,5 @@ export default ({ data }) =>
 			<p>{data.year || 'unknown'}</p>
 			<p>{data.rating ? `${data.rating} / 10` : 'unknown'}</p>
 		</ListItem>
-	</Link>
+	)
+}

@@ -1,0 +1,72 @@
+@import ../../../colors/colors
+
+.movie
+	position: relative
+	width: 100%
+	& .topMovie
+		display: flex
+		flex-direction: row
+		align-items: flex-start
+		justify-content: space-between
+
+	& .left
+		float: left
+		width: calc(16 * 4vw)
+		& .playerContainer
+			width: 100%
+			height: calc(9 * 4vw)
+			background-color: $blue
+		& .genres
+			display: flex
+			margin: 0
+			padding: 0
+			flex-direction: row
+			justify-content: flex-start
+			flex-wrap: wrap
+			list-style: none
+			& > li
+				margin: 2px
+
+	& .right
+		float: right
+		margin-left: 5px
+		& .filmData
+			display: flex
+			justify-content: center
+			align-items: center
+			flex-direction: column
+			& h1
+				padding: 0
+				margin: 0
+				text-align: center
+
+		& .poster
+			width: calc(2 * 8vw)
+			height: calc(3 * 8vw)
+			margin-top: 10px
+			background:
+				repeat: no-repeat
+				position: center
+				size: contain
+
+		& .rate
+			margin-top: 20px
+			display: flex
+			flex-direction: row
+			font-size: 30px
+			& h4
+				padding: 0
+				margin: 0px 10px
+			& i
+				font-size: 30px
+				margin: 3px 0
+	& .suggestions
+		width: 100%
+		display: flex
+		flex-direction: row
+		justify-content: space-around
+		flex-wrap: wrap
+		margin:
+			top: 0
+			bottom: 10px
+		padding: 0

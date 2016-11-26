@@ -1,7 +1,9 @@
 import React				from 'react'
 import { connect }			from 'react-redux'
+import { browserHistory }	from 'react-router'
 import api					from '../../apiCall'
 import lang					from '../../lang'
+import * as bodyDis			from '../../action/body'
 
 import CircularProgress		from 'material-ui/CircularProgress'
 import Carousel				from '../../components/Carousel'
@@ -39,8 +41,17 @@ class HomePage extends React.Component {
 		this._mounted = false
 	}
 
+	goMoviePage = (id) => {
+		const { dispatch } = this.props
+		dispatch(bodyDis.bOut())
+		setTimeout(() => {
+			browserHistory.push(`/ht/movie/${id}`)
+			dispatch(bodyDis.bIn())
+		}, 500)
+	}
+
 	drawTopSearch = () => this.state.dataAft.map((el) =>
-		<MiniMovie key={el.id} data={el} />
+		<MiniMovie key={el.id} data={el} onClick={() => this.goMoviePage(el.id)} />
 	)
 
 	render() {
@@ -55,7 +66,6 @@ class HomePage extends React.Component {
 						<div className="slider">
 							<Carousel data={dataCar} dispatch={dispatch} />
 						</div>
-						{/* <h1 className="topSearchTitle">GECRI KOI ISSI ?????</h1> */}
 						<ul className="topSearchList">
 							{this.drawTopSearch()}
 						</ul>
