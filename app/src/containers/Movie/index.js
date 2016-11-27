@@ -4,6 +4,7 @@ import { browserHistory }	from 'react-router'
 import _					from 'lodash'
 import api					from '../../apiCall'
 import lang					from '../../lang'
+import * as bodyDis			from '../../action/body'
 
 import Chip					from 'material-ui/Chip'
 import CircularProgress		from 'material-ui/CircularProgress'
@@ -25,9 +26,8 @@ class Movie extends React.Component {
 	}
 
 	getData = async (props) => {
-		const { data } = await api.getMovie(props.params.id)
+		const { data } = await api.getMovie(props.params.id, props.l)
 		if (!this._mounted) return false
-		console.log(data.result)
 		if (data.status.includes('success')) {
 			this.setState({ data: data.result, suggestions: data.suggestions })
 		} else browserHistory.push('/')
@@ -42,8 +42,17 @@ class Movie extends React.Component {
 
 	componentWillUnmount() { this._mounted = false }
 
+	goMoviePage = (id) => {
+		const { dispatch } = this.props
+		dispatch(bodyDis.bOut())
+		setTimeout(() => {
+			browserHistory.push(`/ht/movie/${id}`)
+			dispatch(bodyDis.bIn())
+		}, 500)
+	}
+
 	drawSuggest = () => this.state.suggestions.map((el) =>
-		<MiniMovie key={el.id} data={el} onClick={() => this.goMoviePage(el.id)} />
+		<MiniMovie key={el.id} data={el} click={() => this.goMoviePage(el.id)} />
 	)
 
 	drawGenre = () => this.state.data.genres.map((el, key) => {

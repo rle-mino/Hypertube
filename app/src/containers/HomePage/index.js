@@ -51,7 +51,7 @@ class HomePage extends React.Component {
 	}
 
 	drawTopSearch = () => this.state.dataAft.map((el) =>
-		<MiniMovie key={el.id} data={el} onClick={() => this.goMoviePage(el.id)} />
+		<MiniMovie key={el.id} data={el} click={() => this.goMoviePage(el.id)} />
 	)
 
 	render() {

@@ -2,10 +2,20 @@ import React				from 'react'
 import { browserHistory }	from 'react-router'
 import * as bodyDis			from '../../action/body'
 
+import IconButton			from 'material-ui/IconButton'
 import noImage				from '../../../public/No-image-found.jpg'
 import MiniMovie			from '../../components/MiniMovie'
 
 import './sass/carousel.sass'
+
+const buttonStyle = {
+	position: 'absolute',
+	backgroundColor: 'white',
+	borderRadius: '50%',
+	zIndex: '2',
+	top: '50%',
+	transform: 'translate(-50%, -50%)'
+}
 
 export default class Carousel extends React.Component {
 	state = {
@@ -29,34 +39,45 @@ export default class Carousel extends React.Component {
 					style={{ backgroundImage: `url('${el.poster}'), url('${noImage}')` }}
 				/>
 				<MiniMovie data={el} key={key}/>
-				{/* <div
-					className="frontIMG"
-					style={{ backgroundImage: `url('${el.poster}'), url('${noImage}')` }}
-				/> */}
-				{/* <div className="dataMovie">
-					<h3>{el.title}</h3>
-					<h4>{el.year}</h4>
-					<h5>{el.rating}</h5>
-				</div> */}
 			</div>
 	)
 
-	componentDidMount = () => {
-		this.interval = setInterval(() => {
-			const mt = (this.state.mt + 300) % (this.props.data.length * 300)
-			this.setState({ mt })
-		}, 4000)
+	playCarousel = () => this.setState({
+		mt: (this.state.mt + 100) % (this.props.data.length * 100)
+	})
+
+	componentDidMount = () => this.interval = setInterval(this.playCarousel, 4000)
+
+	componentWillUnmount() { clearInterval(this.interval) }
+
+	playStopCarousel = (e) => {
+		if (e.type.includes('mouseenter')) {
+			clearInterval(this.interval)
+		} else if (e.type.includes('mouseleave')) {
+			clearInterval(this.interval)
+			this.interval = setInterval(this.playCarousel, 4000)
+		}
 	}
 
-	componentWillUnmount() {
-		clearInterval(this.interval)
-	}
 
 	render() {
 		const { mt } = this.state
 		return (
-			<div className="carousel" style={{ marginTop: `-${mt}px` }}>
-				{this.drawIMGList()}
+			<div className="carouselContainer">
+				<IconButton style={{ ...buttonStyle, left: '5%'  }}>
+					<i className="material-icons">keyboard_arrow_left</i>
+				</IconButton>
+				<div
+					className="carousel"
+					style={{ marginLeft: `-${mt}%` }}
+					onMouseEnter={this.playStopCarousel}
+					onMouseLeave={this.playStopCarousel}
+				>
+					{this.drawIMGList()}
+				</div>
+				<IconButton style={{ ...buttonStyle, marginLeft: '95%' }}>
+					<i className="material-icons">keyboard_arrow_right</i>
+				</IconButton>
 			</div>
 		)
 	}

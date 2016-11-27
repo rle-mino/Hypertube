@@ -4,17 +4,20 @@ import lang					from '../../lang'
 
 import MenuItem				from 'material-ui/MenuItem'
 
-export default ({ l }) => {
-	const logout = () => {
+export default class Logout extends React.Component {
+	logout = () => {
 		localStorage.removeItem('logToken')
 		browserHistory.push('/')
 	}
 
-	return (
+	render() {
+		const { l } = this.props
+		return (
 			<MenuItem
 				primaryText={lang.logout[l]}
-				onTouchTap={logout}
+				onTouchTap={this.logout}
 				style={{ textAlign: 'center' }}
 			/>
-	)
+		)
+	}
 }

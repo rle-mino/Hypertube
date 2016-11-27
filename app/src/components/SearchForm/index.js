@@ -28,12 +28,10 @@ export default class SearchForm extends React.Component {
 		}
 	}
 
-	componentWillUnmount() {
-		this._mounted = false
-	}
+	componentWillUnmount() { this._mounted = false }
 
 	componentWillMount() {
-		this.searchFilm = _.debounce(this.searchFilm, 300)
+		this.debouncedSearchFilm = _.debounce(this.debouncedSearchFilm, 300)
 	}
 
 	componentWillReceiveProps = (newProps) => {
@@ -52,7 +50,7 @@ export default class SearchForm extends React.Component {
 		}
 	}
 
-	searchFilm = async (e) => {
+	debouncedSearchFilm = async (e) => {
 		if (this.state.searchView) return false
 		if (!e.target.value || e.target.value.length < 1) {
 			this.setState({ results: [] })
@@ -65,10 +63,10 @@ export default class SearchForm extends React.Component {
 		}
 	}
 
-	debouncedSearchFilm = (e) => {
+	searchFilm = (e) => {
 		this.setState({ title: e.target.value })
 		e.persist()
-		this.searchFilm(e)
+		this.debouncedSearchFilm(e)
 	}
 
 	handleSubmit = (e) => {
@@ -94,7 +92,7 @@ export default class SearchForm extends React.Component {
 		}, 500)
 	}
 
-	createResultsList = () => {
+	drawResultsList = () => {
 		const { results } = this.state
 		return results ?
 			results.map((el) => <LargeMovie
@@ -119,7 +117,7 @@ export default class SearchForm extends React.Component {
 						name="title"
 						onFocus={this.updateFocus}
 						onBlur={this.updateFocus}
-						onChange={this.debouncedSearchFilm}
+						onChange={this.searchFilm}
 						value={title}
 						autoComplete="off"
 					/>
@@ -127,7 +125,7 @@ export default class SearchForm extends React.Component {
 				</form>
 				{(results && results.length && focused &&
 					<List style={{ position: 'absolute' }} className="fastSearchList">
-						{this.createResultsList()}
+						{this.drawResultsList()}
 					</List>) || <div />
 				}
 			</div>
