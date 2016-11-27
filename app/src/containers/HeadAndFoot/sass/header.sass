@@ -33,15 +33,22 @@
 
 @media screen and(max-width:1080px)
 	.hyperTitle
-		display: none
+		width: 70px
+		overflow: hidden
+		margin-right: 10px
+		margin-left: 0px
+		&:before
+			content: "HT"
 
 	.searchBlock
 		width: 100%
 		&.searchView
 			transform: none
-			& .searchForm
-				width: 100%
-				background-color: rgba(0, 0, 0, .2)
+	.searchForm
+		width: 100%
+		background-color: rgba(0, 0, 0, .2)
+	.searchInput
+		width: 100%
 
 @keyframes headIn
 	0%

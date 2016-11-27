@@ -58,7 +58,7 @@ class HomePage extends React.Component {
 		const { l, dispatch, mainColor } = this.props
 		const { error, pending, dataCar } = this.state
 		return (
-			<div className="comp">
+			<div className="comp home">
 				{error &&
 					<span className="serverError">{lang.error[l]}</span>}
 				{!error && !pending &&

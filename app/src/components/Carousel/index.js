@@ -2,8 +2,8 @@ import React				from 'react'
 import { browserHistory }	from 'react-router'
 import * as bodyDis			from '../../action/body'
 
-import IconButton			from 'material-ui/IconButton'
 import noImage				from '../../../public/No-image-found.jpg'
+import IconClickable		from '../../components/IconClickable'
 import MiniMovie			from '../../components/MiniMovie'
 
 import './sass/carousel.sass'
@@ -59,25 +59,34 @@ export default class Carousel extends React.Component {
 		}
 	}
 
+	goPrev = () => {
+		const { mt } = this.state
+		if (mt === 0) {
+			this.setState({ mt: (this.props.data.length - 1) * 100 })
+		} else this.setState({ mt: (this.state.mt - 100) })
+	}
+
+	goNext = () => this.setState({ mt: (this.state.mt + 100) % (this.props.data.length * 100) })
 
 	render() {
 		const { mt } = this.state
 		return (
-			<div className="carouselContainer">
-				<IconButton style={{ ...buttonStyle, left: '5%'  }}>
+			<div className="carouselContainer"
+				onMouseEnter={this.playStopCarousel}
+				onMouseLeave={this.playStopCarousel}
+			>
+				<IconClickable className="arrows" style={{ ...buttonStyle, left: '5%' }} click={this.goPrev}>
 					<i className="material-icons">keyboard_arrow_left</i>
-				</IconButton>
+				</IconClickable>
 				<div
 					className="carousel"
 					style={{ marginLeft: `-${mt}%` }}
-					onMouseEnter={this.playStopCarousel}
-					onMouseLeave={this.playStopCarousel}
 				>
 					{this.drawIMGList()}
 				</div>
-				<IconButton style={{ ...buttonStyle, marginLeft: '95%' }}>
+				<IconClickable className="arrows" style={{ ...buttonStyle, left: '95%' }} click={this.goNext}>
 					<i className="material-icons">keyboard_arrow_right</i>
-				</IconButton>
+				</IconClickable>
 			</div>
 		)
 	}

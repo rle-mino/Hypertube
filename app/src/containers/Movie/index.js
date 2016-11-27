@@ -67,30 +67,24 @@ class Movie extends React.Component {
 		if (!data) return (<CircularProgress color={mainColor} style={{ marginTop: '20px' }} />)
 		return (
 			<div className="comp movie">
-				<div className="topMovie">
-					<div className="left">
-						<div className="playerContainer">
-							{/* <Player /> */}
-						</div>
-						<p>{data.plot}</p>
-						<ul className="genres">
-							{this.drawGenre()}
-						</ul>
+				<div className="playerContainer">
+					{/* <Player /> */}
+				</div>
+				<div className="filmData">
+					<h1>{data.title}</h1>
+					<div
+						className="poster"
+						style={{ backgroundImage: `url('${data.poster}'), url('${noImage}')` }}
+					/>
+					<div className="rate">
+						<i className="material-icons">stars</i>
+						<h4>{data.rating}</h4>
 					</div>
-					<div className="right">
-						<div className="filmData">
-							<h1>{data.title}</h1>
-							<div
-								className="poster"
-								style={{ backgroundImage: `url('${data.poster}'), url('${noImage}')` }}
-							/>
-							<div className="rate">
-								<i className="material-icons">stars</i>
-								<h4>{data.rating}</h4>
-							</div>
-							<h3>{lang.year[l]} {data.year}</h3>
-						</div>
-					</div>
+					<h3>{lang.year[l]} {data.year}</h3>
+					<p>{data.plot}</p>
+					<ul className="genres">
+						{this.drawGenre()}
+					</ul>
 				</div>
 				<h3>{lang.youMayAlsoLike[l]}</h3>
 				<ul className="suggestions">

@@ -1,10 +1,10 @@
 import React			from 'react'
 import lang				from '../../lang'
 
+import IconClickable	from '../IconClickable'
 import InputRange		from 'react-input-range'
 import MenuItem			from 'material-ui/MenuItem'
 import DropDownMenu		from 'material-ui/DropDownMenu'
-import IconButton		from 'material-ui/IconButton'
 
 import './sass/searchFormDetailed.sass'
 import './sass/inputRange.sass'
@@ -60,11 +60,12 @@ export default class SearchFormDetailed extends React.Component {
 		const { l } = this.props
 		return (
 			<div className="searchFormContainer">
-				<div className="iconContainer">
-					<IconButton onTouchTap={this.showAdvanced} className={`moreButton ${showAdvanced ? 'reversed' : ''}`}>
-						<i className="material-icons">keyboard_arrow_down</i>
-					</IconButton>
-				</div>
+				<IconClickable
+					className={`moreButton ${showAdvanced ? 'reversed' : ''}`}
+					click={this.showAdvanced}
+				>
+					<i className="material-icons">keyboard_arrow_down</i>
+				</IconClickable>
 				<form className={`searchFormDetailed ${!showAdvanced ? 'invisible' : ''}`}>
 					<div className="selector">
 						<span>{lang.year[l]}</span>
