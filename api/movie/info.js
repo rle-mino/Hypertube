@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import translate from 'google-translate-api';
 import Movie from './movie_schema';
 
 const popGenres = async (data, genres, found, id, type) => {
@@ -15,10 +16,13 @@ const popGenres = async (data, genres, found, id, type) => {
 
 const getData = (req, res) => {
     const id = req.params.id;
-    Movie.findOne({ _id: id }, (err, found) => {
+    Movie.findOne({ _id: id }, async (err, found) => {
         if (err || !found) return (res.send({ status: 'error', details: 'Movie not found' }));
         const genres = found.genres;
         const type = found.episodes[0] ? 'serie' : 'movie';
+        if (req.query.lg !== 'en') {
+            found.plot = await translate(found.plot, { from: 'en', to: req.query.lg }).then((result) => result.text);
+        }
         Movie.find({
             _id: { $ne: id },
             genres,
