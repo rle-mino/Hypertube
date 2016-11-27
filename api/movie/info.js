@@ -2,8 +2,8 @@ import _ from 'lodash';
 import Movie from './movie_schema';
 
 const popGenres = async (data, genres, found, id, type) => {
+    genres = _.initial(genres);
     if (!genres.length || data.length >= 5) return data;
-    genres.pop();
     const suggs = await Movie.find({
         _id: { $ne: id },
         genres,
@@ -25,9 +25,18 @@ const getData = (req, res) => {
             'episodes.0': { $exists: type === 'serie' },
         }).sort({ pop: -1 }).limit(5).exec(async (err1, found1) => {
                 found1 = await popGenres(found1, genres, found, id, type);
-                const suggestions = found1.map(suggs => _.pick(suggs, ['id', 'title', 'poster', 'year', 'rating', 'code']));
+                let suggestions = found1.map(suggs => _.pick(suggs, ['id', 'title', 'poster', 'year', 'rating', 'code']));
+                if (found1.length < 5) {
+                     const suggs = await Movie.find({
+                        _id: { $ne: id },
+                        genres: genres[0],
+                        'episodes.0': { $exists: type === 'serie' },
+                    }).sort({ pop: -1 }).limit(5);
+                    suggestions = suggs.map(suggests => _.pick(suggests, ['id', 'title', 'poster', 'year', 'rating', 'code']));
+                }
                 return (res.send({ result: found, suggestions, status: 'success' }));
         });
+        return (false);
     });
 };
 
