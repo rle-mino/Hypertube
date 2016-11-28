@@ -8,7 +8,7 @@ let anon = {
     newId: () => {
         if (!id) {
             id = crypto.randomBytes(20)
-            Buffer.from('-HyperTube0001-').copy(id, 0)
+            Buffer.from('-HT0001-').copy(id, 0)
         }
         return id
     },
@@ -38,7 +38,7 @@ let anon = {
 			for (i = 0; i < 4; i++){
 				buf.writeUInt32BE(ipInts[i], 20 + i)
 			}
-			buf.writeUInt8(port, 24)
+			buf.writeUInt16BE(port, 24)
 		} else {
 			throw new Error('No IP')
 			return

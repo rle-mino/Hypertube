@@ -5,6 +5,10 @@ import {EventEmitter} from 'events'
 import inherits from 'inherits'
 import bencode from 'bencode'
 import crypto from 'crypto'
+import * as queries from './KRPC/quieries'
+import * as responses from './KRPC/responses'
+import * as error from './KRPC/error'
+import RPC from './KRPC/rpc'
 
 
 const log = m => console.log(chalk.blue(m))

@@ -2,7 +2,7 @@ import bencode from 'bencode'
 
 const y = 'e'
 // and e as error array
-BuildError(t, code) {
+function BuildError(t, code) {
 	const error = {
 		201		: 'Generic Error',
 		202		: 'Server Error',
