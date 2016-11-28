@@ -79,6 +79,39 @@ class registerForm extends React.Component {
 		}
 	}
 
+	uploadImage = async () => {
+		const image = new FormData()
+		image.append('image', this.state.image)
+		await api.upPhoto(image)
+		this.props.dispatch(selectAuth(100))
+	}
+
+	handleError = (data) => {
+		const { l } = this.props
+		// ERROR : USER ENTRY
+		if (data.details.includes('invalid request')) {
+			const error = {}
+			data.error.forEach((el) => {
+				if (!error[`${el.path}R`]) {
+					error[`${el.path}R`] = lang.errorP[el.type][l]
+				}
+			})
+			this.setState({ ...error })
+
+		// ERROR : ALREADY USED | USERNAME
+		} else if (data.details.includes('username already used')) {
+			this.setState({ usernameR: lang.alreadyUsed[l] })
+
+		// ERROR : ALREADY USED | MAIL
+		} else if (data.details.includes('mail already used')) {
+			this.setState({ mailR: lang.alreadyUsed[l] })
+
+		// ERROR : OTHER
+		} else {
+			this.setState({ serverResponse: lang.error[l] })
+		}
+	}
+
 	signUp = async () => {
 		const {
 			username,
@@ -97,20 +130,11 @@ class registerForm extends React.Component {
 			lastnameR: null,
 			passwordConfirmR: null,
 			mailR: null,
-			imageR: null,
+			imageInput: null,
 			serverResponse: null,
 		})
 
-		if (password !== passwordConfirm) {
-			this.setState({
-				passwordConfirmR: lang.passwordAreDifferent[this.props.l]
-			})
-		}
-
-		if (!image || image === '') {
-			this.setState({ imageR: lang.errorP['any.empty'][this.props.l] })
-		}
-
+		const { l } = this.props
 		const cred = {
 			username,
 			password,
@@ -119,49 +143,29 @@ class registerForm extends React.Component {
 			firstname,
 		}
 
-		const { data, headers } = await api.register(cred)
-		const { l } = this.props
-
-		/*
-		*	ERROR
-		*/
-		if ((data.status && data.status.includes('error')) || !data.status)
-		{
-			// ERROR : USER ENTRY
-			if (data.details.includes('invalid request')) {
-				const error = {}
-				data.error.forEach((el) => {
-					if (!error[`${el.path}R`]) {
-						error[`${el.path}R`] = lang.errorP[el.type][l]
-					}
-				})
-				this.setState({ ...error })
-
-			// ERROR : ALREADY USED | USERNAME
-			} else if (data.details.includes('username already used')) {
-				this.setState({ usernameR: lang.alreadyUsed[l] })
-
-			// ERROR : ALREADY USED | MAIL
-			} else if (data.details.includes('mail already used')) {
-				this.setState({ mailR: lang.alreadyUsed[l] })
-
-			// ERROR : OTHER
-			} else {
-				this.setState({ serverResponse: lang.error[l] })
-			}
+		if (password !== passwordConfirm) {
+			this.setState({
+				passwordConfirmR: lang.passwordAreDifferent[l]
+			})
 		}
-		/*
-		*	SUCCESS
-		*/
-		else if (data.status.includes('success'))
-		{
+
+		if (!image || image === '') {
+			this.setState({ imageInput: `${lang.errorP['any.empty'][l]}: ${lang.chooseAnImage[l]}` })
+		}
+
+		const { data, headers } = await api.register(cred)
+
+		// ERROR
+		if ((data.status && data.status.includes('error')) || !data.status) {
+			this.handleError(data)
+		}
+
+		// SUCCESS
+		else if (data.status.includes('success')) {
 			const token = headers['x-access-token']
-			if (token) {
-				localStorage.setItem('logToken', token)
-				// const response = await api.uploadImage()
-				// this.props.dispatch(selectAuth(100))
-			}
-			else this.setState({ serverResponse: lang.error[l] })
+			if (!token) return this.setState({ serverResponse: lang.error[l] })
+			localStorage.setItem('logToken', token)
+			this.uploadImage()
 		}
 	}
 
@@ -174,12 +178,8 @@ class registerForm extends React.Component {
 			passwordConfirmR,
 			firstnameR,
 			lastnameR,
-			imageR,
-			image,
 			imageInput,
 		} = this.state
-		console.log('imageR:', imageR)
-		console.log('image:', image)
 		return (
 			<form className="authForm" onChange={this.handleChange}>
 				<TextField
