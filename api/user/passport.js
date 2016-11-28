@@ -6,7 +6,7 @@ const FacebookStrategy 	= 		require('passport-facebook').Strategy;
 const FortyTwoStrategy 	= 		require('passport-42').Strategy;
 // const BnetStrategy 		= 		require('passport-bnet').Strategy;
 const TwitterStrategy 	= 		require('passport-twitter').Strategy;
-// const LinkedInStrategy 	= 		require('passport-linkedin').Strategy;
+const LinkedinStrategy 	= 		require('passport-linkedin').Strategy;
 const gitHubStrategy	=		require('passport-github2').Strategy;
 // const GoogleStrategy	=		require('passport-google-oauth20').Strategy;
 const GoogleStrategy	=		require('passport-google-oauth').OAuth2Strategy;
@@ -199,7 +199,6 @@ passport.use('google', new GoogleStrategy({
 	clientSecret: configAuth.googleAuth.clientSecret,
     callbackURL: 'http://localhost:8080/api/user/auth/google/callback',
 }, (accessToken, refreshToken, profile, done) => {
-	console.log(3);
 	process.nextTick(() => {
 		const username = profile.name.familyName + profile.name.givenName;
 		User.findOne({ $and: [{ username }, { provider: 'google' }] }, (err, user) => {
@@ -208,8 +207,8 @@ passport.use('google', new GoogleStrategy({
 				const newUser = new User({
 					id: profile.id,
 					username,
-					// mail: profile.emails[0].value,
-					// image: profile.photos[0],
+					mail: profile.emails[0].value,
+					image: profile.photos[0].value,
 					provider: 'google',
 				});
 				newUser.save((erro, newUser) => {
@@ -224,4 +223,41 @@ passport.use('google', new GoogleStrategy({
 		return (false);
 	});
 }));
+
+// /////////////////////////////////////////////////////////////////////////////
+// //                  Linkedin Strategy                  	                  //
+// /////////////////////////////////////////////////////////////////////////////
+
+passport.use('linkedin', new LinkedinStrategy({
+    consumerKey: configAuth.linkedinAuth.consumerKey,
+	consumerSecret: configAuth.linkedinAuth.consumerSecret,
+    callbackURL: configAuth.linkedinAuth.callbackURL,
+	profileFields: ['id', 'first-name', 'last-name', 'email-address', 'headline'],
+}, (accessToken, refreshToken, profile, done) => {
+	process.nextTick(() => {
+		console.log(profile);
+		const username = profile.name.familyName + profile.name.givenName;
+		User.findOne({ $and: [{ username }, { provider: 'linkedin' }] }, (err, user) => {
+			if (err) return done(err, { status: 'error', details: 'Cant connect to db' });
+			if (!user) {
+				const newUser = new User({
+					id: profile.id,
+					username,
+					mail: profile.emails[0].value,
+		// 			image: profile.photos[0].value,
+					provider: 'linkedin',
+				});
+				newUser.save((erro, newUser) => {
+					if (erro) return done(erro);
+					return done(null, newUser, { status: true, details: 'success' });
+				});
+			} else {
+				return done(null, user, { status: true, details: 'success' });
+			}
+			return (false);
+		});
+		return (false);
+	});
+}));
+
 };
