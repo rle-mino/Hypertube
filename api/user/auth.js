@@ -26,13 +26,18 @@ module.exports = {
 		callbackURL: 'http://localhost:8080/api/user/auth/github/callback',
 	},
 	'linkedinAuth'		: {
-		consumerKey: '77kvoydynh5mzh',
-		consumerSecret: 'MZT59cVSvWDFTFDA',
+		clientID: '77kvoydynh5mzh',
+		clientSecret: 'MZT59cVSvWDFTFDA',
 		callbackURL: 'http://localhost:8080/api/user/auth/linkedin/callback',
 	},
 	'googleAuth'		: {
 		clientID: '372934468358-eoh8lkd3ijvrdq5q692bddm6vhpg4s0n.apps.googleusercontent.com',
 		clientSecret: 'hBDeYPi9f0AnaJ4Te7YMiygC',
 		callbackURL: 'http://localhost:8080/api/user/auth/google/callback',
+	},
+	'spotifyAuth'		: {
+		clientID: '1ec0b70d8248405bbff932eb6110d156',
+		clientSecret: 'c41579305ea0440f93890fe58dc73df5',
+		callbackURL: 'http://localhost:8080/api/user/auth/spotify/callback',
 	},
 };

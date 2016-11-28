@@ -27,6 +27,8 @@ const safePath = [
 	'/api/user/auth/google/callback',
 	'/api/user/auth/linkedin',
 	'/api/user/auth/linkedin/callback',
+	'/api/user/auth/spotify',
+	'/api/user/auth/spotify/callback',
 ];
 
 const error = (err, req, res, next) => next();

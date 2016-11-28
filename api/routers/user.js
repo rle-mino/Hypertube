@@ -95,12 +95,24 @@ export default (app) => {
 	app.get('/api/user/auth/linkedin', (req, res, next) => {
 		req.session.query = req.query;
 		next();
-	}, passport.authenticate('linkedin', { scope: ['r_emailaddress'] }));
+	}, passport.authenticate('linkedin'));
 
 	app.get('/api/user/auth/linkedin/callback', userFonc.linkedinLogin, (req, res) => {
 		res.set('Access-Control-Expose-Headers', 'x-access-token');
 		res.set('x-access-token', req.session.token);
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
 	});
+
+	app.get('/api/user/auth/spotify', (req, res, next) => {
+		req.session.query = req.query;
+		next();
+	}, passport.authenticate('spotify', {scope: ['user-read-email', 'user-read-private'] }));
+
+	app.get('/api/user/auth/spotify/callback', userFonc.spotifyLogin, (req, res) => {
+		res.set('Access-Control-Expose-Headers', 'x-access-token');
+		res.set('x-access-token', req.session.token);
+		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
+	});
+
 
 };
