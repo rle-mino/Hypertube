@@ -121,6 +121,16 @@ module.exports = (app, passport) => {
 			})(req, res, next);
 		},
 
+		linkedinLogin: (req, res, next) => {
+			passport.authenticate('linkedin', (err, user) => {
+				if (err) return res.send(err);
+				if (!user) return next();
+				const token = jwt.sign({ _id: user._id, username: user.username, provider: 'linkedin' }, cfg.jwtSecret);
+				req.session.token = token;
+				return next();
+			})(req, res, next);
+		},
+
 
 	};
 	return self;

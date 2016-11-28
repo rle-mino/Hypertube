@@ -83,12 +83,21 @@ export default (app) => {
 
 	app.get('/api/user/auth/google', (req, res, next) => {
 		req.session.query = req.query;
-		console.log(2);
 		next();
 	}, passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 	app.get('/api/user/auth/google/callback', userFonc.googleLogin, (req, res) => {
-		console.log(1);
+		res.set('Access-Control-Expose-Headers', 'x-access-token');
+		res.set('x-access-token', req.session.token);
+		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
+	});
+
+	app.get('/api/user/auth/linkedin', (req, res, next) => {
+		req.session.query = req.query;
+		next();
+	}, passport.authenticate('linkedin', { scope: ['r_emailaddress'] }));
+
+	app.get('/api/user/auth/linkedin/callback', userFonc.linkedinLogin, (req, res) => {
 		res.set('Access-Control-Expose-Headers', 'x-access-token');
 		res.set('x-access-token', req.session.token);
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);

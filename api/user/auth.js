@@ -28,7 +28,7 @@ module.exports = {
 	'linkedinAuth'		: {
 		consumerKey: '77kvoydynh5mzh',
 		consumerSecret: 'MZT59cVSvWDFTFDA',
-		callbackURL: 'http://localhost:8080/auth/linkedin/callback',
+		callbackURL: 'http://localhost:8080/api/user/auth/linkedin/callback',
 	},
 	'googleAuth'		: {
 		clientID: '372934468358-eoh8lkd3ijvrdq5q692bddm6vhpg4s0n.apps.googleusercontent.com',

@@ -25,6 +25,8 @@ const safePath = [
 	'/api/user/auth/github/callback',
 	'/api/user/auth/google',
 	'/api/user/auth/google/callback',
+	'/api/user/auth/linkedin',
+	'/api/user/auth/linkedin/callback',
 ];
 
 const error = (err, req, res, next) => next();
