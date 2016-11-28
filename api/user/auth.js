@@ -31,8 +31,8 @@ module.exports = {
 		callbackURL: 'http://localhost:8080/auth/linkedin/callback',
 	},
 	'googleAuth'		: {
-		clientId: '372934468358-eoh8lkd3ijvrdq5q692bddm6vhpg4s0n.apps.googleusercontent.com',
+		clientID: '372934468358-eoh8lkd3ijvrdq5q692bddm6vhpg4s0n.apps.googleusercontent.com',
 		clientSecret: 'hBDeYPi9f0AnaJ4Te7YMiygC',
-		callbackURL: 'http://localhost:8080/auth/google/callback',
+		callbackURL: 'http://localhost:8080/api/user/auth/google/callback',
 	},
 };

@@ -1,6 +1,7 @@
 import passport				from 'passport';
 import expressJwt			from 'express-jwt';
-import jwt 			from 'jsonwebtoken';
+import jwt 					from 'jsonwebtoken';
+import express				from 'express';
 import session				from 'express-session';
 import * as userController	from '../user/controller';
 import * as cfg				from '../user/jwt/config';
@@ -8,6 +9,7 @@ import passportStrat		from '../user/passport';
 import ctrlGen				from '../user/functions';
 
 export default (app) => {
+	app.use('/api/user/public', express.static('public'));
 	app.use(passport.initialize());
 	app.use(expressJwt({
 		secret: cfg.jwtSecret,
@@ -27,6 +29,7 @@ export default (app) => {
 		res.send('USER ROUTER: OK');
 	});
 
+	app.post('/api/user/upload_pic', userController.uploadPic);
 	app.get('/api/user/get_picture', userController.getPicture);
 
 	app.post('/api/user/register', userFonc.register);
@@ -38,7 +41,11 @@ export default (app) => {
 		next();
 	}, passport.authenticate('42'));
 
-	app.get('/api/user/auth/42/callback', userFonc.schoolLogin);
+	app.get('/api/user/auth/42/callback', userFonc.schoolLogin, (req, res) => {
+		res.set('Access-Control-Expose-Headers', 'x-access-token');
+		res.set('x-access-token', req.session.token);
+		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
+	});
 
 
 	app.get('/api/user/auth/facebook', (req, res, next) => {
@@ -60,7 +67,6 @@ export default (app) => {
 	app.get('/api/user/auth/twitter/callback', userFonc.twitterLogin, (req, res) => {
 		res.set('Access-Control-Expose-Headers', 'x-access-token');
 		res.set('x-access-token', req.session.token);
-		console.log(req.session.token);
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
 	});
 
@@ -70,6 +76,19 @@ export default (app) => {
 	}, passport.authenticate('github'));
 
 	app.get('/api/user/auth/github/callback', userFonc.githubLogin, (req, res) => {
+		res.set('Access-Control-Expose-Headers', 'x-access-token');
+		res.set('x-access-token', req.session.token);
+		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
+	});
+
+	app.get('/api/user/auth/google', (req, res, next) => {
+		req.session.query = req.query;
+		console.log(2);
+		next();
+	}, passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+	app.get('/api/user/auth/google/callback', userFonc.googleLogin, (req, res) => {
+		console.log(1);
 		res.set('Access-Control-Expose-Headers', 'x-access-token');
 		res.set('x-access-token', req.session.token);
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);

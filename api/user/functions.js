@@ -4,18 +4,20 @@ import * as cfg		from './jwt/config';
 import * as schema 	from './joiSchema';
 import User			from './schema';
 
+
 module.exports = (app, passport) => {
 	const self = {
+
 		login: (req, res, next) => {
 			const { error } = Joi.validate(req.body, schema.loginSchema, {
 				abortEarly: false,
-				stripUnknown: true,
+				stripUnknown: true
 			});
 			if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
 			passport.authenticate('local-login', (err, user, info) => {
 				if (err) { return res.send(err); }
 				if (!user) { return res.send(info); }
-				const token = jwt.sign({ _id: user._id, username: user.username, provider: 'local' }, cfg.jwtSecret);
+				const token = jwt.sign({ _id: user._id, username: user.username, provider: 'local'}, cfg.jwtSecret);
 				res.set('Access-Control-Expose-Headers', 'x-access-token');
 				res.set('x-access-token', token);
 				res.send({ status: 'success', user });
@@ -27,7 +29,7 @@ module.exports = (app, passport) => {
 		register: (req, res) => {
 			const { error } = Joi.validate(req.body, schema.registerSchema, {
 				abortEarly: false,
-				stripUnknown: true,
+				stripUnknown: true
 			});
 			if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
 			const { username, password, firstname, lastname, mail } = req.body;
@@ -35,7 +37,7 @@ module.exports = (app, passport) => {
 				User.findOne({ $and: [{ username }, { provider: 'local' }] }, (err, user) => {
 					if (err) return res.send({ status: 'error', details: 'Cant connect to db' });
 					if (user) return res.send({ status: 'error', details: 'username already used' });
-					User.findOne({ $and: [{ mail }, { provider: 'local' }] }, (err, user) => {
+					User.findOne({ $and: [{ mail }, { provider: 'local' }]}, (err, user) => {
 						if (err) return res.send({ status: 'error', details: 'Cant connect to db' });
 						if (user) return res.send({ status: 'error', details: 'mail already used' });
 						const newUser = new User({
@@ -55,7 +57,7 @@ module.exports = (app, passport) => {
 								res.set('Access-Control-Expose-Headers', 'x-access-token');
 								res.set('x-access-token', token);
 								return res.send({ status: 'success', details: 'success' });
-							});
+							})
 						});
 						return (false);
 					});
@@ -66,15 +68,14 @@ module.exports = (app, passport) => {
 		},
 
 		schoolLogin: (req, res, next) => {
-			passport.authenticate('42', (err, user, next) => {
+			passport.authenticate('42', (err, user) => {
 				if (err) return res.send(err);
 				if (!user) {
-					return res.send({ status: 'error', details: 'error occured' });
+					return next();
 				}
 				const token = jwt.sign({ _id: user._id, username: user.username, provider: '42' }, cfg.jwtSecret);
-				res.set('Access-Control-Expose-Headers', 'x-access-token');
-				res.set('x-access-token', token);
-				return res.redirect(`${req.session.query.next}?token=${token}`);
+				req.session.token = token;
+				return next();
 			})(req, res, next);
 		},
 
@@ -105,6 +106,16 @@ module.exports = (app, passport) => {
 				if (err) return res.send(err);
 				if (!user) return next();
 				const token = jwt.sign({ _id: user._id, username: user.username, provider: 'github' }, cfg.jwtSecret);
+				req.session.token = token;
+				return next();
+			})(req, res, next);
+		},
+
+		googleLogin: (req, res, next) => {
+			passport.authenticate('google', (err, user) => {
+				if (err) return res.send(err);
+				if (!user) return next();
+				const token = jwt.sign({ _id: user._id, username: user.username, provider: 'google' }, cfg.jwtSecret);
 				req.session.token = token;
 				return next();
 			})(req, res, next);

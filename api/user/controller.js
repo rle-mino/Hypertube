@@ -1,9 +1,15 @@
+import fs			from 'fs';
+import path			from 'path';
+import multer		from 'multer';
 import jwt 			from 'jsonwebtoken';
-import * as cfg		from './jwt/config';
 import User			from './schema';
+import * as cfg		from './jwt/config';
+
+const apiURL = 'http://localhost:8080/api';
 
 const safePath = [
 	'/api/user/login',
+	'/api/user/public',
 	'/api/user/register',
 	'/api/user/forgot_password',
 	'/api/user/reset_password',
@@ -17,6 +23,8 @@ const safePath = [
 	'/api/user/auth/twitter/callback',
 	'/api/user/auth/github',
 	'/api/user/auth/github/callback',
+	'/api/user/auth/google',
+	'/api/user/auth/google/callback',
 ];
 
 const error = (err, req, res, next) => next();
@@ -37,8 +45,8 @@ const checkTokenMid = async (req, res, next) => {
 	jwt.verify(token, cfg.jwtSecret, async (err, decoded) => {
 		if (err) return res.send({ status: 'error', details: 'invalid token' });
 		try {
-			await User.findOne({ username: decoded.username , 'provider': decoded.provider }, (err, user) => {
-				if (err) return res.send({ status: 'error', details: 'cant connect to db' });
+			await User.findOne({ username: decoded.username, provider: decoded.provider }, (erro, user) => {
+				if (erro) return res.send({ status: 'error', details: 'cant connect to db' });
 				req.loggedUser = user;
 				return next();
 			});
@@ -51,12 +59,53 @@ const checkTokenMid = async (req, res, next) => {
 };
 
 const getPicture = (req, res) => {
-	if (req.loggedUser.image.length > 0) return res.send({ status: 'success', image: req.loggedUser.image[0] });
+	if (req.loggedUser.provider.includes('local')) {
+		return res.send({
+			status: 'success',
+			image: `${apiURL}/user/public/${req.loggedUser.image[0]}`,
+		});
+	}
+	if (req.loggedUser.image.length > 0) {
+		return res.send({
+			status: 'success',
+			image: req.loggedUser.image[0],
+		});
+	}
 	return res.send({ status: 'error', details: 'no picture' });
-}
+};
+
+const upload = multer({ dest: `${__dirname}/../public` }).single('image');
+
+const addExtensionFilename = async (filename, mimetype) => {
+	const publicFolder = path.resolve('public');
+	const newName = mimetype === 'image/jpeg' ? `${filename}.jpg` : `${filename}.png`;
+	fs.renameSync(`${publicFolder}/${filename}`, `${publicFolder}/${newName}`);
+	return (newName);
+};
+
+const uploadPic = (req, res) => upload(req, res, async (err) => {
+		if (!req.file) return res.send({ status: 'error', details: 'image required' });
+		if (err) return res.send({ status: 'error', details: 'an error occured' });
+		if (req.file.mimetype !== 'image/jpeg' && req.file.mimetype !== 'image/png') {
+			return res.send({ status: 'error', details: 'Cannot use this file as image' });
+		}
+		const log = req.loggedUser;
+		const filename = await addExtensionFilename(req.file.filename, req.file.mimetype);
+		if (log.images && log.images.length === 5) {
+			fs.readFile(`${__dirname}/../../public/${req.file.filename}`, (errors) => {
+				if (!errors) fs.unlinkSync(`${__dirname}/../../public/${filename}`);
+			});
+			return res.send({ status: 'error', details: `${log.username} already have 5 images` });
+		}
+		req.loggedUser.image = filename;
+		req.loggedUser.save();
+		return res.send({ status: 'success', details: `${log.username}'s images are now up to date`, filename });
+});
+
 
 export {
 	checkTokenMid,
 	error,
-	getPicture
+	getPicture,
+	uploadPic,
 };
