@@ -1,5 +1,6 @@
 import axios			from 'axios'
 import apiConnect		from '../apiConnect'
+import lang				from '../lang'
 
 const getToken = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('logToken')}` } })
 
@@ -39,8 +40,8 @@ const getPict = async () =>
 		getToken()
 	)
 
-const getMovie = async (id) =>
-	await axios.get(`${apiConnect}/api/movie/${id}`, getToken())
+const getMovie = async (id, l) =>
+	await axios.get(`${apiConnect}/api/movie/${id}?lg=${lang.lang[l]}`, getToken())
 
 module.exports = {
 	search,

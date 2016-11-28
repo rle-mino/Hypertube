@@ -51,14 +51,14 @@ class HomePage extends React.Component {
 	}
 
 	drawTopSearch = () => this.state.dataAft.map((el) =>
-		<MiniMovie key={el.id} data={el} onClick={() => this.goMoviePage(el.id)} />
+		<MiniMovie key={el.id} data={el} click={() => this.goMoviePage(el.id)} />
 	)
 
 	render() {
 		const { l, dispatch, mainColor } = this.props
 		const { error, pending, dataCar } = this.state
 		return (
-			<div className="comp">
+			<div className="comp home">
 				{error &&
 					<span className="serverError">{lang.error[l]}</span>}
 				{!error && !pending &&
