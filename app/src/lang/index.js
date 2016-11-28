@@ -65,6 +65,8 @@ module.exports = {
 	alreadyUsed: [ 'already used', 'indisponible' ],
 	error: [ 'An error occurred', 'Une erreur est survenue' ],
 	youMayAlsoLike: [ 'You may also like', 'Découvrez aussi' ],
+	chooseAnImage: [ 'Choose an image', 'Ajouter une image' ],
+	invalidImage: [ 'Invalid image', 'Image invalide' ],
 	logout: [ 'logout', 'déconnexion' ],
 	lang: [ 'en', 'fr' ],
 }

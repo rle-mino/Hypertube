@@ -13,12 +13,6 @@ const iconSet = {
 class ExtLogin extends React.Component {
 	_mounted = false
 
-	state = {
-		popout: false,
-		selectedStrat: null,
-		selectedURL: null,
-	}
-
 	componentDidMount() {
 		this._mounted = true
 	}
@@ -50,8 +44,10 @@ class ExtLogin extends React.Component {
 		)
 	}
 
-	popoutClosed = (e) => {
-		this.setState({ popout: false })
+	googleLogin = (e) => {
+		window.location.replace(
+			'http://localhost:8080/api/user/auth/google?next=http://localhost:3000'
+		)
 	}
 
 	render() {
@@ -61,6 +57,7 @@ class ExtLogin extends React.Component {
 				<IconButton
 					tooltip={`${lang.signInWith[l]} google`}
 					iconClassName="fa fa-google"
+					onTouchTap={this.googleLogin}
 					{...iconSet}
 				/>
 				<IconButton

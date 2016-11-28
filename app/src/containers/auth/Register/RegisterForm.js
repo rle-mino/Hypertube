@@ -37,12 +37,15 @@ class registerForm extends React.Component {
 		mail: '',
 		firstname: '',
 		lastname: '',
+		image: '',
 		usernameR: null,
 		passwordR: null,
 		passwordConfirmR: null,
 		mailR: null,
 		firstnameR: null,
 		lastnameR: null,
+		imageR: null,
+		imageInput: lang.chooseAnImage[this.props.l || 0]
 	}
 
 	componentDidMount() {
@@ -53,10 +56,27 @@ class registerForm extends React.Component {
 		this._mounted = false
 	}
 
+	componentWillReceiveProps = (newProps) => {
+		this.setState({ imageInput: lang.chooseAnImage[newProps.l] })
+	}
+
 	handleChange = (e) => {
 		const up = {}
-		up[e.target.name] = e.target.value
-		this.setState({ ...up })
+		if (e.target.name.includes('image')) {
+			const file = e.target.files[0]
+			if (!file) return false
+			const img = new Image()
+			img.onload = () => this.setState({ image: file, imageR: null, imageInput: file.name })
+			img.onerror = () => this.setState({
+				imageInput: lang.invalidImage[this.props.l],
+				image: null,
+			})
+			const _URL = window.URL || window.webkitURL
+			img.src = _URL.createObjectURL(e.target.files[0])
+		} else {
+			up[e.target.name] = e.target.value
+			this.setState({ ...up })
+		}
 	}
 
 	signUp = async () => {
@@ -67,7 +87,9 @@ class registerForm extends React.Component {
 			mail,
 			firstname,
 			lastname,
+			image,
 		} = this.state
+
 		this.setState({
 			usernameR: null,
 			passwordR: null,
@@ -75,13 +97,20 @@ class registerForm extends React.Component {
 			lastnameR: null,
 			passwordConfirmR: null,
 			mailR: null,
+			imageR: null,
 			serverResponse: null,
 		})
+
 		if (password !== passwordConfirm) {
 			this.setState({
 				passwordConfirmR: lang.passwordAreDifferent[this.props.l]
 			})
 		}
+
+		if (!image || image === '') {
+			this.setState({ imageR: lang.errorP['any.empty'][this.props.l] })
+		}
+
 		const cred = {
 			username,
 			password,
@@ -89,6 +118,7 @@ class registerForm extends React.Component {
 			lastname,
 			firstname,
 		}
+
 		const { data, headers } = await api.register(cred)
 		const { l } = this.props
 
@@ -128,7 +158,8 @@ class registerForm extends React.Component {
 			const token = headers['x-access-token']
 			if (token) {
 				localStorage.setItem('logToken', token)
-				this.props.dispatch(selectAuth(100))
+				// const response = await api.uploadImage()
+				// this.props.dispatch(selectAuth(100))
 			}
 			else this.setState({ serverResponse: lang.error[l] })
 		}
@@ -143,7 +174,12 @@ class registerForm extends React.Component {
 			passwordConfirmR,
 			firstnameR,
 			lastnameR,
+			imageR,
+			image,
+			imageInput,
 		} = this.state
+		console.log('imageR:', imageR)
+		console.log('image:', image)
 		return (
 			<form className="authForm" onChange={this.handleChange}>
 				<TextField
@@ -188,8 +224,12 @@ class registerForm extends React.Component {
 					errorText={passwordConfirmR}
 					{ ...styles.textFieldSet }
     			/>
-				<FlatButton label="Choose an Image" labelPosition="before">
-			      <input type="file" style={styles.imageInput} />
+				<FlatButton
+					label={imageInput}
+					labelPosition="before"
+					style={{ width: '80%', margin: '10px 0' }}
+				>
+			      <input type="file" name="image" style={styles.imageInput} />
 			    </FlatButton>
 				<FlatButton
 					label={lang.SIGNUP[l]}
