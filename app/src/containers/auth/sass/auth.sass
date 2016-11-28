@@ -1,10 +1,5 @@
 @import ../../../colors/colors
 
-@-moz-document url-prefix()
-	.authComp
-		transform: translate(-50%, -50%)
-		animation: authInMoz .5s cubic-bezier(0.39,-0.02, 0.41, 0.99)
-
 .authComp
 	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)
 	position: absolute
@@ -108,6 +103,12 @@
 	justify-content: center
 	align-items: center
 
+
+@-moz-document url-prefix()
+	.authComp
+		transform: translate(-50%, -50%)
+		animation: authInMoz .5s cubic-bezier(0.39,-0.02, 0.41, 0.99)
+
 @keyframes rippleTopAuth
 	0%
 		transform: scale(0)
@@ -150,10 +151,10 @@
 	100%
 		transform: translate(0, 0)
 
-@keyframes authIn
+@keyframes authInMoz
 	0%
 		opacity: 0
-		transform: translate(-50%, -30%)
+		transform: translate(-50%, -40%)
 
 	30%
 		opacity: 1
