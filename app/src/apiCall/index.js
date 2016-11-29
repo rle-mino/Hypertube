@@ -31,12 +31,12 @@ const upPhoto = async (data) =>
 
 const search = async (data) =>
 	await axios.get(`${apiConnect}/api/movie/search`,
-		{...data, ...getToken()}
+		{ ...data, ...getToken() }
 	)
 
 const fastSearch = async (data) =>
 	await axios.get(`${apiConnect}/api/movie/fast_search`,
-		{...data, ...getToken()}
+		{ ...data, ...getToken() }
 	)
 
 const topSearch = async () =>

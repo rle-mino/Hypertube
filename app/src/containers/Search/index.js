@@ -33,6 +33,17 @@ class Search extends React.Component {
 	componentDidMount() {
 		this._mounted = true
 		this.loadMore = _.debounce(this.loadMore, 300)
+		const { minyear, maxyear, minrate, maxrate, category, sort } = this.props.location.query
+		this.requestFilms(false, { params: {
+			title: this.props.location.query.title || '',
+			minYear: minyear || 1900,
+			maxYear: maxyear || 2016,
+			minRate: minrate || 0,
+			maxRate: maxrate || 10,
+			category: category || 'all',
+			sort: sort || 'name',
+			page: 0,
+		} })
 	}
 
 	componentWillUnmount() {
@@ -41,7 +52,9 @@ class Search extends React.Component {
 
 	requestFilms = async (clearRes, reqSet) => {
 		this.setState({ pending: true })
-		const { data } = await api.search(reqSet)
+		const response = await api.search(reqSet)
+		console.log(response)
+		const { data } = response
 		if (!data.status) {
 			this.setState({ pending: false })
 			return false
@@ -61,19 +74,6 @@ class Search extends React.Component {
 				more: false
 			})
 		}
-	}
-
-	componentWillMount() {
-		this.requestFilms(false, { params: {
-			title: this.props.location.query.title,
-			page: 0,
-			minYear: 1900,
-			maxYear: 2016,
-			minRate: 0,
-			maxRate: 10,
-			category: 'all',
-			sort: 'name'
-		} })
 	}
 
 	componentWillReceiveProps = (newProps) => {
