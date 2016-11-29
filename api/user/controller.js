@@ -1,8 +1,12 @@
 import fs			from 'fs';
 import path			from 'path';
+import _			from 'lodash';
 import multer		from 'multer';
+import Joi from 'joi';
+import bcrypt from 'bcrypt-nodejs';
 import jwt 			from 'jsonwebtoken';
 import User			from './schema';
+import * as schema 	from './joiSchema';
 import * as cfg		from './jwt/config';
 
 const apiURL = 'http://localhost:8080/api';
@@ -106,10 +110,43 @@ const uploadPic = (req, res) => upload(req, res, async (err) => {
 		return res.send({ status: 'success', details: `${log.username}'s images are now up to date`, filename });
 });
 
+const getProfile = (req, res) => {
+	const profile = _.pick(req.loggedUser, [
+		'mail',
+		'username',
+		'firstname',
+		'lastname',
+		'provider',
+		'image',
+	]);
+	return res.send({ status: 'success', profile });
+};
+
+const editProfile = (req, res) => {
+	Joi.validate(req.body, schema.editSchema, {
+		abortEarly: false,
+		stripUnknown: true,
+	});
+	const { username, password, mail, firstname, lastname } = req.body;
+	const hashedPass = bcrypt.genSalt(5, (err, salt) => {
+		if (err) return res.send('error');
+		bcrypt.hash(password, salt, null, (err, hash) => {
+			console.log('1', hash);
+		})
+	});
+	// if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
+	// User.findOne({ username, password }, (err, user) => {
+	// 	if (err) return res.send({ status: 'error', details: 'Cant connect to db' });
+	// 	if (!user) return res.send({ status: 'error', details: 'User doesnt exist' });
+	// 	const newUser =
+	// });
+};
 
 export {
 	checkTokenMid,
 	error,
 	getPicture,
 	uploadPic,
+	getProfile,
+	editProfile,
 };

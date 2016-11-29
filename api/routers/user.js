@@ -7,7 +7,6 @@ import * as userController	from '../user/controller';
 import * as cfg				from '../user/jwt/config';
 import passportStrat		from '../user/passport';
 import ctrlGen				from '../user/functions';
-
 export default (app) => {
 	app.use('/api/user/public', express.static('public'));
 	app.use(passport.initialize());
@@ -28,6 +27,10 @@ export default (app) => {
 	app.get('/api/user', (req, res) => {
 		res.send('USER ROUTER: OK');
 	});
+
+	app.get('/api/user/profile', userController.getProfile);
+
+	app.post('/api/user/edit_profile', userController.editProfile);
 
 	app.post('/api/user/upload_pic', userController.uploadPic);
 	app.get('/api/user/get_picture', userController.getPicture);
