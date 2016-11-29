@@ -106,12 +106,13 @@ const uploadPic = (req, res) => upload(req, res, async (err) => {
 			return res.send({ status: 'error', details: `${log.username} already have 5 images` });
 		}
 		req.loggedUser.image = filename;
+		console.log(filename);
 		req.loggedUser.save();
 		return res.send({ status: 'success', details: `${log.username}'s images are now up to date`, filename });
 });
 
 const getProfile = (req, res) => {
-	const image = req.loggedUser.image[0];
+	const image = `${apiURL}/user/public/${req.loggedUser.image[0]}`;
 	const profile = _.pick(req.loggedUser, [
 		'mail',
 		'username',
