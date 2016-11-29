@@ -30,7 +30,7 @@ export default (app) => {
 
 	app.get('/api/user/profile', userController.getProfile);
 
-	app.post('/api/user/edit_profile', userController.editProfile);
+	app.post('/api/user/edit', userController.editProfile);
 
 	app.post('/api/user/upload_pic', userController.uploadPic);
 	app.get('/api/user/get_picture', userController.getPicture);

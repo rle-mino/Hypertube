@@ -111,14 +111,15 @@ const uploadPic = (req, res) => upload(req, res, async (err) => {
 });
 
 const getProfile = (req, res) => {
+	const image = req.loggedUser.image[0];
 	const profile = _.pick(req.loggedUser, [
 		'mail',
 		'username',
 		'firstname',
 		'lastname',
 		'provider',
-		'image',
 	]);
+	profile.image = image;
 	return res.send({ status: 'success', profile });
 };
 
@@ -128,10 +129,12 @@ const editProfile = (req, res) => {
 		stripUnknown: true,
 	});
 	const { username, password, mail, firstname, lastname } = req.body;
+	console.log(username);
 	const hashedPass = bcrypt.genSalt(5, (err, salt) => {
 		if (err) return res.send('error');
 		bcrypt.hash(password, salt, null, (err, hash) => {
 			console.log('1', hash);
+			console.log('1', password);
 		})
 	});
 	// if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
