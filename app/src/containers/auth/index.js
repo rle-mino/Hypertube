@@ -40,7 +40,7 @@ class Auth extends React.Component {
 		const { token } = this.props.location.query
 		if (token) {
 			localStorage.setItem('logToken', token)
-			this.props.dispatch(selectAuth(100))
+			// this.props.dispatch(selectAuth(100))
 		}
 	}
 
@@ -135,13 +135,13 @@ class Auth extends React.Component {
 		}, 300)
 	}
 
-	end = () => {
-		this.setState({ container: 'toCircle' })
-		setTimeout(() => {
-			this.setState({ container: 'toCircle toLeave' })
-			setTimeout(() => browserHistory.push('/ht'), 1000)
-		}, 1000)
-	}
+	// end = () => {
+	// 	this.setState({ container: 'toCircle' })
+	// 	setTimeout(() => {
+	// 		this.setState({ container: 'toCircle toLeave' })
+	// 		setTimeout(() => browserHistory.push('/ht'), 1000)
+	// 	}, 1000)
+	// }
 
 	updateTitle = (l) => {
 		switch (this.props.selectedAuth) {
@@ -167,10 +167,10 @@ class Auth extends React.Component {
 		if (newProps.l !== this.props.l) {
 			this.updateTitle(newProps.l)
 		}
-		if (newProps.selectedAuth === 100 &&
-			newProps.selectedAuth !== this.props.selectedAuth) {
-				this.end()
-		}
+		// if (newProps.selectedAuth === 100 &&
+		// 	newProps.selectedAuth !== this.props.selectedAuth) {
+		// 		this.end()
+		// }
 		if (newProps.selectedAuth === 2 &&
 			newProps.selectedAuth !== this.props.selectedAuth) {
 				// FROM LOGIN TO FORGOT
