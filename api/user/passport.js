@@ -4,11 +4,11 @@ import configAuth			from './auth';
 const LocalStrategy 	= 		require('passport-local').Strategy;
 const FacebookStrategy 	= 		require('passport-facebook').Strategy;
 const FortyTwoStrategy 	= 		require('passport-42').Strategy;
-// const BnetStrategy 		= 		require('passport-bnet').Strategy;
 const TwitterStrategy 	= 		require('passport-twitter').Strategy;
-// const LinkedInStrategy 	= 		require('passport-linkedin').Strategy;
+const LinkedinStrategy 	= 		require('passport-linkedin-oauth2').Strategy;
 const gitHubStrategy	=		require('passport-github2').Strategy;
-// const GoogleStrategy	=		require('passport-google-oauth20').Strategy;
+const SpotifyStrategy	=		require('passport-spotify').Strategy;
+const GoogleStrategy	=		require('passport-google-oauth').OAuth2Strategy;
 
 module.exports = (passport) => {
 // /////////////////////////////////////////////////////////////////////////////
@@ -30,12 +30,12 @@ passport.use('local-login', new LocalStrategy((username, password, done) => {
 					$or: [
 						{ username },
 						{ mail: username },
-					]
+					],
 				},
 				{
-					provider: 'local'
-				}
-			]
+					provider: 'local',
+				},
+			],
 		}, (err, user) => {
 			if (err) return done(err, { status: 'error', details: 'Cant connect to db' });
 			if (!user) return done(null, false, { status: 'error', details: 'user doenst exist' });
@@ -49,9 +49,9 @@ passport.use('local-login', new LocalStrategy((username, password, done) => {
 	});
 }));
 
-// //////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 //                  Facebook Strategy                                         //
-// //////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 
 passport.use('facebook', new FacebookStrategy({
     clientID: configAuth.facebookAuth.clientID,
@@ -63,7 +63,6 @@ passport.use('facebook', new FacebookStrategy({
 		const username = profile._json.first_name + profile._json.last_name;
 		User.findOne({ $and: [{ username }, { provider: 'facebook' }] }, (err, user) => {
 			if (err) return done(err, { status: 'error', details: 'Cant connect to db' });
-			console.log(username);
 			if (!user) {
 				const newUser = new User({
 					id: profile._json.id,
@@ -72,10 +71,9 @@ passport.use('facebook', new FacebookStrategy({
 					image: profile.photos[0].value,
 					provider: 'facebook',
 				});
-				console.log(newUser);
-				newUser.save((erro) => {
+				newUser.save((erro, newUser) => {
 					if (erro) return done(erro);
-					return done(null, user, { status: true, details: 'success' });
+					return done(null, newUser, { status: true, details: 'success' });
 				});
 			} else {
 				return done(null, user, { status: true, details: 'success' });
@@ -106,9 +104,9 @@ passport.use('42', new FortyTwoStrategy({
 						image: profile.photos[0].value,
 						provider: '42',
 					});
-					newUser.save((erro) => {
+					newUser.save((erro, newUserFT) => {
 						if (erro) return done(erro);
-						return done(null, user, { status: 'success', details: 'success' });
+						return done(null, newUserFT, { status: 'success', details: 'success' });
 					});
 				} else {
 				return done(null, user, { status: 'success', details: 'success' });
@@ -128,7 +126,6 @@ passport.use('twitter', new TwitterStrategy({
     consumerSecret: configAuth.twitterAuth.consumerSecret,
     callbackURL: configAuth.twitterAuth.callbackURL,
 	includeEmail: true,
-	// profileFields: ['id', 'email', 'first_name', 'last_name', 'photos'],
 }, (accessToken, refreshToken, profile, done) => {
 	process.nextTick(() => {
 		const username = profile.username;
@@ -142,9 +139,9 @@ passport.use('twitter', new TwitterStrategy({
 					image: profile.photos[0].value,
 					provider: 'twitter',
 				});
-				newUser.save((erro) => {
+				newUser.save((erro, newUser) => {
 					if (erro) return done(erro);
-					return done(null, user, { status: true, details: 'success' });
+					return done(null, newUser, { status: true, details: 'success' });
 				});
 			} else {
 				return done(null, user, { status: true, details: 'success' });
@@ -167,7 +164,6 @@ passport.use('github', new gitHubStrategy({
 	// profileFields: ['id', 'email', 'first_name', 'last_name', 'photos'],
 }, (accessToken, refreshToken, profile, done) => {
 	process.nextTick(() => {
-		console.log(profile._json );
 		const username = profile._json.login;
 		User.findOne({ $and: [{ username }, { provider: 'github' }] }, (err, user) => {
 			if (err) return done(err, { status: 'error', details: 'Cant connect to db' });
@@ -179,9 +175,9 @@ passport.use('github', new gitHubStrategy({
 					image: profile._json.avatar_url,
 					provider: 'github',
 				});
-				newUser.save((erro) => {
+				newUser.save((erro, newUser) => {
 					if (erro) return done(erro);
-					return done(null, user, { status: true, details: 'success' });
+					return done(null, newUser, { status: true, details: 'success' });
 				});
 			} else {
 				return done(null, user, { status: true, details: 'success' });
@@ -191,36 +187,119 @@ passport.use('github', new gitHubStrategy({
 		return (false);
 	});
 }));
-//
-// ////////////////////////////////////////////////////////////////////////////////
-// //                  Linkdin Strategy                  	                      //
-// ////////////////////////////////////////////////////////////////////////////////
-//
-// passport.use('linkedin', new LinkedInStrategy({
-//     consumerKey: configAuth.linkedinAuth.consumerKey,
-//     consumerSecret: configAuth.linkedinAuth.consumerSecret,
-//     callbackURL: configAuth.linkedinAuth.callbackURL,
-// },function (accessToken, refreshToken, profile, ) {
-//             process.nextTick(function () {
-// 				console.log(profile)
-// 				console.log(accessToken);
-// 				console.log(refreshToken);
-//             });
-//         }
-//     ));
+
 // ////////////////////////////////////////////////////////////////////////////////
 // //                  Google Strategy                  	                      //
 // ////////////////////////////////////////////////////////////////////////////////
-//
-// passport.use('google', new GoogleStrategy({
-//     clientID: '372934468358-eoh8lkd3ijvrdq5q692bddm6vhpg4s0n.apps.googleusercontent.com',
-//     clientSecret: 'hBDeYPi9f0AnaJ4Te7YMiygC',
-//     callbackURL: "http://localhost:8080/auth/google/callback"
-//   },
-//   function(accessToken, refreshToken, profile, cb) {
-//     User.findOrCreate({ googleId: profile.id }, function (err, user) {
-//       return cb(err, user);
-//     });
-//   }
-// ));
+
+
+passport.use('google', new GoogleStrategy({
+    clientID: configAuth.googleAuth.clientID,
+	clientSecret: configAuth.googleAuth.clientSecret,
+    callbackURL: 'http://localhost:8080/api/user/auth/google/callback',
+}, (accessToken, refreshToken, profile, done) => {
+	process.nextTick(() => {
+		const username = profile.name.familyName + profile.name.givenName;
+		User.findOne({ $and: [{ username }, { provider: 'google' }] }, (err, user) => {
+			if (err) return done(err, { status: 'error', details: 'Cant connect to db' });
+			if (!user) {
+				const newUser = new User({
+					id: profile.id,
+					username,
+					mail: profile.emails[0].value,
+					image: profile.photos[0].value,
+					provider: 'google',
+				});
+				newUser.save((erro, newUser) => {
+					if (erro) return done(erro);
+					return done(null, newUser, { status: true, details: 'success' });
+				});
+			} else {
+				return done(null, user, { status: true, details: 'success' });
+			}
+			return (false);
+		});
+		return (false);
+	});
+}));
+
+// /////////////////////////////////////////////////////////////////////////////
+// //                  Linkedin Strategy                  	                  //
+// /////////////////////////////////////////////////////////////////////////////
+
+passport.use('linkedin', new LinkedinStrategy({
+    clientID: configAuth.linkedinAuth.clientID,
+	clientSecret: configAuth.linkedinAuth.clientSecret,
+    callbackURL: 'http://localhost:8080/api/user/auth/linkedin/callback',
+	scope: ['r_emailaddress', 'r_basicprofile'],
+	// profileFields: ['id', 'first-name', 'last-name', 'email-address', 'headline', 'picture-url'],
+	state: true,
+}, (accessToken, refreshToken, profile, done) => {
+	process.nextTick(() => {
+		let photo = null;
+		const username = profile.displayName;
+		if (profile.photos.length > 0)
+			photo = profile.photos[0].value;
+		User.findOne({ $and: [{ username }, { provider: 'linkedin' }] }, (err, user) => {
+			if (err) return done(err, { status: 'error', details: 'Cant connect to db' });
+			if (!user) {
+				const newUser = new User({
+					id: profile.id,
+					username,
+					mail: profile.emails[0].value,
+					image: photo,
+					provider: 'linkedin',
+				});
+				newUser.save((erro, newUser) => {
+					if (erro) return done(erro);
+					return done(null, newUser, { status: true, details: 'success' });
+				});
+			} else {
+				return done(null, user, { status: true, details: 'success' });
+			}
+			return (false);
+		});
+		return (false);
+	});
+}));
+
+// /////////////////////////////////////////////////////////////////////////////
+// //                  Spotify Strategy                  	                  //
+// /////////////////////////////////////////////////////////////////////////////
+
+passport.use('spotify', new SpotifyStrategy({
+    clientID: configAuth.spotifyAuth.clientID,
+	clientSecret: configAuth.spotifyAuth.clientSecret,
+    callbackURL: 'http://localhost:8080/api/user/auth/spotify/callback',
+	scope: ['r_emailaddress', 'r_basicprofile'],
+	// profileFields: ['id', 'first-name', 'last-name', 'email-address', 'headline', 'picture-url'],
+	state: true,
+}, (accessToken, refreshToken, profile, done) => {
+	process.nextTick(() => {
+		let photo = null;
+		const username = profile.username;
+		if (profile.photos.length > 0)
+			photo = profile.photos[0];
+		User.findOne({ $and: [{ username }, { provider: 'spotify' }] }, (err, user) => {
+			if (err) return done(err, { status: 'error', details: 'Cant connect to db' });
+			if (!user) {
+				const newUser = new User({
+					id: profile.id,
+					username,
+					mail: profile.emails[0].value,
+					image: photo,
+					provider: 'spotify',
+				});
+				newUser.save((erro, newUser) => {
+					if (erro) return done(erro);
+					return done(null, newUser, { status: true, details: 'success' });
+				});
+			} else {
+				return done(null, user, { status: true, details: 'success' });
+			}
+			return (false);
+		});
+		return (false);
+	});
+}));
 };

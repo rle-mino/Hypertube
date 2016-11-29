@@ -19,6 +19,11 @@
 	position: relative
 	width: 100%
 
+	& .chip
+		transition: background-color .2s
+		&:hover
+			background-color: #B0B0B0 !important
+
 	& .playerContainer
 		background-color: $blue
 		@include aspect-ratio(16, 9)

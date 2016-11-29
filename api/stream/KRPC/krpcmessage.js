@@ -1,4 +1,3 @@
-module.exports = krpc
 import dgram from 'dgram'
 import crypto from 'crypto'
 import anon from '../anonymizer'
@@ -55,7 +54,7 @@ KRPCMessage.fromBuffer = buffer => {
 }
 
 KRPCMessage.createID = () => {
-	return hat.rack.(B)()
+	return hat.rack(B)()
 }
 
 module.exports = KRPCMessage

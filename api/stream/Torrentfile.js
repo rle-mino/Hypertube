@@ -5,6 +5,8 @@ import Piece from './piece'
 import torrentParser from './torrent-parser'
 import tracker from './tracker'
 import chalk from 'chalk'
+import anon from './anonymizer'
+import RPC from './KRPC/rpc'
 
 const log = m => console.log(chalk.blue(m))
 const ilog = m => process.stdout.write(chalk.cyan(m))
@@ -22,6 +24,7 @@ function TorrentFile(torrent) {
 
     tracker.getPeers(torrent, peers => {
         peers.forEach(() => {ylog('|')})
+		const kadmelia = new RPC(anon.nodeContact(), {peers, })
     })
 
     // let piecesBuf = Buffer.from(this._pieces)

@@ -40,11 +40,13 @@ function BuildPingResponse(t) {
 }
 
 function BuildFindNodeResponse(t, nodes) {
-	t,
-	y,
-	r	: {
-		id		: anon.nodeId(),
-		nodes	: nodes
+	let message = {
+		t,
+		y,
+		r	: {
+			id		: anon.nodeId(),
+			nodes	: nodes
+		}
 	}
 	return bencode.encode(message)
 }
@@ -66,7 +68,7 @@ function BuildGetPeersResponse(t, token, values, nodes, scrape) {
 		message.r.BFsd = scrape.BFsd
 		message.r.BFpe = scrape.BFpe
 	} else {
-		throw nes Error('No Peer found')
+		throw new Error('No Peer found')
 	}
 }
 

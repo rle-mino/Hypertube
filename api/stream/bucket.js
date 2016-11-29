@@ -20,6 +20,7 @@ function Bucket() {
 	if (!(this instanceof Bucket)) return new Bucket()
 
 	this._contacts = []
+	this.nodes = new LRU({maxAge: 15 * 60 * 1000, max: K})
 }
 
 Bucket.prototype.getSize = () => {
@@ -27,7 +28,7 @@ Bucket.prototype.getSize = () => {
 }
 
 Bucket.prototype.getContactList = () => {
-	return _.clone(this.contacts)
+	return _.clone(this._contacts)
 }
 
 Bucket.prototype.getContact = index => {

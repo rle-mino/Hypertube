@@ -1,7 +1,8 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
+import { browserHistory }		from 'react-router'
 import api						from '../../../apiCall'
-import { selectAuth }			from '../../../action/auth'
+// import { selectAuth }			from '../../../action/auth'
 import lang						from '../../../lang'
 import colors					from '../../../colors/colors'
 
@@ -37,12 +38,15 @@ class registerForm extends React.Component {
 		mail: '',
 		firstname: '',
 		lastname: '',
+		image: '',
 		usernameR: null,
 		passwordR: null,
 		passwordConfirmR: null,
 		mailR: null,
 		firstnameR: null,
 		lastnameR: null,
+		imageR: null,
+		imageInput: lang.chooseAnImage[this.props.l || 0]
 	}
 
 	componentDidMount() {
@@ -53,10 +57,61 @@ class registerForm extends React.Component {
 		this._mounted = false
 	}
 
+	componentWillReceiveProps = (newProps) => {
+		this.setState({ imageInput: lang.chooseAnImage[newProps.l] })
+	}
+
 	handleChange = (e) => {
 		const up = {}
-		up[e.target.name] = e.target.value
-		this.setState({ ...up })
+		if (e.target.name.includes('image')) {
+			const file = e.target.files[0]
+			if (!file) return false
+			const img = new Image()
+			img.onload = () => this.setState({ image: file, imageR: null, imageInput: file.name })
+			img.onerror = () => this.setState({
+				imageInput: lang.invalidImage[this.props.l],
+				image: null,
+			})
+			const _URL = window.URL || window.webkitURL
+			img.src = _URL.createObjectURL(e.target.files[0])
+		} else {
+			up[e.target.name] = e.target.value
+			this.setState({ ...up })
+		}
+	}
+
+	uploadImage = async () => {
+		const image = new FormData()
+		image.append('image', this.state.image)
+		await api.upPhoto(image)
+		// this.props.dispatch(selectAuth(100))
+		browserHistory.push('/ht')
+	}
+
+	handleError = (data) => {
+		const { l } = this.props
+		// ERROR : USER ENTRY
+		if (data.details.includes('invalid request')) {
+			const error = {}
+			data.error.forEach((el) => {
+				if (!error[`${el.path}R`]) {
+					error[`${el.path}R`] = lang.errorP[el.type][l]
+				}
+			})
+			this.setState({ ...error })
+
+		// ERROR : ALREADY USED | USERNAME
+		} else if (data.details.includes('username already used')) {
+			this.setState({ usernameR: lang.alreadyUsed[l] })
+
+		// ERROR : ALREADY USED | MAIL
+		} else if (data.details.includes('mail already used')) {
+			this.setState({ mailR: lang.alreadyUsed[l] })
+
+		// ERROR : OTHER
+		} else {
+			this.setState({ serverResponse: lang.error[l] })
+		}
 	}
 
 	signUp = async () => {
@@ -67,7 +122,9 @@ class registerForm extends React.Component {
 			mail,
 			firstname,
 			lastname,
+			image,
 		} = this.state
+
 		this.setState({
 			usernameR: null,
 			passwordR: null,
@@ -75,13 +132,11 @@ class registerForm extends React.Component {
 			lastnameR: null,
 			passwordConfirmR: null,
 			mailR: null,
+			imageInput: null,
 			serverResponse: null,
 		})
-		if (password !== passwordConfirm) {
-			this.setState({
-				passwordConfirmR: lang.passwordAreDifferent[this.props.l]
-			})
-		}
+
+		const { l } = this.props
 		const cred = {
 			username,
 			password,
@@ -89,48 +144,31 @@ class registerForm extends React.Component {
 			lastname,
 			firstname,
 		}
-		const { data, headers } = await api.register(cred)
-		const { l } = this.props
 
-		/*
-		*	ERROR
-		*/
-		if ((data.status && data.status.includes('error')) || !data.status)
-		{
-			// ERROR : USER ENTRY
-			if (data.details.includes('invalid request')) {
-				const error = {}
-				data.error.forEach((el) => {
-					if (!error[`${el.path}R`]) {
-						error[`${el.path}R`] = lang.errorP[el.type][l]
-					}
-				})
-				this.setState({ ...error })
-
-			// ERROR : ALREADY USED | USERNAME
-			} else if (data.details.includes('username already used')) {
-				this.setState({ usernameR: lang.alreadyUsed[l] })
-
-			// ERROR : ALREADY USED | MAIL
-			} else if (data.details.includes('mail already used')) {
-				this.setState({ mailR: lang.alreadyUsed[l] })
-
-			// ERROR : OTHER
-			} else {
-				this.setState({ serverResponse: lang.error[l] })
-			}
+		if (password !== passwordConfirm) {
+			this.setState({
+				passwordConfirmR: lang.passwordAreDifferent[l]
+			})
 		}
-		/*
-		*	SUCCESS
-		*/
-		else if (data.status.includes('success'))
-		{
+
+		if (!image || image === '') {
+			this.setState({ imageInput: `${lang.errorP['any.empty'][l]}: ${lang.chooseAnImage[l]}` })
+			return false
+		}
+
+		const { data, headers } = await api.register(cred)
+
+		// ERROR
+		if ((data.status && data.status.includes('error')) || !data.status) {
+			this.handleError(data)
+		}
+
+		// SUCCESS
+		else if (data.status.includes('success')) {
 			const token = headers['x-access-token']
-			if (token) {
-				localStorage.setItem('logToken', token)
-				this.props.dispatch(selectAuth(100))
-			}
-			else this.setState({ serverResponse: lang.error[l] })
+			if (!token) return this.setState({ serverResponse: lang.error[l] })
+			localStorage.setItem('logToken', token)
+			this.uploadImage()
 		}
 	}
 
@@ -143,6 +181,7 @@ class registerForm extends React.Component {
 			passwordConfirmR,
 			firstnameR,
 			lastnameR,
+			imageInput,
 		} = this.state
 		return (
 			<form className="authForm" onChange={this.handleChange}>
@@ -188,8 +227,12 @@ class registerForm extends React.Component {
 					errorText={passwordConfirmR}
 					{ ...styles.textFieldSet }
     			/>
-				<FlatButton label="Choose an Image" labelPosition="before">
-			      <input type="file" style={styles.imageInput} />
+				<FlatButton
+					label={imageInput}
+					labelPosition="before"
+					style={{ width: '80%', margin: '10px 0' }}
+				>
+			      <input type="file" name="image" style={styles.imageInput} />
 			    </FlatButton>
 				<FlatButton
 					label={lang.SIGNUP[l]}

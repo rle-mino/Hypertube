@@ -20,6 +20,12 @@ const getData = (req, res) => {
         if (err || !found) return (res.send({ status: 'error', details: 'Movie not found' }));
         const genres = found.genres;
         const type = found.episodes[0] ? 'serie' : 'movie';
+        if (type === 'serie') {
+            found.episodes.sort((a, b) => a.season - b.season || a.episode - b.episode);
+            found.episodes.forEach((episode) => console.log(episode.season, episode.episode));
+            // implementer gestion des saisons/episodes
+            // -> creer un array avec les saisons et remplir avec les episodes (2 dimensional)
+        }
         if (req.query.lg !== 'en') {
             found.plot = await translate(found.plot, { from: 'en', to: req.query.lg }).then((result) => result.text);
         }

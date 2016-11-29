@@ -55,10 +55,28 @@ class Movie extends React.Component {
 		<MiniMovie key={el.id} data={el} click={() => this.goMoviePage(el.id)} />
 	)
 
+	searchCat = (cat) => {
+		const { dispatch } = this.props
+		dispatch(bodyDis.bOut())
+		setTimeout(() => {
+			browserHistory.push(`/ht/search?category=${cat}`)
+			dispatch(bodyDis.bIn())
+		}, 500)
+	}
+
 	drawGenre = () => this.state.data.genres.map((el, key) => {
 		const translation = _.find(lang.categories, (cat) => cat[0] === el)
-		if (translation) return (<li key={key}><Chip style={chipStyle}>{translation[this.props.l]}</Chip></li>)
-		return <li key={key}><Chip style={chipStyle}>{el}</Chip></li>
+		return (
+			<li key={key}>
+				<Chip
+					className="chip"
+					onTouchTap={() => this.searchCat(el)}
+					style={chipStyle}
+				>
+					{translation ? translation[this.props.l] : el}
+				</Chip>
+			</li>
+		)
 	})
 
 	render() {

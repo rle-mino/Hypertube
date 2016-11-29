@@ -4,6 +4,8 @@ import lang					from '../../../lang'
 
 import IconButton			from 'material-ui/IconButton'
 
+const apiAuth = 'http://localhost:8080/api/user/auth'
+
 const iconSet = {
 	touch: false,
 	className: 'extButton',
@@ -13,12 +15,6 @@ const iconSet = {
 class ExtLogin extends React.Component {
 	_mounted = false
 
-	state = {
-		popout: false,
-		selectedStrat: null,
-		selectedURL: null,
-	}
-
 	componentDidMount() {
 		this._mounted = true
 	}
@@ -27,32 +23,7 @@ class ExtLogin extends React.Component {
 		this._mounted = false
 	}
 
-	ftLogin = (e) => {
-		window.location.replace(
-			'http://localhost:8080/api/user/auth/42?next=http://localhost:3000'
-		)
-	}
-	facebookLogin = (e) => {
-		window.location.replace(
-			'http://localhost:8080/api/user/auth/facebook?next=http://localhost:3000'
-		)
-	}
-
-	githubLogin = (e) => {
-		window.location.replace(
-			'http://localhost:8080/api/user/auth/github?next=http://localhost:3000'
-		)
-	}
-
-	twitterLogin = (e) => {
-		window.location.replace(
-			'http://localhost:8080/api/user/auth/twitter?next=http://localhost:3000'
-		)
-	}
-
-	popoutClosed = (e) => {
-		this.setState({ popout: false })
-	}
+	oauth = (url) => window.location.replace(`${url}?next=http://localhost:3000`)
 
 	render() {
 		const { l } = this.props
@@ -61,30 +32,43 @@ class ExtLogin extends React.Component {
 				<IconButton
 					tooltip={`${lang.signInWith[l]} google`}
 					iconClassName="fa fa-google"
+					onTouchTap={() => this.oauth(`${apiAuth}/google`)}
 					{...iconSet}
 				/>
 				<IconButton
 					tooltip={`${lang.signInWith[l]} facebook`}
 					iconClassName="fa fa-facebook-official"
-					onTouchTap={this.facebookLogin}
+					onTouchTap={() => this.oauth(`${apiAuth}/facebook`)}
 					{...iconSet}
 				/>
 				<IconButton
 					tooltip={`${lang.signInWith[l]} twitter`}
 					iconClassName="fa fa-twitter"
-					onTouchTap={this.twitterLogin}
+					onTouchTap={() => this.oauth(`${apiAuth}/twitter`)}
+					{...iconSet}
+				/>
+				<IconButton
+					tooltip={`${lang.signInWith[l]} linkedin`}
+					iconClassName="fa fa-linkedin"
+					onTouchTap={() => this.oauth(`${apiAuth}/linkedin`)}
+					{...iconSet}
+				/>
+				<IconButton
+					tooltip={`${lang.signInWith[l]} spotify`}
+					iconClassName="fa fa-spotify"
+					onTouchTap={() => this.oauth(`${apiAuth}/spotify`)}
 					{...iconSet}
 				/>
 				<IconButton
 					tooltip={`${lang.signInWith[l]} github`}
 					iconClassName="fa fa-github"
-					onTouchTap={this.githubLogin}
+					onTouchTap={() => this.oauth(`${apiAuth}/github`)}
 					{...iconSet}
 				/>
 				<IconButton
 					tooltip={`${lang.signInWith[l]} 42`}
 					iconClassName="icon"
-					onTouchTap={this.ftLogin}
+					onTouchTap={() => this.oauth(`${apiAuth}/42`)}
 					{...iconSet}
 				/>
 			</div>

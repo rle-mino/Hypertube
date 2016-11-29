@@ -1,21 +1,28 @@
 import anon from '../anonymizer'
 const y = 'q'
+import bencode from 'bencode'
 // and q as method value string
 // and a as arguments
 
-function BuildPingQuery(){
-	let message = {
-		t	: anon.newKrpcId(),
-		y,
-		q	: 'ping',
-		a	: {id: anon.nodeId()}
+export async function BuildPingQuery(t, _port) {
+	const port = _port || null
+	try {
+		let id = await anon.nodeId(port)
+		let message = {
+			t,
+			y,
+			q	: 'ping',
+			a	: {id}
+		}
+		return Buffer.from(bencode.encode(message))
+	} catch(e){
+		throw e
 	}
-	return Buffer.from(bencode.encode(message))
 }
 
 function BuildFindNodeQuery(querying, target) {
 	let message = {
-		t	: anon.newKrpcId(),
+		t,
 		y,
 		q	: 'find_nodes',
 		a	: {

@@ -18,14 +18,25 @@ const register = async (data) =>
 		data,
 	})
 
+const upPhoto = async (data) =>
+	await axios({
+		url: `${apiConnect}/api/user/upload_pic`,
+		method: 'post',
+		data,
+		headers: {
+			'Content-Type': 'multipart/form-data',
+			...getToken().headers,
+		}
+	})
+
 const search = async (data) =>
 	await axios.get(`${apiConnect}/api/movie/search`,
-		{...data, ...getToken()}
+		{ ...data, ...getToken() }
 	)
 
 const fastSearch = async (data) =>
 	await axios.get(`${apiConnect}/api/movie/fast_search`,
-		{...data, ...getToken()}
+		{ ...data, ...getToken() }
 	)
 
 const topSearch = async () =>
@@ -51,4 +62,5 @@ module.exports = {
 	login,
 	register,
 	getMovie,
+	upPhoto,
 }

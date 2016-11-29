@@ -19,18 +19,3 @@ const blog = m => process.stdout.write(chalk.blue(m))
 
 
 const __rotate_interval = 5 * 60 * 1000
-
-function DHT (opts) {
-	if (!(this instanceof DHT)) return new DHT(opts)
-	if (!opts) opts = {}
-
-	let self = this
-
-	this._tables = LRU({maxAge: __rotate_interval, max: opts.maxTables || 1000})
-}
-
-DHT.prototype.query = (payload) => {
-	this.client.on('message', msg => {
-		responses.parseRes(msg)
-	})
-}

@@ -1,31 +1,34 @@
-import chalk from 'chalk'
 import LRU from 'lru'
 import anon from './anonymizer'
-import Contact from './contact'
 import {EventEmitter} from 'events'
 import inherits from 'inherits'
 import bencode from 'bencode'
 import crypto from 'crypto'
 import _ from 'lodash'
-import anon from './anonymizer'
+import chalk from 'chalk'
+
+const log = m => console.log(chalk.blue(m))
+const ilog = m => process.stdout.write(chalk.cyan(m))
+const elog = m => process.stdout.write(chalk.red(m))
+const ylog = m => process.stdout.write(chalk.yellow(m))
+const blog = m => process.stdout.write(chalk.blue(m))
 
 const B = 160
 
 function Contact(opts) {
 	if (!(this instanceof Contact)) return new Contact(opts)
+	let self = this
 
-	if (!(opts instanceof Object)) throw new Error('Invalid contact options')
+	ilog(opts.nodes)
 
-	Object.defineProperty(this, 'nodeID', {
-		value: options.nodeID || this._createNodeID(),
-		configurable: false,
-		enumerable: true
-	})
+	this.nodeId = opts.nodes || this._createNodeID()
 
-	if (!this.nodeID || this.nodeID.length !== B/4) throw new Error('Invalid nodeID')
+	if (!this.nodeId || this.nodeId.length !== B/4) throw new Error('Invalid nodeID')
 
 	this.seen()
 }
+
+inherits(Contact, EventEmitter)
 
 Contact.prototype.seen = () => {
 	this.lasteSeen = Date.now()
