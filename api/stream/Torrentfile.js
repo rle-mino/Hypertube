@@ -23,8 +23,9 @@ function TorrentFile(torrent) {
     this.Pieces = [] // this is a list of movie Pieces
 
     tracker.getPeers(torrent, peers => {
+		console.log(' ')
         peers.forEach(() => {ylog('|')})
-		const kadmelia = new RPC(anon.nodeContact(), {peers, })
+		const kadmelia = new RPC(torrent.infoHash, {peers, })
     })
 
     // let piecesBuf = Buffer.from(this._pieces)

@@ -27,13 +27,9 @@ let anon = {
 		return id
 	},
 
-	nodeId		: () =>{
-		try {
-			if (!anon._nodeId || anon._nodeId === '') {
-				anon._nodeId = anon.newId()
-			}
-		} catch(e) {
-			throw e
+	nodeId		: () => {
+		if (!anon._nodeId || anon._nodeId === '') {
+			anon._nodeId = anon.newId()
 		}
 		return anon._nodeId
 	},

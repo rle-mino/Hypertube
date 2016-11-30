@@ -19,26 +19,26 @@ function Contact(opts) {
 	if (!(this instanceof Contact)) return new Contact(opts)
 	let self = this
 
-	ilog(opts.nodes)
-
 	this.nodeId = opts.nodes || this._createNodeID()
+	this.ip = opts.ip
+	this.port = opts.port
 
-	if (!this.nodeId || this.nodeId.length !== B/4) throw new Error('Invalid nodeID')
+	if (!this.nodeId || this.nodeId.length !== B/8) throw new Error('Invalid nodeId')
 
 	this.seen()
 }
 
 inherits(Contact, EventEmitter)
 
-Contact.prototype.seen = () => {
-	this.lasteSeen = Date.now()
+Contact.prototype.seen = function () {
+	this.lastSeen = Date.now()
 }
 
-Contact.prototype.valid = () => {
+Contact.prototype.valid = function () {
 	return true
 }
 
-Contact.prototype._createNodeID = () => {
+Contact.prototype._createNodeID = function () {
 	anon.nodeId()
 }
 

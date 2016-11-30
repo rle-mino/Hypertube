@@ -1,45 +1,47 @@
 import anon from '../anonymizer'
-const y = 'q'
 import bencode from 'bencode'
+import chalk from 'chalk'
+
+const log = m => console.log(chalk.blue(m))
+const ilog = m => process.stdout.write(chalk.cyan(m))
+
+const y = 'q'
 // and q as method value string
 // and a as arguments
 
-export async function BuildPingQuery(t, _port) {
+export function BuildPingQuery(t, _port) {
 	const port = _port || null
-	try {
-		let id = await anon.nodeId(port)
-		let message = {
-			t,
-			y,
-			q	: 'ping',
-			a	: {id}
-		}
-		return Buffer.from(bencode.encode(message))
-	} catch(e){
-		throw e
-	}
-}
-
-function BuildFindNodeQuery(querying, target) {
-	let message = {
+	let message	= {
 		t,
 		y,
-		q	: 'find_nodes',
-		a	: {
-			id		: anon.nodeId(),
-			target	: target
+		q		: 'ping',
+		a		: {
+			id		: anon.nodeId(port)
 		}
 	}
 	return Buffer.from(bencode.encode(message))
 }
 
-function BuildGetPeers(querying, infoHash, noseed, scrape) {
+export function BuildFindNodeQuery(t, target, _port) {
 	let message = {
-		t	: anon.newKrpcId(),
+		t,
+		y,
+		q	: 'find_nodes',
+		a	: {
+			id	: anon.nodeId(_port),
+			target
+		}
+	}
+	return Buffer.from(bencode.encode(message))
+}
+
+function BuildGetPeers(t, infoHash, noseed, scrape) {
+	let message = {
+		t,
 		y,
 		q	: 'get_peers',
 		a	: {
-			id				: querying,
+			id				: anon.nodeId(_port),
 			info_hash		: infoHash
 		}
 	}

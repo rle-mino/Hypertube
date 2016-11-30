@@ -23,7 +23,7 @@ function Bucket() {
 	this.nodes = new LRU({maxAge: 15 * 60 * 1000, max: K})
 }
 
-Bucket.prototype.getSize = () => {
+Bucket.prototype.getSize = function() {
 	return this._contacts.length
 }
 
@@ -37,7 +37,7 @@ Bucket.prototype.getContact = index => {
 	return this._contacts[index] || null
 }
 
-Bucket.prototype.addContact = contact => {
+Bucket.prototype.addContact = function (contact) {
 	if (!(contact instanceof Contact)) throw new Error('Invalid contact')
 
 	if (this.getSize() === K) {
@@ -53,14 +53,14 @@ Bucket.prototype.addContact = contact => {
 		return false
 	}
 
-	if (!this.hasContact(contact.nodeID)) {
+	if (!this.hasContact(contact.nodeId)) {
 		let index = _.sortedIndex(this._contacts, contact, contact => {
 			return contact.lastSeen
 		})
 
 		this.contacts.splice(index, 0, contact)
 	}
-
+	ylog('+')
 	return true
 }
 
@@ -68,19 +68,23 @@ Bucket.prototype.removeContact = contact => {
 	const index = this.indexOf(contact)
 
 	if (index >= 0) {
-		this._contact.splice(index, 1)
+		this._contacts.splice(index, 1)
 		return true
 	}
 	return false
 }
 
-Bucket.prototype.hasContact = nodeID => {
+Bucket.prototype.hasContact = function(contact) {
 	for (let i = 0; i < this.getSize(); i++) {
-		if (this.getContact(i).nodeIF === contact.nodeID) {
+		if (this.getContact(i).nodeId === contact.nodeId) {
 			return i
 		}
 	}
 	return -1;
+}
+
+Bucket.prototype.indexOf = function (index) {
+	return this._contacts.indexOf(index)
 }
 
 module.exports = Bucket
