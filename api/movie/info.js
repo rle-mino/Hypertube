@@ -29,6 +29,7 @@ const getSerieInfo = (episodes) => {
                     title: episode.eptitle,
                     magnet: episode.magnet,
                     episode: episode.episode,
+                    season: episode.season,
                 });
             }
         });
