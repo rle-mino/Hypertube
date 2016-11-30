@@ -24,6 +24,7 @@ const UserSchema = new mongoose.Schema({
 	provider: {
 		type: String,
 	},
+	passToken: String,
 }, {
 	versionKey: false,
 });
