@@ -13,7 +13,7 @@ export default (app) => {
 	app.use(expressJwt({
 		secret: cfg.jwtSecret,
 	}).unless({ path: userController.safePath }));
-	app.use(userController.error);
+	app.use(userController.errors);
 	app.use(session({
 		secret: 'ssshhhhh',
 		resave: false,
@@ -30,7 +30,9 @@ export default (app) => {
 
 	app.get('/api/user/profile', userController.getProfile);
 
-	app.post('/api/user/edit', userController.editProfile);
+	app.put('/api/user/reset', userController.resetPassword);
+
+	app.put('/api/user/edit', userController.editProfile);
 
 	app.post('/api/user/upload_pic', userController.uploadPic);
 	app.get('/api/user/get_picture', userController.getPicture);
@@ -97,6 +99,8 @@ export default (app) => {
 
 	app.get('/api/user/auth/linkedin', (req, res, next) => {
 		req.session.query = req.query;
+		console.log(req.query);
+
 		next();
 	}, passport.authenticate('linkedin'));
 
@@ -108,10 +112,12 @@ export default (app) => {
 
 	app.get('/api/user/auth/spotify', (req, res, next) => {
 		req.session.query = req.query;
+		console.log(req.query);
 		next();
 	}, passport.authenticate('spotify', {scope: ['user-read-email', 'user-read-private'] }));
 
 	app.get('/api/user/auth/spotify/callback', userFonc.spotifyLogin, (req, res) => {
+		console.log(req.session.query.next);
 		res.set('Access-Control-Expose-Headers', 'x-access-token');
 		res.set('x-access-token', req.session.token);
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);

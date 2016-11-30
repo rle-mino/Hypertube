@@ -35,7 +35,7 @@ const safePath = [
 	'/api/user/auth/spotify/callback',
 ];
 
-const error = (err, req, res, next) => next();
+const errors = (err, req, res, next) => next();
 
 const getToken = (req) => {
 	if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
@@ -106,7 +106,6 @@ const uploadPic = (req, res) => upload(req, res, async (err) => {
 			return res.send({ status: 'error', details: `${log.username} already have 5 images` });
 		}
 		req.loggedUser.image = filename;
-		console.log(filename);
 		req.loggedUser.save();
 		return res.send({ status: 'success', details: `${log.username}'s images are now up to date`, filename });
 });
@@ -124,33 +123,70 @@ const getProfile = (req, res) => {
 	return res.send({ status: 'success', profile });
 };
 
-const editProfile = (req, res) => {
-	Joi.validate(req.body, schema.editSchema, {
+const resetPassword = async(req, res) => {
+	const { error } = Joi.validate(req.body, schema.resetPassSchema, {
 		abortEarly: false,
 		stripUnknown: true,
 	});
-	const { username, password, mail, firstname, lastname } = req.body;
-	console.log(username);
-	const hashedPass = bcrypt.genSalt(5, (err, salt) => {
-		if (err) return res.send('error');
-		bcrypt.hash(password, salt, null, (err, hash) => {
-			console.log('1', hash);
-			console.log('1', password);
-		})
+	if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
+	const { username } = req.loggedUser;
+	let { password, newPassword } = req.body;
+	process.nextTick(async() => {
+		User.findOne({ username, provider: 'local' }, async (err, user) => {
+			if (err) return res.send(err, { status: 'error', details: 'Cant connect to db' });
+			if (!user) return res.send({ status: 'error', details: 'user doesnt exist' });
+			user.comparePassword(password, (error, isMatch) => {
+				if (error) return res.send({ status: 'error', details: 'Cant connect to db' });
+				if (!isMatch) return res.send({ status: 'error', details: 'wrong password' });
+				const SALT_FACTOR = 5;
+				bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
+					if (err) return res.send(err);
+					bcrypt.hash(newPassword, salt, null, (err, hash) => {
+						if (err) return res.send(err);
+						newPassword = hash;
+						console.log(newPassword);
+						user.update({ $set: { password: newPassword } }, (error) => {
+						});
+						});
+					})
+				});
+			});
+		});
+	};
+
+const editProfile = (req, res) => {
+	const { error } = Joi.validate(req.body, schema.editSchema, {
+		abortEarly: false,
+		stripUnknown: true,
 	});
-	// if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
-	// User.findOne({ username, password }, (err, user) => {
-	// 	if (err) return res.send({ status: 'error', details: 'Cant connect to db' });
-	// 	if (!user) return res.send({ status: 'error', details: 'User doesnt exist' });
-	// 	const newUser =
-	// });
+	if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
+	const { password, mail, firstname, lastname } = req.body;
+	const { username } = req.loggedUser;
+	process.nextTick(() => {
+		User.findOne({ username, provider: 'local' }, (err, user) => {
+			if (err) return res.send(err, { status: 'error', details: 'Cant connect to db' });
+			if (!user) return res.send({ status: 'error', details: 'user doenst exist' });
+			user.comparePassword(password, (erro, isMatch) => {
+				if (erro) return res.send(erro);
+				if (!isMatch) return res.send({ status: 'error', details: 'wrong password' });
+				user.update({ $set: { firstname, lastname, mail } }, (error, user) => {
+					if (err) return res.send({ status: 'error', details: 'Cant connect to db' });
+					return res.send({ status: 'success', details: 'user successfully updated' });
+				});
+				return (false);
+			});
+			return (false);
+		});
+	});
+	return (false);
 };
 
 export {
 	checkTokenMid,
-	error,
+	errors,
 	getPicture,
 	uploadPic,
 	getProfile,
 	editProfile,
+	resetPassword,
 };

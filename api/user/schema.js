@@ -27,6 +27,17 @@ const UserSchema = new mongoose.Schema({
 }, {
 	versionKey: false,
 });
+// UserSchema.methods.updatePass = (newPassword) => {
+// 	const SALT_FACTOR = 5;
+// 	bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
+// 		if (err) return (err);
+// 		bcrypt.hash(newPassword, salt, null, (err, hash) => {
+// 			if (err) return (err);
+// 			newPassword = hash;
+// 			return (newPassword);
+// 		});
+// 	})
+// };
 
 UserSchema.pre('save', function(next) {
 	const user = this,
