@@ -144,8 +144,9 @@ const resetPassword = async(req, res) => {
 					bcrypt.hash(newPassword, salt, null, (err, hash) => {
 						if (err) return res.send(err);
 						newPassword = hash;
-						console.log(newPassword);
 						user.update({ $set: { password: newPassword } }, (error) => {
+							if (error) return res.send({ status: 'false', details: 'Cant connect to db' });
+							return res.send({ status: 'success', details: 'password successfully updated' });
 						});
 						});
 					})
@@ -166,14 +167,18 @@ const editProfile = (req, res) => {
 		User.findOne({ username, provider: 'local' }, (err, user) => {
 			if (err) return res.send(err, { status: 'error', details: 'Cant connect to db' });
 			if (!user) return res.send({ status: 'error', details: 'user doenst exist' });
-			user.comparePassword(password, (erro, isMatch) => {
-				if (erro) return res.send(erro);
-				if (!isMatch) return res.send({ status: 'error', details: 'wrong password' });
-				user.update({ $set: { firstname, lastname, mail } }, (error, user) => {
-					if (err) return res.send({ status: 'error', details: 'Cant connect to db' });
-					return res.send({ status: 'success', details: 'user successfully updated' });
-				});
-				return (false);
+			User.findOne({ mail, provider: 'local' }, (erro, user) => {
+				if (erro) return res.send({ status: 'error', details: 'cant connect to db' });
+				if (user) return res.send({ status: 'error', details: 'mail already used' });
+				user.comparePassword(password, (error, isMatch) => {
+					if (erro) return res.send(error);
+					if (!isMatch) return res.send({ status: 'error', details: 'wrong password' });
+					user.update({ $set: { firstname, lastname, mail } }, (errorss) => {
+						if (errorss) return res.send({ status: 'error', details: 'Cant connect to db' });
+						return res.send({ status: 'success', details: 'user successfully updated' });
+					});
+					return (false);
+				})
 			});
 			return (false);
 		});
