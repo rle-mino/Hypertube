@@ -52,9 +52,7 @@ class Search extends React.Component {
 
 	requestFilms = async (clearRes, reqSet) => {
 		this.setState({ pending: true })
-		const response = await api.search(reqSet)
-		console.log(response)
-		const { data } = response
+		const { data } = await api.search(reqSet)
 		if (!data.status) {
 			this.setState({ pending: false })
 			return false

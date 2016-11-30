@@ -11,9 +11,7 @@ export default class MiniMovie extends React.Component {
             <div
                 className="miniMovie"
                 onClick={click}
-                style={{
-                    backgroundImage: `url('${data.poster || noImage}')`, backgroundRepeat: !data.poster ? 'no-repeat' : 'repeat',
-                }}>
+                style={{ backgroundImage: `url('${data.poster}'), url('${noImage}')` }}>
                 <div className={`miniInfo ${!data.poster ? 'noPoster' : '' }`}>
                     <h3>{data.title} ({data.year})</h3>
                     <div>

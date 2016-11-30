@@ -11,6 +11,7 @@ import HeadAndFoot								from './containers/HeadAndFoot'
 import Search									from './containers/Search'
 import HomePage									from './containers/HomePage'
 import Movie									from './containers/Movie'
+import Profile									from './containers/Profile'
 
 export default () => {
 	return (
@@ -26,6 +27,7 @@ export default () => {
 					<IndexRoute component={HomePage} />
 					<Route path="search" component={Search} />
 					<Route path="movie/:id" component={Movie} />
+					<Route path="profile" component={Profile} />
 				</Route>
 			</Router>
 		</MuiThemeProvider>

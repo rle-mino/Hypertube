@@ -64,7 +64,7 @@ class HomePage extends React.Component {
 				{!error && !pending &&
 					<div>
 						<div className="slider">
-							<Carousel data={dataCar} dispatch={dispatch} />
+							<Carousel data={dataCar} dispatch={dispatch} mainColor={mainColor} />
 						</div>
 						<ul className="topSearchList">
 							{this.drawTopSearch()}

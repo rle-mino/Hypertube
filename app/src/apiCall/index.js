@@ -54,6 +54,17 @@ const getPict = async () =>
 const getMovie = async (id, l) =>
 	await axios.get(`${apiConnect}/api/movie/${id}?lg=${lang.lang[l]}`, getToken())
 
+const getProfile = async () =>
+	await axios.get(`${apiConnect}/api/user/profile`, getToken())
+
+const updateProfile = async (data) =>
+	await axios({
+		url: `${apiConnect}/api/user/edit`,
+		method: 'put',
+		data,
+		...getToken(),
+	})
+
 module.exports = {
 	search,
 	fastSearch,
@@ -63,4 +74,6 @@ module.exports = {
 	register,
 	getMovie,
 	upPhoto,
+	getProfile,
+	updateProfile,
 }

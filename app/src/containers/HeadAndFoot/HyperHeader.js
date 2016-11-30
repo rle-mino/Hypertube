@@ -35,7 +35,6 @@ class HyperHeader extends React.Component {
 				browserHistory.push('/')
 			} else {
 				this.setState({ image: noImage })
-				// no image
 			}
 		}
 	}
@@ -64,7 +63,7 @@ class HyperHeader extends React.Component {
 				<span className="hyperTitle" onClick={this.goHome}>HYPERTUBE</span>
 				<SearchForm location={location} l={l} dispatch={dispatch}/>
 				<div className="profSet">
-					<ProfileIcon image={image ? image : null} l={l} />
+					<ProfileIcon image={image ? image : null} l={l} dispatch={dispatch}/>
 					<IconMenu
 						style={{ marginRight: '10px' }}
 						anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}

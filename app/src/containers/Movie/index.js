@@ -89,22 +89,24 @@ class Movie extends React.Component {
 					{/* <Player /> */}
 				</div>
 				<div className="filmData">
-					<h1>{data.title}</h1>
 					<div
 						className="poster"
 						style={{ backgroundImage: `url('${data.poster}'), url('${noImage}')` }}
 					/>
-					<div className="rate">
-						<i className="material-icons">stars</i>
-						<h4>{data.rating}</h4>
+					<div className="afterPoster">
+						<h1>{data.title}</h1>
+						<div className="rate">
+							<i className="material-icons">stars</i>
+							<h4>{data.rating}</h4>
+						</div>
+						<h3>{lang.year[l]} {data.year}</h3>
+						<p className="plot">{data.plot}</p>
+						<ul className="genres">
+							{this.drawGenre()}
+						</ul>
 					</div>
-					<h3>{lang.year[l]} {data.year}</h3>
-					<p>{data.plot}</p>
-					<ul className="genres">
-						{this.drawGenre()}
-					</ul>
 				</div>
-				<h3>{lang.youMayAlsoLike[l]}</h3>
+				<h3 className="ymal">{lang.youMayAlsoLike[l]}</h3>
 				<ul className="suggestions">
 					{this.drawSuggest()}
 				</ul>

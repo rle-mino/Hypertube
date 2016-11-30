@@ -1,0 +1,61 @@
+.profile
+	& .image
+		width: 200px
+		height: 200px
+		display: flex
+		justify-content: center
+		align-items: center
+		background:
+			repeat: no-repeat
+			size: cover
+			position: center
+
+		&:hover .updateIMGButton
+			opacity: 1
+		& .updateIMGButton
+			opacity: 0
+			background-color: white !important
+			border-radius: 50%
+			box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)
+			&:hover
+			  box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)
+
+	& .updateButton
+		margin-bottom: 5px
+		margin-right: 5px
+
+	& .userData
+		height: 200px
+		display: flex
+		flex-direction: row
+
+	& .userCred
+		margin-left: 50px
+		padding-top: 2px
+		height: 100%
+		display: flex
+		flex-direction: column
+		justify-content: space-between
+
+		& > h3
+			padding: 0
+			margin: 0
+
+.updateForm
+	display: flex
+	flex-direction: column
+	justify-content: center
+	align-items: center
+
+
+@media screen and (max-width:1080px)
+	.profile
+		margin-top: 20px !important
+		& .image
+			width: 150px
+			height: 150px
+		& .userCred
+			font-size: 12px
+			height: 75%
+	.updateForm
+		width: 100% !important

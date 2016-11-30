@@ -70,12 +70,17 @@ export default class Carousel extends React.Component {
 
 	render() {
 		const { mt } = this.state
+		const { mainColor } = this.props
 		return (
 			<div className="carouselContainer"
 				onMouseEnter={this.playStopCarousel}
 				onMouseLeave={this.playStopCarousel}
 			>
-				<IconClickable className="arrows" style={{ ...buttonStyle, left: '5%' }} click={this.goPrev}>
+				<IconClickable
+					className="arrows"
+					style={{ ...buttonStyle, left: '5%', color: mainColor }}
+					click={this.goPrev}
+				>
 					<i className="material-icons">keyboard_arrow_left</i>
 				</IconClickable>
 				<div
@@ -84,7 +89,11 @@ export default class Carousel extends React.Component {
 				>
 					{this.drawIMGList()}
 				</div>
-				<IconClickable className="arrows" style={{ ...buttonStyle, left: '95%' }} click={this.goNext}>
+				<IconClickable
+					className="arrows"
+					style={{ ...buttonStyle, left: '95%', color: mainColor }}
+					click={this.goNext}
+				>
 					<i className="material-icons">keyboard_arrow_right</i>
 				</IconClickable>
 			</div>
