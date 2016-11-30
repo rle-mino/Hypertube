@@ -272,7 +272,6 @@ passport.use('spotify', new SpotifyStrategy({
 	clientSecret: configAuth.spotifyAuth.clientSecret,
     callbackURL: 'http://localhost:8080/api/user/auth/spotify/callback',
 	scope: ['r_emailaddress', 'r_basicprofile'],
-	// profileFields: ['id', 'first-name', 'last-name', 'email-address', 'headline', 'picture-url'],
 	state: true,
 }, (accessToken, refreshToken, profile, done) => {
 	process.nextTick(() => {
