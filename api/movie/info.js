@@ -14,6 +14,28 @@ const popGenres = async (data, genres, found, id, type) => {
     return popGenres(data, genres, found, id, type);
 };
 
+const getSerieInfo = (episodes) => {
+    episodes.sort((a, b) => a.season - b.season || a.episode - b.episode);
+    const seasons = [];
+    episodes.forEach((episode) => {
+        if (seasons.indexOf(episode.season) === -1) seasons.push(episode.season);
+    });
+    const serie = [];
+    seasons.forEach((season) => serie.push({ episodes: [], season }));
+    episodes.forEach((episode) => {
+        serie.forEach((season) => {
+            if (season.season === episode.season) {
+                    season.episodes.push({
+                    title: episode.eptitle,
+                    magnet: episode.magnet,
+                    episode: episode.episode,
+                });
+            }
+        });
+    });
+    return (serie);
+};
+
 const getData = (req, res) => {
     const id = req.params.id;
     Movie.findOne({ _id: id }, async (err, found) => {
@@ -21,10 +43,7 @@ const getData = (req, res) => {
         const genres = found.genres;
         const type = found.episodes[0] ? 'serie' : 'movie';
         if (type === 'serie') {
-            found.episodes.sort((a, b) => a.season - b.season || a.episode - b.episode);
-            found.episodes.forEach((episode) => console.log(episode.season, episode.episode));
-            // implementer gestion des saisons/episodes
-            // -> creer un array avec les saisons et remplir avec les episodes (2 dimensional)
+             found.episodes = await getSerieInfo(found.episodes);
         }
         if (req.query.lg !== 'en') {
             found.plot = await translate(found.plot, { from: 'en', to: req.query.lg }).then((result) => result.text);
