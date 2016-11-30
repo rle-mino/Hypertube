@@ -40,6 +40,7 @@ class Auth extends React.Component {
 		const { token } = this.props.location.query
 		if (token) {
 			localStorage.setItem('logToken', token)
+			browserHistory.push('/ht')
 			// this.props.dispatch(selectAuth(100))
 		}
 	}
