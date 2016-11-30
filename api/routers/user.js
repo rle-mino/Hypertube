@@ -30,12 +30,15 @@ export default (app) => {
 
 	app.get('/api/user/profile', userController.getProfile);
 
-	app.put('/api/user/reset', userController.resetPassword);
+	app.put('/api/user/change_pass', userController.changePassword);
 
 	app.put('/api/user/edit', userController.editProfile);
 
 	app.post('/api/user/upload_pic', userController.uploadPic);
+
 	app.get('/api/user/get_picture', userController.getPicture);
+
+	app.put('/api/user/forgot', userController.forgotPassword);
 
 	app.post('/api/user/register', userFonc.register);
 
@@ -51,7 +54,6 @@ export default (app) => {
 		res.set('x-access-token', req.session.token);
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
 	});
-
 
 	app.get('/api/user/auth/facebook', (req, res, next) => {
 		req.session.query = req.query;

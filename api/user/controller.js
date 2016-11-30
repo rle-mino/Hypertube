@@ -1,6 +1,7 @@
 import fs			from 'fs';
 import path			from 'path';
 import _			from 'lodash';
+import nodemailer	from 'nodemailer';
 import multer		from 'multer';
 import Joi from 'joi';
 import bcrypt from 'bcrypt-nodejs';
@@ -36,6 +37,23 @@ const safePath = [
 ];
 
 const errors = (err, req, res, next) => next();
+
+const mailer = (dest, content, obj) => {
+	const transporter = nodemailer.createTransport({
+		service: 'Gmail',
+		auth: {
+			user: 'hypertubeapi@gmail.com ',
+			pass: 'Hypertube1212',
+		},
+	});
+	const mailOptions = {
+			from: 'Hypertube@gmail.com',
+			to: dest,
+			subject: obj,
+			text: content,
+	};
+	transporter.sendMail(mailOptions);
+};
 
 const getToken = (req) => {
 	if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
@@ -123,16 +141,66 @@ const getProfile = (req, res) => {
 	return res.send({ status: 'success', profile });
 };
 
-const resetPassword = async(req, res) => {
+const forgotPassword = (req, res) => {
+	const { error } = Joi.validate(req.body, schema.forgotPassSchema, {
+		abortEarly: false,
+		stripUnknown: true,
+	});
+	if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
+	const { mail } = req.body;
+	process.nextTick(() => {
+		User.findOne({ mail, provider: 'local' }, (err, user) => {
+			if (err) return res.send({ status: 'error', details: 'Cant connect to db' });
+			if (!user) return res.send({ status: 'error', details: 'mail doesnt exist' });
+			const confirmKey = Math.random().toString(16).substring(2, 8);
+			user.passToken = confirmKey;
+			user.save();
+			mailer(mail, `Use this code to reset your password ${confirmKey}`, 'Reset your password');
+			return res.send({ status: 'success', details: 'mail has been sent' });
+		});
+	});
+	return (false);
+};
+
+const resetPassword = (req, res) => {
 	const { error } = Joi.validate(req.body, schema.resetPassSchema, {
 		abortEarly: false,
 		stripUnknown: true,
 	});
 	if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
+	const { username, code } = req.body;
+	let { password } = req.body;
+	process.nextTick(() => {
+		User.findOne({ username, provider: 'local' }, (err, user) => {
+			if (err) return res.send({ status: 'error', details: 'cant connect to db' });
+			if (!user) return res.send({ status: 'error', details: 'user doesnt exist' });
+			const SALT_FACTOR = 5;
+			bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
+				if (err) return res.send(err);
+				bcrypt.hash(newPassword, salt, null, (err, hash) => {
+					if (err) return res.send(err);
+					password = hash;
+					user.update({ $set: { password } }, (error) => {
+						if (error) return res.send({ status: 'false', details: 'Cant connect to db' });
+						return res.send({ status: 'success', details: 'password successfully updated' });
+					});
+		});
+	});
+	});
+});
+};
+
+const changePassword = (req, res) => {
+	const { error } = Joi.validate(req.body, schema.changePassSchema, {
+		abortEarly: false,
+		stripUnknown: true,
+	});
+	if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
 	const { username } = req.loggedUser;
-	let { password, newPassword } = req.body;
-	process.nextTick(async() => {
-		User.findOne({ username, provider: 'local' }, async (err, user) => {
+	let { newPassword } = req.body;
+	const { password } = req.body;
+	process.nextTick(() => {
+		User.findOne({ username, provider: 'local' },  (err, user) => {
 			if (err) return res.send(err, { status: 'error', details: 'Cant connect to db' });
 			if (!user) return res.send({ status: 'error', details: 'user doesnt exist' });
 			user.comparePassword(password, (error, isMatch) => {
@@ -144,8 +212,9 @@ const resetPassword = async(req, res) => {
 					bcrypt.hash(newPassword, salt, null, (err, hash) => {
 						if (err) return res.send(err);
 						newPassword = hash;
-						console.log(newPassword);
 						user.update({ $set: { password: newPassword } }, (error) => {
+							if (error) return res.send({ status: 'false', details: 'Cant connect to db' });
+							return res.send({ status: 'success', details: 'password successfully updated' });
 						});
 						});
 					})
@@ -166,14 +235,18 @@ const editProfile = (req, res) => {
 		User.findOne({ username, provider: 'local' }, (err, user) => {
 			if (err) return res.send(err, { status: 'error', details: 'Cant connect to db' });
 			if (!user) return res.send({ status: 'error', details: 'user doenst exist' });
-			user.comparePassword(password, (erro, isMatch) => {
-				if (erro) return res.send(erro);
-				if (!isMatch) return res.send({ status: 'error', details: 'wrong password' });
-				user.update({ $set: { firstname, lastname, mail } }, (error, user) => {
-					if (err) return res.send({ status: 'error', details: 'Cant connect to db' });
-					return res.send({ status: 'success', details: 'user successfully updated' });
-				});
-				return (false);
+			User.findOne({ mail, provider: 'local' }, (erro, user) => {
+				if (erro) return res.send({ status: 'error', details: 'cant connect to db' });
+				if (user) return res.send({ status: 'error', details: 'mail already used' });
+				user.comparePassword(password, (error, isMatch) => {
+					if (erro) return res.send(error);
+					if (!isMatch) return res.send({ status: 'error', details: 'wrong password' });
+					user.update({ $set: { firstname, lastname, mail } }, (errorss) => {
+						if (errorss) return res.send({ status: 'error', details: 'Cant connect to db' });
+						return res.send({ status: 'success', details: 'user successfully updated' });
+					});
+					return (false);
+				})
 			});
 			return (false);
 		});
@@ -188,5 +261,6 @@ export {
 	uploadPic,
 	getProfile,
 	editProfile,
-	resetPassword,
+	changePassword,
+	forgotPassword,
 };

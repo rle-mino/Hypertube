@@ -20,9 +20,19 @@ const editSchema = Joi.object().keys({
 	password: Joi.string().required(),
 });
 
-const resetPassSchema = Joi.object().keys({
+const changePassSchema = Joi.object().keys({
 	password: Joi.string().regex(/^[a-zA-Z0-9]{8,30}$/).required(),
 	newPassword: Joi.string().regex(/^[a-zA-Z0-9]{8,30}$/).required(),
 });
 
-export { registerSchema, loginSchema, editSchema, resetPassSchema };
+const forgotPassSchema = Joi.object().keys({
+	mail: Joi.string().max(200).required(),
+});
+
+const resetPassSchema = Joi.object().keys({
+	password: Joi.string().regex(/^[a-zA-Z0-9]{8,30}$/).required(),
+	username: Joi.string().alphanum().min(3).max(16).required(),
+	code: Joi.string().alphanum().max(200).required(),
+});
+
+export { changePassSchema, registerSchema, loginSchema, editSchema, resetPassSchema, forgotPassSchema };
