@@ -13,15 +13,15 @@ import * as cfg		from './jwt/config';
 const apiURL = 'http://localhost:8080/api';
 
 const safePath = [
+	'/api/stream',
+	'/api/user/reset',
 	'/api/user/login',
+	'/api/user/forgot',
 	'/api/user/public',
 	'/api/user/register',
-	'/api/user/forgot_password',
-	'/api/user/reset_password',
 	'/api/user/confirm_mail',
 	'/api/user/auth/42',
 	'/api/user/auth/42/callback',
-	'/api/stream',
 	'/api/user/auth/facebook',
 	'/api/user/auth/facebook/callback',
 	'/api/user/auth/twitter',
@@ -77,6 +77,7 @@ const checkTokenMid = async (req, res, next) => {
 				return next();
 			});
 		} catch (e) {
+			console.log(1);
 			return res.send({ status: 'error', details: 'an error occured' });
 		}
 		return (true);
@@ -110,6 +111,7 @@ const addExtensionFilename = async (filename, mimetype) => {
 };
 
 const uploadPic = (req, res) => upload(req, res, async (err) => {
+	console.log(2);
 		if (!req.file) return res.send({ status: 'error', details: 'image required' });
 		if (err) return res.send({ status: 'error', details: 'an error occured' });
 		if (req.file.mimetype !== 'image/jpeg' && req.file.mimetype !== 'image/png') {
@@ -129,7 +131,11 @@ const uploadPic = (req, res) => upload(req, res, async (err) => {
 });
 
 const getProfile = (req, res) => {
-	const image = `${apiURL}/user/public/${req.loggedUser.image[0]}`;
+	let image = null;
+	image = req.loggedUser.image[0];
+	if (req.loggedUser.provider === 'local') {
+		image = `${apiURL}/user/public/${req.loggedUser.image[0]}`;
+	}
 	const profile = _.pick(req.loggedUser, [
 		'mail',
 		'username',
@@ -141,6 +147,7 @@ const getProfile = (req, res) => {
 	return res.send({ status: 'success', profile });
 };
 
+// Send Mail
 const forgotPassword = (req, res) => {
 	const { error } = Joi.validate(req.body, schema.forgotPassSchema, {
 		abortEarly: false,
@@ -162,34 +169,40 @@ const forgotPassword = (req, res) => {
 	return (false);
 };
 
+//Reset mail after mail
 const resetPassword = (req, res) => {
 	const { error } = Joi.validate(req.body, schema.resetPassSchema, {
 		abortEarly: false,
 		stripUnknown: true,
 	});
 	if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
-	const { username, code } = req.body;
+	const { username, passToken } = req.body;
 	let { password } = req.body;
 	process.nextTick(() => {
-		User.findOne({ username, provider: 'local' }, (err, user) => {
+		User.findOne({ $or: [{ username},{ mail: username}], provider: 'local' }, (err, user) => {
 			if (err) return res.send({ status: 'error', details: 'cant connect to db' });
 			if (!user) return res.send({ status: 'error', details: 'user doesnt exist' });
-			const SALT_FACTOR = 5;
-			bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
-				if (err) return res.send(err);
-				bcrypt.hash(newPassword, salt, null, (err, hash) => {
+			User.findOne({ username, passToken }, (erro, user) => {
+				if (erro) return res.send({ status: 'error', details: 'cant connect to db' });
+				if (!user) return res.send({ status: 'error', details: 'wrong code' });
+				const SALT_FACTOR = 5;
+				bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
 					if (err) return res.send(err);
-					password = hash;
-					user.update({ $set: { password } }, (error) => {
-						if (error) return res.send({ status: 'false', details: 'Cant connect to db' });
-						return res.send({ status: 'success', details: 'password successfully updated' });
+					bcrypt.hash(password, salt, null, (erro, hash) => {
+						if (err) return res.send(erro);
+						password = hash;
+						user.update({ $set: { password } }, (er1) => {
+							if (er1) return res.send({ status: 'false', details: 'Cant connect to db' });
+							return res.send({ status: 'success', details: 'password successfully updated' });
+						});
 					});
+				});
+			})
 		});
 	});
-	});
-});
 };
 
+// Change Mail
 const changePassword = (req, res) => {
 	const { error } = Joi.validate(req.body, schema.changePassSchema, {
 		abortEarly: false,
@@ -232,12 +245,12 @@ const editProfile = (req, res) => {
 	const { password, mail, firstname, lastname } = req.body;
 	const { username } = req.loggedUser;
 	process.nextTick(() => {
-		User.findOne({ username, provider: 'local' }, (err, user) => {
+		User.findOne({ mail, provider: 'local' }, (err, user) => {
 			if (err) return res.send(err, { status: 'error', details: 'Cant connect to db' });
-			if (!user) return res.send({ status: 'error', details: 'user doenst exist' });
-			User.findOne({ mail, provider: 'local' }, (erro, user) => {
+			if (user) return res.send({ status: 'error', details: 'mail alredy used' });
+			User.findOne({ username, provider: 'local' }, (erro, user) => {
 				if (erro) return res.send({ status: 'error', details: 'cant connect to db' });
-				if (user) return res.send({ status: 'error', details: 'mail already used' });
+				if (!user) return res.send({ status: 'error', details: 'user doesnt exist' });
 				user.comparePassword(password, (error, isMatch) => {
 					if (erro) return res.send(error);
 					if (!isMatch) return res.send({ status: 'error', details: 'wrong password' });
@@ -256,6 +269,7 @@ const editProfile = (req, res) => {
 
 export {
 	checkTokenMid,
+	resetPassword,
 	errors,
 	getPicture,
 	uploadPic,
