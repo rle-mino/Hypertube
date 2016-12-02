@@ -132,7 +132,6 @@ class registerForm extends React.Component {
 			lastnameR: null,
 			passwordConfirmR: null,
 			mailR: null,
-			imageInput: null,
 			serverResponse: null,
 		})
 

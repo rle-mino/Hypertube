@@ -8,6 +8,7 @@ import * as bodyDis			from '../../action/body'
 
 import Chip					from 'material-ui/Chip'
 import CircularProgress		from 'material-ui/CircularProgress'
+import EpisodeSelector		from '../../components/EpisodeSelector'
 import MiniMovie			from '../../components/MiniMovie'
 import noImage				from '../../../public/No-image-found.jpg'
 
@@ -23,13 +24,31 @@ class Movie extends React.Component {
 	state = {
 		data: null,
 		suggestions: null,
+		serie: false,
+		selectedEpisode: {
+			season: 0,
+			episode: 0,
+		}
+	}
+
+	getFirstAvailable = (seasons) => {
+		if (!seasons) return false
+		return {
+			season: seasons[0].season,
+			episode: seasons[0].episodes[0].episode
+		}
 	}
 
 	getData = async (props) => {
 		const { data } = await api.getMovie(props.params.id, props.l)
 		if (!this._mounted) return false
 		if (data.status.includes('success')) {
-			this.setState({ data: data.result, suggestions: data.suggestions })
+			this.setState({
+				data: data.result,
+				suggestions: data.suggestions,
+				serie: !!data.result.episodes,
+				selectedEpisode: this.getFirstAvailable(data.result.episodes)
+			})
 		} else browserHistory.push('/')
 	}
 
@@ -79,8 +98,10 @@ class Movie extends React.Component {
 		)
 	})
 
+	updateSelected = (selected) => this.setState({ selectedEpisode: selected })
+
 	render() {
-		const { data } = this.state
+		const { data, selectedEpisode } = this.state
 		const { l, mainColor } = this.props
 		if (!data) return (<CircularProgress color={mainColor} style={{ marginTop: '20px' }} />)
 		return (
@@ -89,11 +110,17 @@ class Movie extends React.Component {
 					{/* <Player /> */}
 				</div>
 				<div className="filmData">
+
 					<div
 						className="poster"
 						style={{ backgroundImage: `url('${data.poster}'), url('${noImage}')` }}
 					/>
 					<div className="afterPoster">
+						<EpisodeSelector
+							selectedEpisode={selectedEpisode}
+							episodesList={data.episodes}
+							onEpisodeSelect={this.updateSelected}
+						/>
 						<h1>{data.title}</h1>
 						<div className="rate">
 							<i className="material-icons">stars</i>
@@ -115,11 +142,9 @@ class Movie extends React.Component {
 	}
 }
 
-const mapStateToProps = ({ lang, theme }) => {
-	return {
-		l: lang.l,
-		mainColor: theme.mainColor,
-	}
-}
+const mapStateToProps = ({ lang, theme }) => ({
+	l: lang.l,
+	mainColor: theme.mainColor,
+})
 
 export default connect(mapStateToProps)(Movie)

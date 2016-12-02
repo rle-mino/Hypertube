@@ -56,6 +56,7 @@ module.exports = {
 	],
 	errorP: {
 		'any.empty': [ 'required', 'requis' ],
+		'any.required': [ 'required', 'requis' ],
 		'string.alphanum': [ 'alpha-numeric characters only', 'caractères alpha-numerique uniquement' ],
 		'string.min': [ '3 characters minimum', '3 caractères minimum' ],
 		'string.max': [ '16 characters maximum', '16 caractères maximum' ],

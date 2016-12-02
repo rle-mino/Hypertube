@@ -65,6 +65,20 @@ const updateProfile = async (data) =>
 		...getToken(),
 	})
 
+const forgotPass = async (data) =>
+	await axios({
+		url: `${apiConnect}/api/user/reset`,
+		method: 'put',
+		data,
+	})
+
+const resetPassword = async (data) =>
+	await axios({
+		url: `${apiConnect}/api/user/change_pass`,
+		method: 'put',
+		data,
+	})
+
 module.exports = {
 	search,
 	fastSearch,
@@ -76,4 +90,6 @@ module.exports = {
 	upPhoto,
 	getProfile,
 	updateProfile,
+	forgotPass,
+	resetPassword,
 }

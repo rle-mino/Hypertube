@@ -50,6 +50,7 @@ export default class EditComp extends React.Component {
 		}
 		const { l } = this.props
 		const { data } = await api.updateProfile(cred)
+		console.log(data)
 		this.setState({ errors: {} })
 		if (data.status.includes('error')) {
 			if (data.details.includes('invalid request')) {
@@ -62,8 +63,8 @@ export default class EditComp extends React.Component {
 				this.setState({ errors })
 			} else if (data.details.includes('wrong password')) {
 				this.setState({ errors: { serverResponse: lang.wrongPassword[l] } })
-			} else if (data.details.includes('mail used')) {
-				this.setState({ 'mailR': lang.alreadyUsed[l] })
+			} else if (data.details.includes('mail already used')) {
+				this.setState({ errors: { mailR: lang.alreadyUsed[l] } })
 			} else this.setState({ errors: { serverResponse : lang.error[l] } })
 		} else {
 			this.props.onUpdate()
