@@ -71,13 +71,16 @@ const checkTokenMid = async (req, res, next) => {
 	jwt.verify(token, cfg.jwtSecret, async (err, decoded) => {
 		if (err) return res.send({ status: 'error', details: 'invalid token' });
 		try {
-			await User.findOne({ username: decoded.username, provider: decoded.provider }, (erro, user) => {
+			await User.findOne({
+				username: decoded.username,
+				provider: decoded.provider,
+			},
+			(erro, user) => {
 				if (erro) return res.send({ status: 'error', details: 'cant connect to db' });
 				req.loggedUser = user;
 				return next();
 			});
 		} catch (e) {
-			console.log(1);
 			return res.send({ status: 'error', details: 'an error occured' });
 		}
 		return (true);
@@ -111,7 +114,6 @@ const addExtensionFilename = async (filename, mimetype) => {
 };
 
 const uploadPic = (req, res) => upload(req, res, async (err) => {
-	console.log(2);
 		if (!req.file) return res.send({ status: 'error', details: 'image required' });
 		if (err) return res.send({ status: 'error', details: 'an error occured' });
 		if (req.file.mimetype !== 'image/jpeg' && req.file.mimetype !== 'image/png') {
@@ -120,8 +122,8 @@ const uploadPic = (req, res) => upload(req, res, async (err) => {
 		const log = req.loggedUser;
 		const filename = await addExtensionFilename(req.file.filename, req.file.mimetype);
 		if (log.images && log.images.length === 5) {
-			fs.readFile(`${__dirname}/../../public/${req.file.filename}`, (errors) => {
-				if (!errors) fs.unlinkSync(`${__dirname}/../../public/${filename}`);
+			fs.readFile(`${__dirname}/../../public/${req.file.filename}`, (errorss) => {
+				if (!errorss) fs.unlinkSync(`${__dirname}/../../public/${filename}`);
 			});
 			return res.send({ status: 'error', details: `${log.username} already have 5 images` });
 		}
@@ -169,7 +171,7 @@ const forgotPassword = (req, res) => {
 	return (false);
 };
 
-//Reset mail after mail
+// Reset mail after mail
 const resetPassword = (req, res) => {
 	const { error } = Joi.validate(req.body, schema.resetPassSchema, {
 		abortEarly: false,
@@ -179,27 +181,32 @@ const resetPassword = (req, res) => {
 	const { username, passToken } = req.body;
 	let { password } = req.body;
 	process.nextTick(() => {
-		User.findOne({ $or: [{ username},{ mail: username}], provider: 'local' }, (err, user) => {
+		User.findOne({ $or: [{ username }, { mail: username }], provider: 'local' }, (err, user) => {
 			if (err) return res.send({ status: 'error', details: 'cant connect to db' });
 			if (!user) return res.send({ status: 'error', details: 'user doesnt exist' });
-			User.findOne({ username, passToken }, (erro, user) => {
+			User.findOne({ username, passToken }, (erro, user1) => {
 				if (erro) return res.send({ status: 'error', details: 'cant connect to db' });
-				if (!user) return res.send({ status: 'error', details: 'wrong code' });
+				if (!user1) return res.send({ status: 'error', details: 'wrong code' });
 				const SALT_FACTOR = 5;
-				bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
-					if (err) return res.send(err);
-					bcrypt.hash(password, salt, null, (erro, hash) => {
-						if (err) return res.send(erro);
+				bcrypt.genSalt(SALT_FACTOR, (err2, salt) => {
+					if (err2) return res.send(err2);
+					bcrypt.hash(password, salt, null, (er, hash) => {
+						if (er) return res.send(er);
 						password = hash;
-						user.update({ $set: { password } }, (er1) => {
+						user1.update({ $set: { password } }, (er1) => {
 							if (er1) return res.send({ status: 'false', details: 'Cant connect to db' });
 							return res.send({ status: 'success', details: 'password successfully updated' });
 						});
+						return (false);
 					});
+					return (false);
 				});
-			})
+				return (false);
+			});
+			return (false);
 		});
 	});
+	return (false);
 };
 
 // Change Mail
@@ -213,28 +220,33 @@ const changePassword = (req, res) => {
 	let { newPassword } = req.body;
 	const { password } = req.body;
 	process.nextTick(() => {
-		User.findOne({ username, provider: 'local' },  (err, user) => {
+		User.findOne({ username, provider: 'local' }, (err, user) => {
 			if (err) return res.send(err, { status: 'error', details: 'Cant connect to db' });
 			if (!user) return res.send({ status: 'error', details: 'user doesnt exist' });
-			user.comparePassword(password, (error, isMatch) => {
-				if (error) return res.send({ status: 'error', details: 'Cant connect to db' });
+			user.comparePassword(password, (errorr, isMatch) => {
+				if (errorr) return res.send({ status: 'error', details: 'Cant connect to db' });
 				if (!isMatch) return res.send({ status: 'error', details: 'wrong password' });
 				const SALT_FACTOR = 5;
-				bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
-					if (err) return res.send(err);
-					bcrypt.hash(newPassword, salt, null, (err, hash) => {
-						if (err) return res.send(err);
+				bcrypt.genSalt(SALT_FACTOR, (errs, salt) => {
+					if (errs) return res.send(errs);
+					bcrypt.hash(newPassword, salt, null, (errss, hash) => {
+						if (errss) return res.send(errss);
 						newPassword = hash;
-						user.update({ $set: { password: newPassword } }, (error) => {
-							if (error) return res.send({ status: 'false', details: 'Cant connect to db' });
+						user.update({ $set: { password: newPassword } }, (erro) => {
+							if (erro) return res.send({ status: 'false', details: 'Cant connect to db' });
 							return res.send({ status: 'success', details: 'password successfully updated' });
 						});
-						});
-					})
+						return (false);
+					});
+					return (false);
 				});
+				return (false);
 			});
+			return (false);
 		});
-	};
+	});
+	return (false);
+};
 
 const editProfile = (req, res) => {
 	const { error } = Joi.validate(req.body, schema.editSchema, {
@@ -244,23 +256,39 @@ const editProfile = (req, res) => {
 	if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
 	const { password, mail, firstname, lastname } = req.body;
 	const { username } = req.loggedUser;
+	let sameMail = 0;
+	if (req.loggedUser.mail === mail) sameMail = 1;
 	process.nextTick(() => {
-		User.findOne({ mail, provider: 'local' }, (err, user) => {
+		User.findOne({ username, provider: 'local' }, (err, user) => {
 			if (err) return res.send(err, { status: 'error', details: 'Cant connect to db' });
-			if (user) return res.send({ status: 'error', details: 'mail alredy used' });
-			User.findOne({ username, provider: 'local' }, (erro, user) => {
-				if (erro) return res.send({ status: 'error', details: 'cant connect to db' });
-				if (!user) return res.send({ status: 'error', details: 'user doesnt exist' });
-				user.comparePassword(password, (error, isMatch) => {
-					if (erro) return res.send(error);
+			if (!user) return res.send({ status: 'error', details: 'user doesnt exist' });
+			if (sameMail === 0) {
+			User.findOne({ mail, provider: 'local' }, (users) => {
+					if (users) {
+						return res.send({ status: 'error', details: 'mail already used' });
+					}
+					req.loggedUser.comparePassword(password, (erro, isMatch) => {
+						if (erro) return res.send(erro);
+						if (!isMatch) return res.send({ status: 'error', details: 'wrong password' });
+						req.loggedUser.update({ $set: { firstname, lastname, mail } }, (errorss) => {
+							if (errorss) return res.send({ status: 'error', details: 'Cant connect to db' });
+							return res.send({ status: 'success', details: 'user successfully updated' });
+						});
+						return (false);
+					});
+					return (false);
+				});
+			} else if (sameMail === 1) {
+				req.loggedUser.comparePassword(password, (erro, isMatch) => {
+					if (erro) return res.send(erro);
 					if (!isMatch) return res.send({ status: 'error', details: 'wrong password' });
-					user.update({ $set: { firstname, lastname, mail } }, (errorss) => {
+					req.loggedUser.update({ $set: { firstname, lastname, mail } }, (errorss) => {
 						if (errorss) return res.send({ status: 'error', details: 'Cant connect to db' });
 						return res.send({ status: 'success', details: 'user successfully updated' });
 					});
 					return (false);
-				})
-			});
+				});
+			}
 			return (false);
 		});
 	});
