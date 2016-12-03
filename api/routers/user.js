@@ -7,6 +7,7 @@ import * as userController	from '../user/controller';
 import * as cfg				from '../user/jwt/config';
 import passportStrat		from '../user/passport';
 import ctrlGen				from '../user/functions';
+
 export default (app) => {
 	app.use('/api/user/public', express.static('public'));
 	app.use(passport.initialize());
@@ -24,9 +25,21 @@ export default (app) => {
 	passportStrat(passport);
 	const userFonc = ctrlGen(app, passport);
 
+// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
+
 	app.get('/api/user', (req, res) => {
 		res.send('USER ROUTER: OK');
 	});
+
+// /////////////////////////////////////////////////////////////////////////////
+// ///////              LOCAL USER ROUTES                                 //////
+// /////////////////////////////////////////////////////////////////////////////
+
+
+	app.put('/api/user/forgot', userController.forgotPassword);
+
+	app.put('/api/user/reset', userController.resetPassword);
 
 	app.get('/api/user/profile', userController.getProfile);
 
@@ -38,11 +51,13 @@ export default (app) => {
 
 	app.get('/api/user/get_picture', userController.getPicture);
 
-	app.put('/api/user/forgot', userController.forgotPassword);
-
 	app.post('/api/user/register', userFonc.register);
 
 	app.put('/api/user/login', userFonc.login);
+
+// /////////////////////////////////////////////////////////////////////////////
+// ///////              OAUTH ROUTES       		                          //////
+// /////////////////////////////////////////////////////////////////////////////
 
 	app.get('/api/user/auth/42', (req, res, next) => {
 		req.session.query = req.query;
@@ -55,6 +70,8 @@ export default (app) => {
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
 	});
 
+//	////////////////////////////////////////////////////////////////////////////
+
 	app.get('/api/user/auth/facebook', (req, res, next) => {
 		req.session.query = req.query;
 		next();
@@ -65,6 +82,8 @@ export default (app) => {
 		res.set('x-access-token', req.session.token);
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
 	});
+
+//	////////////////////////////////////////////////////////////////////////////
 
 	app.get('/api/user/auth/twitter', (req, res, next) => {
 		req.session.query = req.query;
@@ -77,6 +96,8 @@ export default (app) => {
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
 	});
 
+//	////////////////////////////////////////////////////////////////////////////
+
 	app.get('/api/user/auth/github', (req, res, next) => {
 		req.session.query = req.query;
 		next();
@@ -88,6 +109,8 @@ export default (app) => {
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
 	});
 
+//	////////////////////////////////////////////////////////////////////////////
+
 	app.get('/api/user/auth/google', (req, res, next) => {
 		req.session.query = req.query;
 		next();
@@ -98,6 +121,8 @@ export default (app) => {
 		res.set('x-access-token', req.session.token);
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
 	});
+
+//	////////////////////////////////////////////////////////////////////////////
 
 	app.get('/api/user/auth/linkedin', (req, res, next) => {
 		req.session.query = req.query;
@@ -112,6 +137,8 @@ export default (app) => {
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
 	});
 
+//	////////////////////////////////////////////////////////////////////////////
+
 	app.get('/api/user/auth/spotify', (req, res, next) => {
 		req.session.query = req.query;
 		console.log(req.query);
@@ -124,6 +151,4 @@ export default (app) => {
 		res.set('x-access-token', req.session.token);
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);
 	});
-
-
 };

@@ -37,6 +37,7 @@ class Profile extends React.Component {
 	render() {
 		const { data } = this.state
 		const { mainColor, l } = this.props
+		const editable = data && data.provider.includes('local')
 		return (
 			<div className="comp profile">
 			{!data &&
@@ -48,13 +49,13 @@ class Profile extends React.Component {
 						className="image"
 						style={{ backgroundImage: `url('${data.image}'), url('${noImage}')` }}
 					>
-						<EditImage l={l} onUpdate={this.updateData} mainColor={mainColor} />
+						{editable && <EditImage l={l} onUpdate={this.updateData} mainColor={mainColor} />}
 					</div>
-					<div className="userCred">
+					<div className={editable ? 'userCred' : 'miniCred'}>
 						<h3>{data.username}</h3>
 						<h3>{data.firstname} {data.lastname}</h3>
 						<h3>{data.mail}</h3>
-						{data && data.provider.includes('local') &&
+						{editable &&
 							<EditComp
 								firstname={data.firstname}
 								lastname={data.lastname}

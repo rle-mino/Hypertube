@@ -1,5 +1,6 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
+import api						from '../../../apiCall'
 import { selectAuth }			from '../../../action/auth'
 import lang						from '../../../lang'
 import colors					from '../../../colors/colors'
@@ -36,12 +37,18 @@ class ForgotPassForm extends React.Component {
 		this.setState({ ...up })
 	}
 
-	forgot = () => {
-		const data = {
+	forgot = async () => {
+		const cred = {
 			mail: this.state.mail,
 		}
-		console.log(data)
-		this.props.dispatch(selectAuth(3))
+		const { data } = await api.forgotPass(cred)
+		if (data && data.status.includes('success')) {
+			this.props.dispatch(selectAuth(3))
+		} else {
+			if (data.details.includes('invalid request')) {
+				console.log(data.error)
+			} else console.log(data.details)
+		}
 	}
 
 	render() {
