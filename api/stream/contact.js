@@ -23,7 +23,7 @@ function Contact(opts) {
 	this.ip = opts.ip
 	this.port = opts.port
 
-	if (!this.nodeId || this.nodeId.length !== B/8) throw new Error('Invalid nodeId')
+	if (!this.nodeId || this.nodeId.length !== B/8) throw new Error(`Invalid nodeId: ${this.nodeId.length} bytes`)
 
 	this.seen()
 }

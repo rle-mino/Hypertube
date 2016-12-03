@@ -4,6 +4,7 @@ import bencode from 'bencode'
 import Contact from '../contact'
 import KRPCMessage from './krpcmessage'
 import Bucket from '../bucket'
+import Nodes from '../node'
 import dgram from 'dgram'
 import * as queries from './queries'
 import * as responses from './responses'
@@ -38,8 +39,8 @@ function noop() {}
 //   - Ping responses are parsed and active peers are considered as Nodes
 // (trackers offered peers with Kademlia enabled capability ), those are added
 // to the KBuckets system (see Bucket and Contact)
-//   -DOING- - Nodes are queried for more Nodes, those are added to the KBuckets
-//   -TO DO- - Of reaching limit (timeout or density maximum), best located peers
+//   - Nodes are queried for more Nodes, those are added to the KBuckets
+//   -TO DO- - On reaching limit (timeout or density maximum), best located peers
 // (see nodes-distance) are requested for the torrent file.
 //   -TO DO- - infoHash is downloaded and sent to the downloader, witch uses a
 // ifferent protocol
@@ -67,6 +68,8 @@ async function RPC(infoHash, opts) {
 	this.errors = []
 	this._ids = []
 	this.reqs = []
+	this._halveDepth = 0
+	this._buckets = new Nodes()
 
 	function onMessage (buf, rinfo) {
 		let response = {}
@@ -79,6 +82,10 @@ async function RPC(infoHash, opts) {
 
 			if (response.tid) {
 				response.index		= self._ids.indexOf(response.tid)
+			}
+
+			if (response.type === 'q') {
+				ylog('q')
 			}
 
 			if (response.type === 'r') {
@@ -95,30 +102,34 @@ async function RPC(infoHash, opts) {
 			}
 
 			if (response.index === -1 || response.tid === 0) {
-				elog('response error')
+				elog('.')
 				self.emit('response', message, rinfo)
 				self.emit('warning', new Error('Response identification failiure'))
 				return
 			}
 			// opts = {node, ip, port, id}
 			const {ip, port} = response.req
-			if (response.req.r === 'ping') {
-				ilog(':')
+			if (response.req.r === 'ping' && (!!response.id)) {
+				ylog('.')
 				self.addNode({nodes: response.id, ip, port, id: response.tid})
 			}
 			else if (response.req.r === 'find_node') {
-				ilog(response.id)
+				ylog(':')
+				self.parseNodes(response.nodes)
+			}
+			else if (response.req.r === 'find_peers') {
+				ylog('|')
 				self.parseNodes(response.nodes)
 			}
 			else if (response.req.r === '') elog('error message')
 		} catch(e) {
-			this.errors.push(e)
+			self.errors.push(e)
 		}
 	}
 
 	function onError(e) {
 		self.emit('error', e)
-		elog('on error !')
+		ylog('/!\\')
 	}
 
 	function onListening() {
@@ -167,6 +178,7 @@ RPC.prototype.find_node = function(contact, id){
 		this.send(message, contact)
 	} catch (e) {
 		this.errors.push(e)
+		elog('.')
 	}
 }
 RPC.prototype.get_peers = function (contact, id) {
@@ -180,6 +192,7 @@ RPC.prototype.get_peers = function (contact, id) {
 		this.send(message, contact)
 	} catch (e) {
 		this.errors.push(e)
+		elog('.')
 	}
 }
 RPC.prototype.anounce_peer = function (contact, impliedPort, infoHash, token, id) {
@@ -190,27 +203,28 @@ RPC.prototype.send = function (message, contact) {
 	this.socket.send(message, 0, message.length, contact.port, contact.ip, noop)
 }
 RPC.prototype.initializeBuckets = function (opts){
-	this._buckets = new Bucket()
 	if (!opts) {
 		return
 	} else if (opts instanceof Contact) {
-		this._buckets.addContact(opts)
+		this._buckets = new Nodes(opts)
 	} else if (typeof opts === Object
 		&& opts.contact
 		&& opts.contact instanceof Contact) {
-		this._buckets.addContact(opts.contact)
+			this._buckets = new Nodes(opts.contact)
 	}
 	return
 }
 RPC.prototype.addNode = function (opts) {
-	const contact = new Contact(opts)
-	if (!this._buckets || this._buckets.length === 0) {
-		this.initializeBuckets(contact)
-	} else {
+	try {
+		const contact = new Contact(opts)
 		this._buckets.addContact(contact)
-	}
-	this.find_node(contact, opts.tid)
+		this.find_node(contact, opts.tid)
 
+	} catch (e) {
+		this.errors.push(e)
+		elog('.')
+		console.log(e)
+	}
 }
 RPC.prototype.parseShortContacts = function (opts) {
 	if (!opts) return

@@ -1,4 +1,4 @@
-module.exports = (a, b) => {
+const XOR = (a, b) => {
 	if (!a || !b) throw new Error('Cannot evaluate XOR distance of null')
 	if (!Buffer.isBuffer(a)) a = Buffer.from(a)
 	if (!Buffer.isBuffer(b)) b = Buffer.from(b)
@@ -12,5 +12,7 @@ module.exports = (a, b) => {
 		    res.push(a[i] ^ b[i])
 		}
 	}
-	return new Buffer(res);
+	return Buffer.from(res);
 }
+
+module.exports = XOR
