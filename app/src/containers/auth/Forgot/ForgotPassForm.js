@@ -19,8 +19,9 @@ class ForgotPassForm extends React.Component {
 	_mounted = false
 
 	state = {
-		mail: null,
+		mail: '',
 		mailR: null,
+		serverResponse: null,
 	}
 
 	componentDidMount() {
@@ -37,25 +38,33 @@ class ForgotPassForm extends React.Component {
 		this.setState({ ...up })
 	}
 
-	forgot = async () => {
-		const cred = {
-			mail: this.state.mail,
-		}
+	forgot = async (e) => {
+		e.preventDefault()
+		const cred = { mail: this.state.mail }
+		const { l } = this.props
 		const { data } = await api.forgotPass(cred)
+
+		this.setState({ serverResponse: null, mailR: null })
 		if (data && data.status.includes('success')) {
 			this.props.dispatch(selectAuth(3))
 		} else {
 			if (data.details.includes('invalid request')) {
-				console.log(data.error)
-			} else console.log(data.details)
+				const errors = {}
+				data.error.forEach((err) =>
+					errors[`${err.path}R`] = lang.errorP[err.type][l])
+				this.setState({ ...errors })
+			} else if (data.details.includes('mail doesnt exist')) {
+				this.setState({ serverResponse: lang.mailDoesntExist[l] })
+			}
 		}
 	}
 
 	render() {
 		const { l } = this.props
-		const { mailR } = this.state
+		const { mailR, serverResponse } = this.state
 		return (
-			<form className="authForm" onChange={this.handleChange}>
+			<form className="authForm" onChange={this.handleChange} onSubmit={this.forgot}>
+				<div className="serverResponse">{serverResponse}</div>
 				<TextField
 			    	floatingLabelText={lang.mail[l]}
 					name="mail"

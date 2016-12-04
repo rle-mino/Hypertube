@@ -1,10 +1,11 @@
 import React			from 'react'
 import { connect }		from 'react-redux'
-// import lang				from '../../lang'
 import api				from '../../apiCall'
 
 import CircularProgress	from 'material-ui/CircularProgress'
+import EditPassword		from '../../components/EditPassword'
 import EditImage		from '../../components/EditImage'
+import History			from '../../components/History'
 import EditComp			from '../../components/EditComp'
 import noImage			from '../../../public/No-image-found.jpg'
 
@@ -36,7 +37,7 @@ class Profile extends React.Component {
 
 	render() {
 		const { data } = this.state
-		const { mainColor, l } = this.props
+		const { mainColor, l, dispatch } = this.props
 		const editable = data && data.provider.includes('local')
 		return (
 			<div className="comp profile">
@@ -45,6 +46,7 @@ class Profile extends React.Component {
 			}
 			{data &&
 				<div className="userData">
+					{editable && <EditPassword mainColor={mainColor} l={l} />}
 					<div
 						className="image"
 						style={{ backgroundImage: `url('${data.image}'), url('${noImage}')` }}
@@ -68,6 +70,7 @@ class Profile extends React.Component {
 					</div>
 				</div>
 			}
+			{data && <History history={data.history} l={l} dispatch={dispatch}/>}
 			</div>
 		)
 	}

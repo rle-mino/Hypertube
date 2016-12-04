@@ -1,16 +1,16 @@
-import React				from 'react'
-import { connect }			from 'react-redux'
-import { browserHistory }	from 'react-router'
-import _					from 'lodash'
-import api					from '../../apiCall'
-import lang					from '../../lang'
-import * as bodyDis			from '../../action/body'
+import React						from 'react'
+import { connect }					from 'react-redux'
+import { browserHistory }			from 'react-router'
+import _							from 'lodash'
+import api							from '../../apiCall'
+import lang							from '../../lang'
+import { goMoviePage, bIn, bOut }	from '../../action/body'
 
-import Chip					from 'material-ui/Chip'
-import CircularProgress		from 'material-ui/CircularProgress'
-import EpisodeSelector		from '../../components/EpisodeSelector'
-import MiniMovie			from '../../components/MiniMovie'
-import noImage				from '../../../public/No-image-found.jpg'
+import Chip							from 'material-ui/Chip'
+import CircularProgress				from 'material-ui/CircularProgress'
+import EpisodeSelector				from '../../components/EpisodeSelector'
+import MiniMovie					from '../../components/MiniMovie'
+import noImage						from '../../../public/No-image-found.jpg'
 
 import './sass/movie.sass'
 
@@ -32,7 +32,7 @@ class Movie extends React.Component {
 	}
 
 	getFirstAvailable = (seasons) => {
-		if (!seasons) return false
+		if (!seasons || !seasons.length) return false
 		return {
 			season: seasons[0].season,
 			episode: seasons[0].episodes[0].episode
@@ -42,12 +42,13 @@ class Movie extends React.Component {
 	getData = async (props) => {
 		const { data } = await api.getMovie(props.params.id, props.l)
 		if (!this._mounted) return false
+		this.props.dispatch(bIn())
 		if (data.status.includes('success')) {
 			this.setState({
 				data: data.result,
 				suggestions: data.suggestions,
-				serie: !!data.result.episodes,
-				selectedEpisode: this.getFirstAvailable(data.result.episodes)
+				serie: !!data.result.seasons && !!data.result.seasons.length,
+				selectedEpisode: this.getFirstAvailable(data.result.seasons)
 			})
 		} else browserHistory.push('/')
 	}
@@ -61,26 +62,14 @@ class Movie extends React.Component {
 
 	componentWillUnmount() { this._mounted = false }
 
-	goMoviePage = (id) => {
-		const { dispatch } = this.props
-		dispatch(bodyDis.bOut())
-		setTimeout(() => {
-			browserHistory.push(`/ht/movie/${id}`)
-			dispatch(bodyDis.bIn())
-		}, 500)
-	}
-
 	drawSuggest = () => this.state.suggestions.map((el) =>
-		<MiniMovie key={el.id} data={el} click={() => this.goMoviePage(el.id)} />
+		<MiniMovie key={el.id} data={el} click={() => goMoviePage(el.id, this.props.dispatch)} />
 	)
 
 	searchCat = (cat) => {
 		const { dispatch } = this.props
-		dispatch(bodyDis.bOut())
-		setTimeout(() => {
-			browserHistory.push(`/ht/search?category=${cat}`)
-			dispatch(bodyDis.bIn())
-		}, 500)
+		dispatch(bOut())
+		setTimeout(() => browserHistory.push(`/ht/search?category=${cat}`), 500)
 	}
 
 	drawGenre = () => this.state.data.genres.map((el, key) => {
@@ -101,7 +90,7 @@ class Movie extends React.Component {
 	updateSelected = (selected) => this.setState({ selectedEpisode: selected })
 
 	render() {
-		const { data, selectedEpisode } = this.state
+		const { data, selectedEpisode, serie } = this.state
 		const { l, mainColor } = this.props
 		if (!data) return (<CircularProgress color={mainColor} style={{ marginTop: '20px' }} />)
 		return (
@@ -116,11 +105,11 @@ class Movie extends React.Component {
 						style={{ backgroundImage: `url('${data.poster}'), url('${noImage}')` }}
 					/>
 					<div className="afterPoster">
-						<EpisodeSelector
+						{serie && <EpisodeSelector
 							selectedEpisode={selectedEpisode}
-							episodesList={data.episodes}
+							episodesList={data.seasons}
 							onEpisodeSelect={this.updateSelected}
-						/>
+						/>}
 						<h1>{data.title}</h1>
 						<div className="rate">
 							<i className="material-icons">stars</i>

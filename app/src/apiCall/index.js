@@ -67,16 +67,24 @@ const updateProfile = async (data) =>
 
 const forgotPass = async (data) =>
 	await axios({
+		url: `${apiConnect}/api/user/forgot`,
+		method: 'put',
+		data,
+	})
+
+const resetPass = async (data) =>
+	await axios({
 		url: `${apiConnect}/api/user/reset`,
 		method: 'put',
 		data,
 	})
 
-const resetPassword = async (data) =>
+const updatePass = async (data) =>
 	await axios({
 		url: `${apiConnect}/api/user/change_pass`,
 		method: 'put',
 		data,
+		...getToken(),
 	})
 
 module.exports = {
@@ -91,5 +99,6 @@ module.exports = {
 	getProfile,
 	updateProfile,
 	forgotPass,
-	resetPassword,
+	resetPass,
+	updatePass,
 }

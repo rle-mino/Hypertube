@@ -85,7 +85,7 @@
 		width: 100%
 		display: flex
 		flex-direction: row
-		justify-content: space-around
+		justify-content: space-between
 		flex-wrap: wrap
 		margin:
 			top: 0
@@ -95,9 +95,13 @@
 
 @media screen and (max-width: 1080px)
 	.movie
+		& .genres
+			margin-left: calc(-2.4 * 8vw)
 		& .filmData
 			padding: 2px
 		& .ymal
 			padding: 2px
 		& .plot
 			margin-left: calc(-2.4 * 8vw)
+		& .suggestions
+			justify-content: center

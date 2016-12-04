@@ -1,3 +1,5 @@
+import { browserHistory }			from 'react-router'
+
 export const bOut = () => ({
 	type: 'BODY_OUT',
 })
@@ -5,3 +7,8 @@ export const bOut = () => ({
 export const bIn = () => ({
 	type: 'BODY_IN'
 })
+
+export const goMoviePage = (id, dispatch) => {
+	dispatch(bOut())
+	setTimeout(() => browserHistory.push(`/ht/movie/${id}`), 500)
+}

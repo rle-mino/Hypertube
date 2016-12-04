@@ -1,6 +1,5 @@
 import React				from 'react'
-import { browserHistory }	from 'react-router'
-import * as bodyDis			from '../../action/body'
+import { goMoviePage }		from '../../action/body'
 
 import noImage				from '../../../public/No-image-found.jpg'
 import IconClickable		from '../../components/IconClickable'
@@ -19,21 +18,11 @@ const buttonStyle = {
 
 export default class Carousel extends React.Component {
 	state = {
-		highlight: null,
 		mt: 0,
 	}
 
-	goMoviePage = (id) => {
-		const { dispatch } = this.props
-		dispatch(bodyDis.bOut())
-		setTimeout(() => {
-			browserHistory.push(`/ht/movie/${id}`)
-			dispatch(bodyDis.bIn())
-		}, 500)
-	}
-
 	drawIMGList = () => this.props.data.map((el, key) =>
-			<div className="IMGBlock" key={key} onClick={() => this.goMoviePage(el.id)}>
+			<div className="IMGBlock" key={key} onClick={() => goMoviePage(el.id, this.props.dispatch)}>
 				<div
 					className="blurredIMG"
 					style={{ backgroundImage: `url('${el.poster}'), url('${noImage}')` }}

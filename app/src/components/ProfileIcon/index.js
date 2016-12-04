@@ -20,7 +20,7 @@ export default ({ image, l, dispatch }) => {
 		<div className="profileIcon">
 			{(image &&
 				<IconButton tooltip={lang.profile[l]}
-					style={{ padding: 0 }}
+					style={{ padding: 0, zIndex: '10' }}
 					touch={true}
 					onTouchTap={goProfilePage}
 				>

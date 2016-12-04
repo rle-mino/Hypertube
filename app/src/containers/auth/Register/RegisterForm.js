@@ -171,6 +171,10 @@ class registerForm extends React.Component {
 		}
 	}
 
+	checkSub = (e) => {
+		if (e.keyCode === 13) this.signUp()
+	}
+
 	render() {
 		const { l } = this.props
 		const {
@@ -183,7 +187,7 @@ class registerForm extends React.Component {
 			imageInput,
 		} = this.state
 		return (
-			<form className="authForm" onChange={this.handleChange}>
+			<form className="authForm" onChange={this.handleChange} onKeyDown={this.checkSub}>
 				<TextField
 			    	floatingLabelText={lang.username[l]}
 					name="username"

@@ -172,18 +172,23 @@ class Auth extends React.Component {
 		// 	newProps.selectedAuth !== this.props.selectedAuth) {
 		// 		this.end()
 		// }
-		if (newProps.selectedAuth === 2 &&
-			newProps.selectedAuth !== this.props.selectedAuth) {
+		const selectedChanged = newProps.selectedAuth !== this.props.selectedAuth
+		const { l } = newProps
+		if (newProps.selectedAuth === 0 && selectedChanged) {
+			this.updateComp(colors.red, 'log', registerIcon,
+							lang.signIn[l], colors.lightBlue,
+							() => browserHistory.push('/'))
+		}
+		if (newProps.selectedAuth === 2 && selectedChanged) {
 				// FROM LOGIN TO FORGOT
 				this.updateComp(colors.deepPurple, 'forg', loginIcon,
-								lang.forgotPassword[this.props.l],
+								lang.forgotPassword[l],
 								colors.red,
 								() => browserHistory.push('/forgot'))
-		} else if (newProps.selectedAuth === 3 &&
-			newProps.selectedAuth !== this.props.selectedAuth) {
+		} else if (newProps.selectedAuth === 3 && selectedChanged) {
 				// FROM FORGOT TO RESET
 				this.updateComp(colors.orange, 'res', loginIcon,
-								lang.reset[this.props.l], colors.red,
+								lang.reset[l], colors.red,
 							() => browserHistory.push('/reset_password'))
 		} else if (newProps.location.pathname !== this.props.location.pathname) {
 			this.setupAuth(newProps)

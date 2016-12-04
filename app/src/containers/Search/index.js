@@ -1,15 +1,14 @@
-import React				from 'react'
-import { connect }			from 'react-redux'
-import _					from 'lodash'
-import { browserHistory }	from 'react-router'
-import * as bodyDis			from '../../action/body'
-import lang					from '../../lang'
-import api					from '../../apiCall'
+import React						from 'react'
+import { connect }					from 'react-redux'
+import _							from 'lodash'
+import { goMoviePage, bIn }			from '../../action/body'
+import lang							from '../../lang'
+import api							from '../../apiCall'
 
-import LinearProgress		from 'material-ui/LinearProgress'
-import InfiniteScroll		from 'react-infinite-scroller'
-import SearchFormDetailed	from '../../components/SearchFormDetailed'
-import MiniMovie			from '../../components/MiniMovie'
+import LinearProgress				from 'material-ui/LinearProgress'
+import InfiniteScroll				from 'react-infinite-scroller'
+import SearchFormDetailed			from '../../components/SearchFormDetailed'
+import MiniMovie					from '../../components/MiniMovie'
 
 import './sass/search.sass'
 
@@ -44,6 +43,7 @@ class Search extends React.Component {
 			sort: sort || 'name',
 			page: 0,
 		} })
+		this.props.dispatch(bIn())
 	}
 
 	componentWillUnmount() {
@@ -95,18 +95,11 @@ class Search extends React.Component {
 		} })
 	}
 
-	goMoviePage = (id) => {
-		const { dispatch } = this.props
-		dispatch(bodyDis.bOut())
-		setTimeout(() => {
-			browserHistory.push(`/ht/movie/${id}`)
-			dispatch(bodyDis.bIn())
-		}, 500)
-	}
-
 	drawResults = () => {
 		const { results } = this.state
-		return results.map((result, key) => <MiniMovie data={result} key={key} click={() => this.goMoviePage(result.id)}/>)
+		return results.map((result, key) =>
+			<MiniMovie data={result} key={key} click={() => goMoviePage(result.id, this.props.dispatch)} />
+		)
 	}
 
 	loadMore = () => {

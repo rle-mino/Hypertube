@@ -39,9 +39,6 @@ class HyperHeader extends React.Component {
 		}
 	}
 
-	componentWillMount() {
-	}
-
 	componentWillUnmount() {
 		this._mounted = false
 	}
@@ -49,10 +46,7 @@ class HyperHeader extends React.Component {
 	goHome = () => {
 		const { dispatch } = this.props
 		dispatch(bodyDis.bOut())
-		setTimeout(() => {
-			dispatch(bodyDis.bIn())
-			browserHistory.push('/ht')
-		}, 500)
+		setTimeout(() => browserHistory.push('/ht'), 500)
 	}
 
 	render() {

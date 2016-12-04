@@ -1,13 +1,13 @@
-import React				from 'react'
-import _					from 'lodash'
-import { browserHistory }	from 'react-router'
-import * as bodyDis			from '../../action/body'
-import api					from '../../apiCall'
-import lang					from '../../lang'
+import React							from 'react'
+import _								from 'lodash'
+import { browserHistory }				from 'react-router'
+import { goMoviePage, bOut }			from '../../action/body'
+import api								from '../../apiCall'
+import lang								from '../../lang'
 
-import IconButton			from 'material-ui/IconButton'
-import { List }				from 'material-ui/List'
-import LargeMovie			from '../LargeMovie'
+import IconButton						from 'material-ui/IconButton'
+import { List }							from 'material-ui/List'
+import LargeMovie						from '../LargeMovie'
 
 import './searchForm.sass'
 
@@ -74,31 +74,20 @@ export default class SearchForm extends React.Component {
 		if (this.props.location.pathname.includes('/ht/search')) {
 			browserHistory.push(`/ht/search?title=${this.state.title}`)
 		} else {
-			this.props.dispatch(bodyDis.bOut())
+			this.props.dispatch(bOut())
 			this.setState({ results: [] })
-			setTimeout(() => {
-				this.props.dispatch(bodyDis.bIn())
-				browserHistory.push(`/ht/search?title=${this.state.title}`)
-			}, 500)
+			setTimeout(() => browserHistory.push(`/ht/search?title=${this.state.title}`), 500)
 		}
-	}
-
-	goMoviePage = (id) => {
-		const { dispatch } = this.props
-		dispatch(bodyDis.bOut())
-		setTimeout(() => {
-			browserHistory.push(`/ht/movie/${id}`)
-			dispatch(bodyDis.bIn())
-		}, 500)
 	}
 
 	drawResultsList = () => {
 		const { results } = this.state
+		const { dispatch } = this.props
 		return results ?
 			results.map((el) => <LargeMovie
 				key={el.id}
 				data={el}
-				click={() => this.goMoviePage(el.id)} />) :
+				click={() => goMoviePage(el.id, dispatch)} />) :
 			<div></div>
 	}
 

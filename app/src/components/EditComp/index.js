@@ -4,7 +4,6 @@ import api				from '../../apiCall'
 
 import Dialog			from 'material-ui/Dialog'
 import FlatButton		from 'material-ui/FlatButton'
-import RaisedButton		from 'material-ui/RaisedButton'
 import UpdateForm		from '../UpdateForm'
 
 export default class EditComp extends React.Component {
@@ -50,7 +49,6 @@ export default class EditComp extends React.Component {
 		}
 		const { l } = this.props
 		const { data } = await api.updateProfile(cred)
-		console.log(data)
 		this.setState({ errors: {} })
 		if (data.status.includes('error')) {
 			if (data.details.includes('invalid request')) {
@@ -83,7 +81,7 @@ export default class EditComp extends React.Component {
 		const { errors, open } = this.state
 		return (
 			<div>
-				<RaisedButton
+				<FlatButton
 					label={lang.update[l]}
 					onTouchTap={this.handleOpen}
 					className="updateButton"

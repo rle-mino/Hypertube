@@ -1,5 +1,6 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
+import api						from '../../../apiCall'
 import { selectAuth }			from '../../../action/auth'
 import lang						from '../../../lang'
 import colors					from '../../../colors/colors'
@@ -18,14 +19,15 @@ class ResetPassForm extends React.Component {
 	_mounted = false
 
 	state = {
-		username: null,
-		password: null,
-		passwordConfirm: null,
-		code: null,
+		username: '',
+		password: '',
+		passwordConfirm: '',
+		passToken: '',
 		usernameR: null,
 		passwordR: null,
 		passwordConfirmR: null,
-		codeR: null,
+		passTokenR: null,
+		serverResponse: null,
 	}
 
 	componentDidMount() {
@@ -36,27 +38,46 @@ class ResetPassForm extends React.Component {
 		this._mounted = false
 	}
 
-	resetPass = (e) => {
-		const { username, password, passwordConfirm, code } = this.state
-		const { dispatch } = this.props
+	resetPass = async (e) => {
+		const { username, password, passwordConfirm, passToken } = this.state
+		const { dispatch, l } = this.props
 		this.setState({
 			usernameR: null,
 			passwordR: null,
 			passwordConfirmR: null,
-			codeR: null,
+			passTokenR: null,
+			serverResponse: null,
 		})
+
 		if (password !== passwordConfirm) {
 			this.setState({
 				passwordConfirmR: lang.passwordAreDifferent[this.props.l],
 			})
+			return false
 		}
-		const data = {
+		const cred = {
 			username,
 			password,
-			code,
+			passToken,
 		}
-		console.log(data)
-		dispatch(selectAuth(100))
+		const { data } = await api.resetPass(cred)
+		if (data.status && data.status.includes('error')) {
+			if (data.details.includes('invalid request')) {
+				const errors = {}
+				data.error.forEach((el) => {
+					if (!errors[`${el.path}R`]) {
+						errors[`${el.path}R`] = lang.errorP[el.type][l]
+					}
+				})
+				this.setState({ ...errors })
+			} else if (data.details.includes('wrong code')) {
+				this.setState({ serverResponse: lang.wrongCode[l] })
+			} else if (data.details.includes('user doesnt exist')) {
+				this.setState({ serverResponse: lang.userDoesntExistAl[l] })
+			}
+		} else {
+			dispatch(selectAuth(0))
+		}
 	}
 
 	handleChange = (e) => {
@@ -65,11 +86,20 @@ class ResetPassForm extends React.Component {
 		this.setState({ ...up })
 	}
 
+	checkSub = (e) => { if (e.keyCode === 13) this.resetPass() }
+
 	render() {
-		const { usernameR, passwordR, passwordConfirmR, codeR } = this.state
+		const {
+			usernameR,
+			passwordR,
+			passwordConfirmR,
+			passTokenR,
+			serverResponse,
+		} = this.state
 		const { l } = this.props
 		return (
-			<form className="authForm" onChange={this.handleChange}>
+			<form className="authForm" onChange={this.handleChange} onKeyDown={this.checkSub}>
+				<div className="serverResponse">{serverResponse}</div>
 				<TextField
 			    	floatingLabelText={lang.username[l]}
 					name="username"
@@ -79,9 +109,9 @@ class ResetPassForm extends React.Component {
     			/>
 				<TextField
 			    	floatingLabelText={lang.code[l]}
-					name="code"
+					name="passToken"
 					type="text"
-					errorText={codeR}
+					errorText={passTokenR}
 					{...textFieldSet}
     			/>
 				<TextField

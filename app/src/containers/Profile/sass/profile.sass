@@ -7,6 +7,7 @@
 	& .image
 		width: 200px
 		height: 200px
+		margin-right: 10px
 		float: left
 		display: flex
 		justify-content: center
@@ -30,9 +31,12 @@
 		margin-bottom: 5px
 		margin-right: 5px
 
+	& .updatePassButton
+		position: absolute !important
+		right: 0% !important
+
 	& .miniCred
-		margin-left: 10px
-		margin-top: 40px
+		padding-top: 2px
 		display: flex
 		flex-direction: column
 		justify-content: space-around
@@ -41,7 +45,6 @@
 
 	& .userCred
 		float: left
-		margin-left: 10px
 		padding-top: 2px
 		height: 100%
 		display: flex
@@ -57,6 +60,27 @@
 	flex-direction: column
 	justify-content: center
 	align-items: center
+
+.history
+	width: 100%
+	min-height: 200px
+	background-color: white
+	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)
+	margin-bottom: 20px
+
+	& .empty
+		display: flex
+		justify-content: center
+		align-items: center
+		height: 135px
+		color: #A0A0A0
+
+	& .historyList
+		display: flex
+		flex-direction: row
+		flex-wrap: wrap
+		justify-content: space-between
+		align-items: center
 
 @media screen and (max-width:1080px)
 	.profile

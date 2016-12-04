@@ -1,9 +1,8 @@
 import React				from 'react'
 import { connect }			from 'react-redux'
-import { browserHistory }	from 'react-router'
 import api					from '../../apiCall'
 import lang					from '../../lang'
-import * as bodyDis			from '../../action/body'
+import { goMoviePage, bIn }	from '../../action/body'
 
 import CircularProgress		from 'material-ui/CircularProgress'
 import Carousel				from '../../components/Carousel'
@@ -25,6 +24,7 @@ class HomePage extends React.Component {
 		this._mounted = true
 		const { data } = await api.topSearch()
 		if (!this._mounted) return false
+		this.props.dispatch(bIn())
 		if (!data.status) return false
 		if (data.status === 'error') {
 			this.setState({ error: true, pending: false })
@@ -37,21 +37,14 @@ class HomePage extends React.Component {
 		}
 	}
 
+	componentWillReceiveProps = (newProps) => this.props.dispatch(bIn())
+
 	componentWillUnmount() {
 		this._mounted = false
 	}
 
-	goMoviePage = (id) => {
-		const { dispatch } = this.props
-		dispatch(bodyDis.bOut())
-		setTimeout(() => {
-			browserHistory.push(`/ht/movie/${id}`)
-			dispatch(bodyDis.bIn())
-		}, 500)
-	}
-
 	drawTopSearch = () => this.state.dataAft.map((el) =>
-		<MiniMovie key={el.id} data={el} click={() => this.goMoviePage(el.id)} />
+		<MiniMovie key={el.id} data={el} click={() => goMoviePage(el.id, this.props.dispatch)} />
 	)
 
 	render() {
