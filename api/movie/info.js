@@ -44,7 +44,9 @@ const getData = (req, res) => {
         const genres = found.genres;
         const type = found.episodes[0] ? 'serie' : 'movie';
         if (type === 'serie') {
-             found.episodes = await getSerieInfo(found.episodes);
+            found = found.toObject();
+            found.seasons = await getSerieInfo(found.episodes);
+            delete found.episodes;
         }
         if (req.query.lg !== 'en') {
             found.plot = await translate(found.plot, { from: 'en', to: req.query.lg }).then((result) => result.text);
