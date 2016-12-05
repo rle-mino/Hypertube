@@ -128,9 +128,19 @@ class Search extends React.Component {
 		return (
 			<div className="comp searchComp">
 				{(pending &&
-					<LinearProgress key={1} mode="indeterminate" color={mainColor} style={linearStyle}/>)
+					<LinearProgress
+						key={1}
+						mode="indeterminate"
+						color={mainColor}
+						style={linearStyle}
+					/>)
 						||
-					<LinearProgress key={2} mode="determinate" value={0} color={mainColor} style={linearStyle}/>
+					<LinearProgress
+						key={2}
+						mode="determinate"
+						value={0}
+						color={mainColor} style={linearStyle}
+					/>
 				}
 				<SearchFormDetailed l={l} ref="searchFormDetailed"/>
 				<h3 className="resultsStatus">{noResults ? lang.noResultsFound[this.props.l] : null}</h3>
@@ -139,6 +149,7 @@ class Search extends React.Component {
 					loadMore={this.loadMore}
 					hasMore={more}
 					className="resultsContainer"
+					threshold={500}
 				>
 					{this.drawResults()}
 				</InfiniteScroll>

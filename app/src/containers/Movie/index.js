@@ -2,6 +2,7 @@ import React						from 'react'
 import { connect }					from 'react-redux'
 import { browserHistory }			from 'react-router'
 import _							from 'lodash'
+import { animateScroll }			from 'react-scroll'
 import api							from '../../apiCall'
 import lang							from '../../lang'
 import { goMoviePage, bIn, bOut }	from '../../action/body'
@@ -58,7 +59,10 @@ class Movie extends React.Component {
 		this.getData(this.props)
 	}
 
-	componentWillReceiveProps = (newProps) => this.getData(newProps)
+	componentWillReceiveProps = (newProps) => {
+		animateScroll.scrollTo(100)
+		this.getData(newProps)
+	}
 
 	componentWillUnmount() { this._mounted = false }
 
