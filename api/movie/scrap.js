@@ -3,12 +3,51 @@ import _ from 'lodash';
 import omdb from 'omdb';
 import Movie from './movie_schema';
 
-const updateEpisodes = (episodes) => {
+const getPath = (episodes, season, episode) =>
+episodes.filter((ep) =>
+ep.season === season && ep.episode === episode,
+);
+
+const getIndex = (episodes, season, episode) => {
+    for (let i = 0; i < episodes.length; i += 1) {
+        if (episodes[i].season === season && episodes[i].episode === episode) return i;
+    }
+};
+
+const addPath = (req) => {
+    const id = req.params.id;
+    const path = req.query.path || null;
+    const season = req.query.s;
+    const episode = req.query.e;
+    const q = Number(req.query.q) || 0;
+    Movie.findOne({ _id: id }, async (err, found) => {
+        if (err || !found) return;
+        if (found.torrents.length) {
+            const torrents = found.torrents;
+            torrents[q].path = path;
+            torrents.set(q, torrents[q]);
+            found.save();
+        } else if (season && episode) {
+            const index = getIndex(found.episodes, Number(season), Number(episode));
+            const serieEpisode = found.episodes[index];
+            serieEpisode.path = path;
+            found.episodes.set(index, serieEpisode);
+            found.save();
+        }
+    });
+};
+
+const updateEpisodes = (episodes, oldepisodes) => {
     const newEpisodes = [];
     episodes.forEach((episode) => {
         const torrent = Object.values(episode.torrents).pop();
         if (torrent) {
+            let path = null;
+            if (getPath(oldepisodes, episode.season, episode.episode).length) {
+                path = getPath(oldepisodes, episode.season, episode.episode)[0].path;
+            }
             newEpisodes.push({
+                path,
                 magnet: torrent.url,
                 season: episode.season,
                 episode: episode.episode,
@@ -25,7 +64,7 @@ const addSerie = (serie) => {
         if (!serie.episodes || !serie.episodes.length) return;
         if (found && found.episodes.length !== serie.episodes.length) {
             console.log(title);
-            found.episodes = updateEpisodes(serie.episodes);
+            found.episodes = updateEpisodes(serie.episodes, found.episodes);
             found.save();
         }
         if (!found) {
@@ -94,7 +133,6 @@ const addMovie = (movie) => {
                 const newMovie = new Movie({
                     title: movie.title,
                     year: movie.year,
-                    // rated: movie.mpa_rating,
                     runtime: movie.runtime,
                     poster: data.poster,
                     genres: movie.genres,
@@ -136,10 +174,10 @@ const eztv = () => {
         const max = body.pop().split('/')[1];
         for (let i = 1; i <= max; i += 1) {
             client.get(`shows/${i}`, (err, res, data) => {
-                if (data) data.map((serie) => eztvPrepare(serie.imdb_id));
+                if (typeof data === 'object') data.map((serie) => eztvPrepare(serie.imdb_id));
             });
         }
     });
  };
 
-export { yts, eztv };
+export { yts, eztv, addPath };

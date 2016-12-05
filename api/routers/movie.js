@@ -17,6 +17,8 @@ export default (app) => {
 
 	app.get('/api/movie/:id', info.getData);
 
+	app.put('/api/movie/addpath/:id', scrap.addPath);
+
 	// scrap.yts(); //	UNCOMMENT THIS WHEN PROJECT IS FINISHED -- commented for compliance issues
 
 	const CronJob = cron.CronJob;
