@@ -1,10 +1,17 @@
 import React			from 'react'
-import lang				from '../../lang'
-import api				from '../../apiCall'
-
 import Dialog			from 'material-ui/Dialog'
 import FlatButton		from 'material-ui/FlatButton'
 import TextField		from 'material-ui/TextField'
+import lang				from '../../lang'
+import api				from '../../apiCall'
+
+/*
+*	add pause and unpause method to mousetrap
+*/
+import msPause			from 'mousetrap-pause'
+import ms				from 'mousetrap'
+
+const MouseTrap = msPause(ms)
 
 export default class extends React.Component {
 	state = {
@@ -19,11 +26,18 @@ export default class extends React.Component {
 	}
 
 	handleOpen = () => {
-		this.setState({ open: true });
+		this.setState({ open: true })
+		console.log(MouseTrap)
+		MouseTrap.pause()
 	}
 
 	handleClose = () => {
-		this.setState({ open: false });
+		this.setState({ open: false })
+		MouseTrap.unpause()
+	}
+
+	componentWillUnmount() {
+		MouseTrap.unpause()
 	}
 
 	getFieldProps = () => {
@@ -119,6 +133,7 @@ export default class extends React.Component {
 							floatingLabelText={lang.oldPassword[l]}
 							name="password"
 							type="password"
+							autoFocus={true}
 							errorText={passwordR}
 							{...this.getFieldProps()}
 						/>

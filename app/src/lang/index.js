@@ -82,6 +82,7 @@ module.exports = {
 	updateYourProfile: [ 'Update your profile', 'Mettre à jour votre profil' ],
 	changeYourImage: [ 'Change your image', 'Mettez à jour votre image' ],
 	empty: [ 'empty', 'vide' ],
+	settings: [ 'settings', 'paramètres' ],
 	logout: [ 'logout', 'déconnexion' ],
 	lang: [ 'en', 'fr' ],
 }

@@ -1,8 +1,7 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
-import { browserHistory }		from 'react-router'
 import api						from '../../../apiCall'
-// import { selectAuth }			from '../../../action/auth'
+import { selectAuth }			from '../../../action/auth'
 import lang						from '../../../lang'
 import colors					from '../../../colors/colors'
 
@@ -84,8 +83,7 @@ class registerForm extends React.Component {
 		const image = new FormData()
 		image.append('image', this.state.image)
 		await api.upPhoto(image)
-		// this.props.dispatch(selectAuth(100))
-		browserHistory.push('/ht')
+		this.props.dispatch(selectAuth(100))
 	}
 
 	handleError = (data) => {

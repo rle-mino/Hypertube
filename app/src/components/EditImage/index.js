@@ -6,6 +6,14 @@ import IconClickable		from '../IconClickable'
 import Dialog				from 'material-ui/Dialog'
 import FlatButton			from 'material-ui/FlatButton'
 
+/*
+*	add pause and unpause method to mousetrap
+*/
+import msPause			from 'mousetrap-pause'
+import ms				from 'mousetrap'
+
+const MouseTrap = msPause(ms)
+
 const imageInput = {
 	cursor: 'pointer',
 	position: 'absolute',
@@ -37,10 +45,12 @@ export default class EditImage extends React.Component {
 
 	handleOpen = () => {
 		this.setState({ open: true });
+		MouseTrap.pause()
 	}
 
 	handleClose = () => {
 		this.setState({ open: false });
+		MouseTrap.unpause()
 	}
 
 	handleChange = (e) => {

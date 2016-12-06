@@ -6,6 +6,14 @@ import Dialog			from 'material-ui/Dialog'
 import FlatButton		from 'material-ui/FlatButton'
 import UpdateForm		from '../UpdateForm'
 
+/*
+*	add pause and unpause method to mousetrap
+*/
+import msPause			from 'mousetrap-pause'
+import ms				from 'mousetrap'
+
+const MouseTrap = msPause(ms)
+
 export default class EditComp extends React.Component {
 	_mounted = false
 
@@ -33,10 +41,12 @@ export default class EditComp extends React.Component {
 
 	handleOpen = () => {
 		this.setState({ open: true });
+		MouseTrap.pause()
 	}
 
 	handleClose = () => {
 		this.setState({ open: false });
+		MouseTrap.unpause()
 	}
 
 	updateProf = async () => {
@@ -60,7 +70,7 @@ export default class EditComp extends React.Component {
 				})
 				this.setState({ errors })
 			} else if (data.details.includes('wrong password')) {
-				this.setState({ errors: { serverResponse: lang.wrongPassword[l] } })
+				this.setState({ errors: { passwordR: lang.wrongPassword[l] } })
 			} else if (data.details.includes('mail already used')) {
 				this.setState({ errors: { mailR: lang.alreadyUsed[l] } })
 			} else this.setState({ errors: { serverResponse : lang.error[l] } })
@@ -116,6 +126,7 @@ export default class EditComp extends React.Component {
 						mainColor={mainColor}
 						handleChange={this.handleChange}
 						errors={errors}
+						onUpdateRequest={this.updateProf}
 					/>
 				</Dialog>
 			</div>

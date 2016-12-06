@@ -1,6 +1,8 @@
 import React							from 'react'
+import ReactDOM							from 'react-dom'
 import _								from 'lodash'
 import { browserHistory }				from 'react-router'
+import MouseTrap						from 'mousetrap'
 import { goMoviePage, bOut }			from '../../action/body'
 import api								from '../../apiCall'
 import lang								from '../../lang'
@@ -10,6 +12,8 @@ import { List }							from 'material-ui/List'
 import LargeMovie						from '../LargeMovie'
 
 import './searchForm.sass'
+
+const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 export default class SearchForm extends React.Component {
 	_mounted = false
@@ -23,12 +27,21 @@ export default class SearchForm extends React.Component {
 
 	componentDidMount() {
 		this._mounted = true
+		MouseTrap.bind(alphabet, this.focusSearch)
 		if (this.props.location.pathname.includes('/ht/search')) {
 			this.setState({ searchView: true })
 		}
 	}
 
-	componentWillUnmount() { this._mounted = false }
+	focusSearch = () => {
+		const searchInput = ReactDOM.findDOMNode(this.refs.searchInput)
+		if (searchInput) searchInput.focus()
+	}
+
+	componentWillUnmount() {
+		this._mounted = false
+		MouseTrap.unbind(alphabet, this.focusSearch)
+	}
 
 	componentWillMount() {
 		this.debouncedSearchFilm = _.debounce(this.debouncedSearchFilm, 300)
@@ -109,6 +122,7 @@ export default class SearchForm extends React.Component {
 						onChange={this.searchFilm}
 						value={title}
 						autoComplete="off"
+						ref="searchInput"
 					/>
 					<input type="submit" hidden={true} />
 				</form>

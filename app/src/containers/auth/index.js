@@ -41,7 +41,7 @@ class Auth extends React.Component {
 		if (token) {
 			localStorage.setItem('logToken', token)
 			browserHistory.push('/ht')
-			// this.props.dispatch(selectAuth(100))
+			this.props.dispatch(selectAuth(100))
 		}
 	}
 
@@ -49,6 +49,9 @@ class Auth extends React.Component {
 		this._mounted = false
 	}
 
+	/*
+	*	prepare the top of the auth component (color, text...)
+	*/
 	setupAuth = (props) => {
 		const { pathname } = props.location
 		const { dispatch } = props
@@ -62,6 +65,7 @@ class Auth extends React.Component {
 				topCol: colors.red,
 				container: 'log'
 			})
+			dispatch(selectAuth(0))
 		}
 		else if (pathname === '/register') {
 			this.setState({
@@ -101,6 +105,9 @@ class Auth extends React.Component {
 		this.setupAuth(this.props)
 	}
 
+	/*
+	*	update the top of the auth component (color, text...)
+	*/
 	updateComp = (nextColor, nextFormClass,
 						floatIcon, mainTitle,
 						floatColor, cb) => {
@@ -136,14 +143,19 @@ class Auth extends React.Component {
 		}, 300)
 	}
 
-	// end = () => {
-	// 	this.setState({ container: 'toCircle' })
-	// 	setTimeout(() => {
-	// 		this.setState({ container: 'toCircle toLeave' })
-	// 		setTimeout(() => browserHistory.push('/ht'), 1000)
-	// 	}, 1000)
-	// }
+	/*
+		add class to the auth component when the user is authenticated
+		and redirect to /ht
+	*/
+	end = () => {
+		this.setState({ container: 'toLeave' })
+		setTimeout(() => browserHistory.push('/ht'), 1000)
+	}
 
+	/*
+	*	update title in case the selected language changes,
+	*	necessary cause the mainTitle is in the state
+	*/
 	updateTitle = (l) => {
 		switch (this.props.selectedAuth) {
 			case 0:
@@ -164,37 +176,53 @@ class Auth extends React.Component {
 		}
 	}
 
+
 	componentWillReceiveProps = (newProps) => {
+		/* if the selected language changes */
 		if (newProps.l !== this.props.l) {
 			this.updateTitle(newProps.l)
 		}
-		// if (newProps.selectedAuth === 100 &&
-		// 	newProps.selectedAuth !== this.props.selectedAuth) {
-		// 		this.end()
-		// }
+		/* if the user is authenticated */
+		if (newProps.selectedAuth === 100 &&
+			newProps.selectedAuth !== this.props.selectedAuth) {
+				this.end()
+		}
 		const selectedChanged = newProps.selectedAuth !== this.props.selectedAuth
 		const { l } = newProps
+		/*
+		*	user is asking for login form
+		*/
 		if (newProps.selectedAuth === 0 && selectedChanged) {
 			this.updateComp(colors.red, 'log', registerIcon,
 							lang.signIn[l], colors.lightBlue,
 							() => browserHistory.push('/'))
 		}
+		/*
+		*	user is asking for forgot form
+		*/
 		if (newProps.selectedAuth === 2 && selectedChanged) {
-				// FROM LOGIN TO FORGOT
 				this.updateComp(colors.deepPurple, 'forg', loginIcon,
 								lang.forgotPassword[l],
 								colors.red,
 								() => browserHistory.push('/forgot'))
+		/*
+		*	user is asking for reset form
+		*/
 		} else if (newProps.selectedAuth === 3 && selectedChanged) {
-				// FROM FORGOT TO RESET
 				this.updateComp(colors.orange, 'res', loginIcon,
 								lang.reset[l], colors.red,
 							() => browserHistory.push('/reset_password'))
+		/*
+		*	user is using browser prev or next
+		*/
 		} else if (newProps.location.pathname !== this.props.location.pathname) {
 			this.setupAuth(newProps)
 		}
 	}
 
+	/*
+	*	switch between login and register components
+	*/
 	updateAuth = async () => {
 		if (this.state.update) return false
 		const { dispatch } = this.props

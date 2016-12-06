@@ -14,12 +14,16 @@ export default class UpdateForm extends React.Component {
 		}
 	}
 
+	checkSub = (e) => {
+		if (e.keyCode === 13) this.props.onUpdateRequest()
+	}
+
 	render() {
 		const { firstname, lastname, mail, l, errors } = this.props
 		const { firstnameR, lastnameR, mailR, passwordR, serverResponse } = errors
 		if (!firstname || !lastname || !mail) return <div />
 		return (
-			<form onChange={this.props.handleChange} className="updateForm">
+			<form onChange={this.props.handleChange} className="updateForm" onKeyDown={this.checkSub}>
 				<div className="serverResponse">{serverResponse}</div>
 				<TextField
 					floatingLabelText={lang.lastname[l]}
@@ -27,6 +31,7 @@ export default class UpdateForm extends React.Component {
 					type="text"
 					errorText={lastnameR}
 					defaultValue={lastname}
+					autoFocus={true}
 					{...this.getFieldProps()}
 				/>
 				<TextField

@@ -1,6 +1,5 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
-import { browserHistory }		from 'react-router'
 import api						from '../../../apiCall'
 import { selectAuth }			from '../../../action/auth'
 import lang						from '../../../lang'
@@ -67,8 +66,7 @@ class LoginForm extends React.Component {
 			}
 		} else {
 			localStorage.setItem('logToken', headers['x-access-token'])
-			// this.props.dispatch(selectAuth(100))
-			browserHistory.push('/ht')
+			this.props.dispatch(selectAuth(100))
 		}
 	}
 
