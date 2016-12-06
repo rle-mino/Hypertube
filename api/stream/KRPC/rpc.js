@@ -1,3 +1,4 @@
+/* eslint semi: ["error", "never"]*/
 import {inherits} from 'util'
 import {EventEmitter} from 'events'
 import bencode from 'bencode'
@@ -25,6 +26,7 @@ const MESSAGE_TYPES = [
     'FIND_VALUE'
   ]
 
+
 function noop() {}
 
 // RPC (Remote Procedure Call) is a Kademlia Standard based RPC scheme to build
@@ -49,43 +51,48 @@ function noop() {}
 //
 // STUB : see KRPC folder for queries, responses and error marshalling
 
-async function RPC(infoHash, opts) {
-	if (!(this instanceof RPC)) return await new RPC(contact, opts)
-	console.log(' ')
+function RPC(opts) {
+	if (!(this instanceof RPC)) return new RPC(opts)
 
-	let self = this
+	const self = this
 
-	EventEmitter.call(this)
 	if (!opts) opts = {}
 
-	this.port = opts.port
-	this.infoHash = infoHash
+	this.port = opts.port || 1 + Math.floor(Math.random() * 65535)
 	this.socket = opts.socket || dgram.createSocket('udp4')
 	this.bootstrap = opts.peers || []
 	this.socket.on('message', onMessage)
 	this.socket.on('error', onError)
 	this.socket.on('listening', onListening)
+	this.state = 'loading'
+	this._buckets = new Nodes()
+	this._buckets.once('ready', () => {
+		self.goReady()
+		})
 	this.errors = []
+	this.queries = []
 	this._ids = []
 	this.reqs = []
+	this.peers = []
+	this.torrents = []
 	this._halveDepth = 0
-	this._buckets = new Nodes()
 
-	function onMessage (buf, rinfo) {
-		let response = {}
+	function onMessage(buf, rinfo) {
+		const response = {}
 		try {
-			let message	= bencode.decode(buf)
+			const message	= bencode.decode(buf)
 
 			response.tid			= message.t && message.t.toString()
 			response.type			= message.y && message.y.toString()
-			response.req			= self.reqs[response.tid]
 
 			if (response.tid) {
+				response.req			= self.reqs[response.tid]
 				response.index		= self._ids.indexOf(response.tid)
-			}
+			} else return
 
 			if (response.type === 'q') {
-				ylog('q')
+				self.queries.push(response)
+				self.emit('query')
 			}
 
 			if (response.type === 'r') {
@@ -94,180 +101,217 @@ async function RPC(infoHash, opts) {
 				response.id			= message.r.id
 				response.nodes		= message.r.nodes && message.r.nodes
 				response.token		= message.r.token && message.r.token.toString()
-				response.values		= message.r.values && message.r.values.map(e => {return e.toString()})
-
+				response.values		= message.r.values && message.r.values.map(e => e.toString())
+				response.client			= !!message.v && message.v.toString('binary')
 			} else if (response.type === 'e') {
 				if (!Buffer.isBuffer(message.t)) return
-				elog(message.e[1].toString())
+				self.emit('error', message.e)
 			}
-
 			if (response.index === -1 || response.tid === 0) {
-				elog('.')
 				self.emit('response', message, rinfo)
 				self.emit('warning', new Error('Response identification failiure'))
 				return
 			}
 			// opts = {node, ip, port, id}
-			const {ip, port} = response.req
+			const { ip, port } = response.req
 			if (response.req.r === 'ping' && (!!response.id)) {
-				ylog('.')
-				self.addNode({nodes: response.id, ip, port, id: response.tid})
+			// PING
+				self.addNode({ nodes: response.id, ip, port, id: response.tid })
+			} else if (response.req.r === 'find_node') {
+			// FIND_NODE
+			if (!response.nodes) return
+				const ids = self.parseNodes(response.nodes)
+				if (ids) {
+					ids.forEach(c => {
+						self.ping(c)
+					})
+					self.emit('find_nodes')
+				}
+			} else if (response.req.r === 'get_peers') {
+			// GET_PEERS
+				if (response.values) {
+					self.emit('get_peers', response.values)
+				} else if (response.nodes) {
+					const ids = self.parseNodes(response.nodes)
+					if (ids && this.torrent.indexOf(response.req.infoHash) !== -1) {
+						ids.forEach(p => {
+							self.get_peers(p, response.req.infoHash, null)
+						})
+					}
+				}
 			}
-			else if (response.req.r === 'find_node') {
-				ylog(':')
-				self.parseNodes(response.nodes)
-			}
-			else if (response.req.r === 'find_peers') {
-				ylog('|')
-				self.parseNodes(response.nodes)
-			}
-			else if (response.req.r === '') elog('error message')
-		} catch(e) {
+		} catch (e) {
 			self.errors.push(e)
 		}
 	}
 
 	function onError(e) {
 		self.emit('error', e)
-		ylog('/!\\')
 	}
 
 	function onListening() {
 		self.emit('listening')
-
 	}
 
 	try {
-		await this.open()
-	} catch(e) {
+		this.open()
+		setTimeout(() => {
+		}, 6000)
+	} catch (e) {
 		this.errors.push(e)
 	}
-
-	self.on('listening', () => {
-		ilog('?')
-	})
 }
 
 inherits(RPC, EventEmitter)
 
-RPC.prototype.open = async function() {
+RPC.prototype.send = function (message, contact) {
+	try {
+		if (contact && contact.ip && message) {
+			let port = contact.port
+			if (contact.port === 0) {
+				port = 6881
+			}
+				this.socket.send(message, 0, message.length, port, contact.ip, noop)
+		}
+	} catch (e) {
+		this.errors.push(e)
+	}
+}
+
+RPC.prototype.open = function () {
 	this.bootstrap.forEach(contact => {
 		try {
 			this.ping(contact)
-		} catch(e){
-			elog(`RPC error on open: ${e.message}`)
+		} catch (e) {
+			this.errors.push(`RPC error on open: ${e.message}`)
 		}
 	})
 }
 
-RPC.prototype.ping = function(contact) {
-	const id = anon.newKrpcId()
-	this._ids.push(id)
-	this.reqs[id] = {r: 'ping', ip: contact.ip, port: contact.port}
-	const message = queries.BuildPingQuery(id, this.port)
-	this.send(message, contact)
+RPC.prototype.goReady = function () {
+	this.state = 'ready'
+	this.emit('ready')
 }
-RPC.prototype.find_node = function(contact, id){
-	if (!id) {
-		id = anon.newKrpcId()
+RPC.prototype.ping = function (contact) {
+	if (contact && contact.ip && contact.port) {
+		const id = anon.newKrpcId()
 		this._ids.push(id)
+		this.reqs[id] = { r: 'ping', ip: contact.ip, port: contact.port }
+		const message = queries.BuildPingQuery(id, this.port)
+		this.send(message, contact)
 	}
-	this.reqs[id] = {r: 'find_node', ip: contact.ip, port: contact.port}
+}
+RPC.prototype.find_node = function (contact, id) {
 	try {
+		if (!id) {
+			id = anon.newKrpcId()
+			this._ids.push(id)
+		}
+		this.reqs[id] = { r: 'find_node', ip: contact.ip, port: contact.port }
 		const message = queries.BuildFindNodeQuery(id, anon.nodeId())
 		this.send(message, contact)
 	} catch (e) {
 		this.errors.push(e)
-		elog('.')
 	}
 }
-RPC.prototype.get_peers = function (contact, id) {
-	if (!id) {
-		id = anon.newKrpcId()
-		this._ids.push(id)
-	}
-	this.reqs[id] = {r: 'get_peers', ip: contact.ip, port: contact.port}
+
+RPC.prototype.buildAddressBook = function (infoHash) {
+	this.torrents.push(infoHash)
+	this.peers[this.torrents.indexOf(infoHash)] = []
+	const contacts = this.getContactList(infoHash)
+	contacts.forEach(e => {
+		this.get_peers(e, infoHash, null)
+	})
+}
+
+RPC.prototype.getContactList = function (hash) {
+	return this._buckets.getContactList(hash)
+}
+
+RPC.prototype.get_peers = function (contact, infoHash, id) {
 	try {
-		const message = queries.BuildFindNodeQuery(id, anon.nodeId())
+		if (!id) {
+			id = anon.newKrpcId()
+			this._ids.push(id)
+		}
+		this.reqs[id] = { r: 'get_peers', ip: contact.ip, port: contact.port, infoHash }
+		const message = queries.BuildGetPeersQuery(id, infoHash)
 		this.send(message, contact)
 	} catch (e) {
 		this.errors.push(e)
-		elog('.')
 	}
 }
+
+RPC.prototype.stopGetPeers = function (infoHash) {
+	const id = this.torrents.indexOf(infoHash)
+	if (id !== -1) {
+		this.torrents.splice(id, 1)
+	}
+}
+
 RPC.prototype.anounce_peer = function (contact, impliedPort, infoHash, token, id) {
 	this.reqs[id].r = 'announce_peer'
 }
-RPC.prototype.send = function (message, contact) {
-	ilog('.')
-	this.socket.send(message, 0, message.length, contact.port, contact.ip, noop)
-}
-RPC.prototype.initializeBuckets = function (opts){
-	if (!opts) {
-		return
-	} else if (opts instanceof Contact) {
+RPC.prototype.initializeBuckets = function (opts) {
+	if (opts instanceof Contact) {
 		this._buckets = new Nodes(opts)
-	} else if (typeof opts === Object
+	} else if (typeof opts === 'object'
 		&& opts.contact
 		&& opts.contact instanceof Contact) {
 			this._buckets = new Nodes(opts.contact)
 	}
-	return
 }
 RPC.prototype.addNode = function (opts) {
 	try {
 		const contact = new Contact(opts)
 		this._buckets.addContact(contact)
 		this.find_node(contact, opts.tid)
-
 	} catch (e) {
 		this.errors.push(e)
-		elog('.')
-		console.log(e)
 	}
 }
 RPC.prototype.parseShortContacts = function (opts) {
 	if (!opts) return
 	const length = opts.length
-	let ids = []
+	const ids = []
 	for (let i = 0; i < length; i += 6) {
 		const ip = `${opts.readUInt8(i)}`
-			+`.${opts.readUInt8(i + 1)}`
-			+`.${opts.readUInt8(i + 2)}`
-			+`.${opts.readUInt8(i + 3)}`
+			+ `.${opts.readUInt8(i + 1)}`
+			+ `.${opts.readUInt8(i + 2)}`
+			+ `.${opts.readUInt8(i + 3)}`
 		const port = opts.readUInt16BE(i + 4)
-		ids.push({nodeId, ip, port})
+		ids.push({ ip, port })
 	}
-	ids.forEach(c => {
-		this.ping(c)
-	})
+	return ids
 }
 RPC.prototype.parseLongContacts = function (opts) {
 	if (!opts) return
 	const length = opts.length
-	let ids = []
+	const ids = []
 	for (let i = 0; i < length; i += 26) {
 		const nodeId = opts.slice(i + 0, i + 20)
 		const ip = `${opts.readUInt8(i + 20)}`
-			+`.${opts.readUInt8(i + 21)}`
-			+`.${opts.readUInt8(i + 22)}`
-			+`.${opts.readUInt8(i + 23)}`
+			+ `.${opts.readUInt8(i + 21)}`
+			+ `.${opts.readUInt8(i + 22)}`
+			+ `.${opts.readUInt8(i + 23)}`
 		const port = opts.readUInt16BE(i + 24)
-		ids.push({nodeId, ip, port})
+		ids.push({ nodeId, ip, port })
 	}
-	ids.forEach(c => {
-		this.ping(c)
-	})
+	return ids
 }
 RPC.prototype.parseNodes = function (opts) {
 	if (!opts) return
 	const length = opts.length
 	if (length % 6 === 0) {
-		this.parseShortContacts(opts)
+		return this.parseShortContacts(opts)
 	}
 	if (length % 26 === 0) {
-		this.parseLongContacts(opts)
+		return this.parseLongContacts(opts)
 	}
+}
+
+RPC.prototype.getErrors = function () {
+	return this.errors
 }
 
 module.exports = RPC

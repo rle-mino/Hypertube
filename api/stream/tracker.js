@@ -54,11 +54,16 @@ function tryoutCall(tryout, client, message, announce) {
 
 	if (!announce[0]) {
 		throw new Error('Impossible connexion')
-		return
 	}
 	udpSend(client, message, __URL)
-	tryout--
-	__TO = setTimeout(tryoutCall, 10000 * Math.pow(2, (__tryout - 2) -tryout), tryout, client, message, announce)
+	tryout -= 1
+	__TO = setTimeout(tryoutCall,
+		(20000 ** (__tryout - 2)) - tryout,
+		tryout,
+		client,
+		message,
+		announce,
+	);
 }
 
 function udpSend(client, message, rawURL, callback=()=>{}) {

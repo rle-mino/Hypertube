@@ -7,11 +7,11 @@ const ilog = m => process.stdout.write(chalk.cyan(m))
 const elog = m => process.stdout.write(chalk.red(m))
 const ylog = m => process.stdout.write(chalk.yellow(m))
 
-let id			= null,
-	_nodeId		= ''
+let id			= null
+
 const random	= 'IlnefautjamaisjugerlesgenssurleursfrequentationsTenezJudasparexempleilavaitdesamisirreprochables'
 
-let anon = {
+const anon = {
 	_nodeId		: '',
     newId		: () => {
         if (!id) {
@@ -29,13 +29,14 @@ let anon = {
 
 	nodeId		: () => {
 		if (!anon._nodeId || anon._nodeId === '') {
-			anon._nodeId = anon.newId()
+			console.log('New NodeID')
+			anon._nodeId = crypto.randomBytes(20)
+            // Buffer.from('-HT0001-').copy(id, 0)
 		}
 		return anon._nodeId
 	},
 
 	contact		: async (_port) => {
-
 		try {
 			let res	= await axios.get('https://api.ipify.org?format=json')
 			let buf	= Buffer.alloc(6)

@@ -1,10 +1,5 @@
-import LRU from 'lru'
-import anon from './anonymizer'
-import {EventEmitter} from 'events'
+import { EventEmitter } from 'events'
 import inherits from 'inherits'
-import bencode from 'bencode'
-import crypto from 'crypto'
-import _ from 'lodash'
 import chalk from 'chalk'
 
 const log = m => console.log(chalk.blue(m))
@@ -17,14 +12,12 @@ const B = 160
 
 function Contact(opts) {
 	if (!(this instanceof Contact)) return new Contact(opts)
-	let self = this
 
 	this.nodeId = opts.nodes || this._createNodeID()
 	this.ip = opts.ip
 	this.port = opts.port
 
-	if (!this.nodeId || this.nodeId.length !== B/8) throw new Error(`Invalid nodeId: ${this.nodeId.length} bytes`)
-
+	if (!this.nodeId || this.nodeId.length !== B / 8) throw new Error(`Invalid nodeId: ${this.nodeId.length} bytes`)
 	this.seen()
 }
 
@@ -39,7 +32,7 @@ Contact.prototype.valid = function () {
 }
 
 Contact.prototype._createNodeID = function () {
-	anon.nodeId()
+	elog('ERROR')
 }
 
 module.exports = Contact

@@ -26,7 +26,7 @@ export function BuildFindNodeQuery(t, target, _port) {
 	let message = {
 		t,
 		y,
-		q	: 'find_nodes',
+		q	: 'find_node',
 		a	: {
 			id	: anon.nodeId(_port),
 			target
@@ -35,20 +35,20 @@ export function BuildFindNodeQuery(t, target, _port) {
 	return Buffer.from(bencode.encode(message))
 }
 
-function BuildGetPeers(t, infoHash, noseed, scrape) {
-	let message = {
+export function BuildGetPeersQuery(t, infoHash, noseed, scrape) {
+	const message = {
 		t,
 		y,
 		q	: 'get_peers',
 		a	: {
-			id				: anon.nodeId(_port),
+			id				: anon.nodeId(),
 			info_hash		: infoHash
 		}
 	}
 	if (noseed) message.a.noseed = 1
 	if (scrape) message.a.scrape = 1
 
-	return bencode.encode(message)
+	return Buffer.from(bencode.encode(message))
 }
 
 function BuildAnnouncePeer(contact, infoHash, token) {

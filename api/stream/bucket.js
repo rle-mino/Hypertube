@@ -1,3 +1,4 @@
+/* eslint no-bitwise: ["error", { "allow": ["<<", ">>", "&"] }] */
 import chalk from 'chalk'
 import LRU from 'lru'
 import anon from './anonymizer'
@@ -22,26 +23,27 @@ function Bucket() {
 	const self = this
 
 	this._contacts = []
-	this.nodes = new LRU({maxAge: 15 * 60 * 1000, max: K})
-	setInterval(function () {
-		ilog(`bucket ${self.min()} has a population of ${self.getSize()}`)
-	}, 1000);
 }
 
 Bucket.prototype.getSize = function() {
 	return this._contacts.length
 }
 
-Bucket.prototype.getContactList = () => {
+Bucket.prototype.isGood = function() {
+	return true
+}
+
+Bucket.prototype.getContactList = function () {
 	return _.clone(this._contacts)
 }
 
 Bucket.prototype.getContact = function(index) {
 	if (index < 0) throw new Error('Contact index cannot be negative')
+	if (index >= K) throw new Error('Contact index out of range')
 	return this._contacts[index] || null
 }
 
-Bucket.prototype.addContact = function (contact) {
+Bucket.prototype.addContact = function (contact, bits) {
 	if (!(contact instanceof Contact)) throw new Error('Invalid contact')
 
 	if (this.isFull()) {
@@ -55,8 +57,6 @@ Bucket.prototype.addContact = function (contact) {
 		// kinner to stay alive than youngest.
 		//
 		// Such is done in the Buckets manager in nodes.js
-		ylog('bucket full ?')
-
 		return false
 	}
 		try {
@@ -66,7 +66,6 @@ Bucket.prototype.addContact = function (contact) {
 					return contact.lastSeen
 				})
 				this._contacts.splice(index, 0, contact)
-				ylog('+')
 			} else {
 				elog('contact already exists')
 			}
@@ -115,20 +114,21 @@ Bucket.prototype.indexOf = function (index) {
 // if time allows, this method will be properly implemented (so would be
 // addContact).
 
-Bucket.prototype.halve = function(bits) {
+Bucket.prototype.halve = function (bits) {
+
 	let tmp = []
 	const depth = 160 - bits.length
+	const byte = Math.floor(depth / 8)
+	const bit = 7 - (depth % 8)
 	const split = (d) => {
-
 		const tmp = new Bucket()
 		tmp._halveDepth = (depth + 1)
 		const zeros = this._contacts.filter(e => {
-			let buf = Buffer.alloc(1)
-			e.nodeId.copy(buf, 0, 19 - Math.floor(depth / 8), 20 - Math.floor(depth / 8))
-			log(`halving for depth of ${depth} discriminant ${d} and actual value ${buf}`)
-			return ((buf[0] & Math.pow(2,depth % 8)) >> depth === d)
+			const buf = Buffer.alloc(1)
+			e.nodeId.copy(buf, 0, byte, byte + 1)
+			return (((buf[0] & (2 ** bit)) >> bit) === d)
 		})
-		for (let i = 0; i < zeros.length; i++) {
+		for (let i = 0; i < zeros.length; i += 1) {
 			tmp.addContact(zeros[i])
 		}
 		return tmp
@@ -138,10 +138,10 @@ Bucket.prototype.halve = function(bits) {
 	return tmp
 }
 
-Bucket.prototype.isFull = function() { return (this.getSize() === K) }
-Bucket.prototype.isEmpty = function() { return (this.getSize() === 0) }
+Bucket.prototype.isFull = function () { return (this.getSize() === K) }
+Bucket.prototype.isEmpty = function () { return (this.getSize() === 0) }
 
-Bucket.prototype.min = function() {
+Bucket.prototype.min = function () {
 	if (this._contacts.length === 0) return
 	let min = Buffer.from(this._contacts[0].nodeId)
 	for (let i = 1; i < this._contacts.length; i++) {
@@ -151,7 +151,7 @@ Bucket.prototype.min = function() {
 	}
 	return min
 }
-Bucket.prototype.max = function() {
+Bucket.prototype.max = function () {
 	if (this._contacts.length === 0) return
 	let max = Buffer.from(this._contacts[0].nodeId)
 	for (let i = 1; i < this._contacts.length; i++) {
