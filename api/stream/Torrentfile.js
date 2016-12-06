@@ -9,6 +9,7 @@ import torrentParser from './torrent-parser'
 import tracker from './tracker'
 import anon from './anonymizer'
 import RPC from './KRPC/rpc'
+import Downloader from './download_manager/download'
 
 const log = m => console.log(chalk.blue(m))
 const ilog = m => process.stdout.write(chalk.cyan(m))
@@ -32,7 +33,7 @@ function TorrentFile(torrent) {
 			self.kadmelia.once('ready', () => {
 				self.kadmelia.buildAddressBook(self.queue.shift())
 			})
-			self.kadmelia.on('get_peers', self.addPeers)
+			self.kadmelia.on('get_peers', self.addPeer)
 
 		    // let piecesBuf = Buffer.from(this._pieces)
 		    // this.movie = Buffer.alloc(this.totalLength) // this is the actual file
@@ -65,7 +66,8 @@ TorrentFile.prototype.addTorrent = function (infoHash) {
 	}
 }
 
-TorrentFile.prototype.addPeers = (peer) => {
+TorrentFile.prototype.addPeer = (peer, token) => {
+	console.log(token)
 	peer.forEach(p => {
 		console.log(p)
 	})

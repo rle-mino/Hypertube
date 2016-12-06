@@ -130,7 +130,9 @@ function RPC(opts) {
 			} else if (response.req.r === 'get_peers') {
 			// GET_PEERS
 				if (response.values) {
-					self.emit('get_peers', response.values)
+					const values = self.parseValues(response.values)
+					const token = response.token
+					self.emit('get_peers', values, token)
 				} else if (response.nodes) {
 					const ids = self.parseNodes(response.nodes)
 					if (ids && this.torrent.indexOf(response.req.infoHash) !== -1) {
@@ -308,6 +310,18 @@ RPC.prototype.parseNodes = function (opts) {
 	if (length % 26 === 0) {
 		return this.parseLongContacts(opts)
 	}
+}
+
+RPC.prototype.parseValues = function (values) {
+	const ids = values.map(e => {
+		const ip = `${e.readUInt8(0)}`
+			+ `.${e.readUInt8(1)}`
+			+ `.${e.readUInt8(2)}`
+			+ `.${e.readUInt8(3)}`
+		const port = e.readUInt16BE(4)
+		return { ip, port }
+	})
+	return ids
 }
 
 RPC.prototype.getErrors = function () {
