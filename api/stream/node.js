@@ -1,23 +1,18 @@
 /* eslint no-bitwise: ["error", { "allow": ["<<", ">>", "&", ">>>"] }] */
-import chalk from 'chalk'
+/* eslint semi: ["error", "never"]*/
+
 import inherits from 'inherits'
 import bencode from 'bencode'
 import crypto from 'crypto'
-import { EventEmitter} from 'events'
+import { EventEmitter } from 'events'
 import XOR from './lib/nodes_distance'
 import Bucket from './bucket'
 import Contact from './contact'
 import NodeTree from './lib/nodes_tree'
 import anon from './anonymizer'
+import log from './lib/log'
 
-
-const log = m => console.log(chalk.blue(m))
-const ilog = m => process.stdout.write(chalk.cyan(m))
-const elog = m => process.stdout.write(chalk.red(m))
-const ylog = m => process.stdout.write(chalk.yellow(m))
-const blog = m => process.stdout.write(chalk.blue(m))
-const mlog = m => process.stdout.write(chalk.magenta(m))
-
+const __limit = 10000
 
 function Nodes() {
 	if (!(this instanceof Nodes)) return new Nodes()
@@ -25,12 +20,17 @@ function Nodes() {
 	this._buckets._halveDepth = 0
 	this._contacts = 0
 	this.state = 'loading'
-	setInterval(() => {
-		if (this._contacts > 3500 && this.state !== 'ready') {
+	const interVal = setInterval(() => {
+		if (this._contacts > __limit) {
 			this.state = 'ready'
 			this.emit('ready')
+			clearInterval(interVal)
+			log.i(`Routing table seeded with more than ${__limit} contacts`)
+		} else {
+			log.i(`Waiting for ${Math.max(__limit - this._contacts, 0)} more nodes before torrenting...`)
+			this.emit('loading', this._contacts)
 		}
-	}, 15000)
+	}, 3000)
 }
 
 inherits(Nodes, EventEmitter)

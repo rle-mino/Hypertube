@@ -1,19 +1,16 @@
+/* eslint semi: ["error", "never"]*/
+
 import crypto from 'crypto'
 import axios from 'axios'
-import chalk from 'chalk'
 
-const log = m => console.log(chalk.blue(m))
-const ilog = m => process.stdout.write(chalk.cyan(m))
-const elog = m => process.stdout.write(chalk.red(m))
-const ylog = m => process.stdout.write(chalk.yellow(m))
 
 let id			= null
 
 const random	= 'IlnefautjamaisjugerlesgenssurleursfrequentationsTenezJudasparexempleilavaitdesamisirreprochables'
 
 const anon = {
-	_nodeId		: '',
-    newId		: () => {
+	_nodeId: '',
+    newId: () => {
         if (!id) {
             id = crypto.randomBytes(20)
             Buffer.from('-HT0001-').copy(id, 0)
@@ -21,55 +18,51 @@ const anon = {
         return id
     },
 
-	newKrpcId	: () => {
+	newKrpcId: () => {
 		const index = Math.floor(Math.random() * (random.length - 2))
-		const id = random.slice(index, index + 2)
-		return id
+		return random.slice(index, index + 2)
 	},
 
-	nodeId		: () => {
+	nodeId: () => {
 		if (!anon._nodeId || anon._nodeId === '') {
-			console.log('New NodeID')
 			anon._nodeId = crypto.randomBytes(20)
             // Buffer.from('-HT0001-').copy(id, 0)
 		}
 		return anon._nodeId
 	},
 
-	contact		: async (_port) => {
+	contact: async (_port) => {
 		try {
-			let res	= await axios.get('https://api.ipify.org?format=json')
-			let buf	= Buffer.alloc(6)
+			const res	= await axios.get('https://api.ipify.org?format=json')
+			const buf	= Buffer.alloc(6)
 			if (res.data && res.data.ip) {
 				const ip = res.data.ip
 				const port = _port || 6881
-				let ipInts = ip.slice('.')
-				for (let i = 0; i < 4; i++){
+				const ipInts = ip.slice('.')
+				for (let i = 0; i < 4; i += 1) {
 					buf[i] = parseInt(ipInts[i], 10)
 				}
 				buf.writeUInt16BE(port, 4)
 				return buf
-			} else {
-				throw new Error('No IP')
-				return
 			}
-		} catch(e) {
+			throw new Error('No IP')
+		} catch (e) {
 			throw e
 		}
 	},
 
-	nodeContact	: async (_port) => {
+	nodeContact: async (_port) => {
 		try {
-			let contact = await anon.contact(_port)
-			let id = anon.newId()
-			let buf	= Buffer.alloc(26)
-			id.copy(buf, 0)
+			const contact = await anon.contact(_port)
+			const _id = anon.newId()
+			const buf	= Buffer.alloc(26)
+			_id.copy(buf, 0)
 			contact.copy(buf, 20)
 			return buf
-		} catch(e) {
+		} catch (e) {
 			throw e
 		}
-	}
+	},
 }
 
 module.exports = anon
