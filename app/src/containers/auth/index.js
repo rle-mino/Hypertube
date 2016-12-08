@@ -153,7 +153,7 @@ class Auth extends React.Component {
 	}
 
 	/*
-	*	update title in case the selected language changes,
+	*	update title in case the selected language change,
 	*	necessary cause the mainTitle is in the state
 	*/
 	updateTitle = (l) => {
@@ -178,7 +178,7 @@ class Auth extends React.Component {
 
 
 	componentWillReceiveProps = (newProps) => {
-		/* if the selected language changes */
+		/* if the selected language change */
 		if (newProps.l !== this.props.l) {
 			this.updateTitle(newProps.l)
 		}

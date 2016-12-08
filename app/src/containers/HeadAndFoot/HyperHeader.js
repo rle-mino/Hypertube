@@ -1,7 +1,6 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
 import { browserHistory }		from 'react-router'
-import lang						from '../../lang'
 import api						from '../../apiCall'
 import * as bodyDis				from '../../action/body'
 
@@ -15,7 +14,6 @@ import LogoutButton				from '../../components/LogoutButton'
 import noImage					from '../../../public/No-image-found.jpg'
 
 import './sass/header.sass'
-
 
 class HyperHeader extends React.Component {
 	_mounted = false
@@ -67,8 +65,6 @@ class HyperHeader extends React.Component {
 						iconButtonElement={
 							<IconButton
 								iconStyle={{ color: 'white' }}
-								tooltip={lang.settings[l]}
-								touch={true}
 								style={{ padding: 0, zIndex: '10' }}
 							>
 								<i className="material-icons">more_vert</i>

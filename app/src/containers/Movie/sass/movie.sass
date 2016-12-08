@@ -1,20 +1,5 @@
 @import ../../../colors/colors
 
-@mixin aspect-ratio($width, $height)
-    position: relative
-    &:before
-        display: block
-        content: " "
-        width: 100%
-        padding-top: ($height / $width) * 100%
-
-    & > .content
-        position: absolute
-        top: 0
-        left: 0
-        right: 0
-        bottom: 0
-
 .movie
 	position: relative
 	width: 100%
@@ -24,9 +9,6 @@
 		&:hover
 			background-color: #B0B0B0 !important
 
-	& .playerContainer
-		background-color: $blue
-		@include aspect-ratio(16, 9)
 	& .genres
 		display: flex
 		margin: 0

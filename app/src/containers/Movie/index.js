@@ -9,6 +9,7 @@ import { goMoviePage, bIn, bOut }	from '../../action/body'
 
 import Chip							from 'material-ui/Chip'
 import CircularProgress				from 'material-ui/CircularProgress'
+import VideoPlayer					from '../../components/VideoPlayer'
 import EpisodeSelector				from '../../components/EpisodeSelector'
 import MiniMovie					from '../../components/MiniMovie'
 import noImage						from '../../../public/No-image-found.jpg'
@@ -99,9 +100,7 @@ class Movie extends React.Component {
 		if (!data) return (<CircularProgress color={mainColor} style={{ marginTop: '20px' }} />)
 		return (
 			<div className="comp movie">
-				<div className="playerContainer">
-					{/* <Player /> */}
-				</div>
+				<VideoPlayer mainColor={mainColor} l={l} />
 				<div className="filmData">
 
 					<div
