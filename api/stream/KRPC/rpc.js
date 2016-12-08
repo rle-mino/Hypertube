@@ -11,22 +11,21 @@ import * as queries from './queries'
 import * as responses from './responses'
 import * as errors from './errors'
 import anon from '../anonymizer'
-import chalk from 'chalk'
+import log from '../lib/log'
+import tracker from '../tracker'
 
-const log = m => console.log(chalk.blue(m))
-const ilog = m => process.stdout.write(chalk.cyan(m))
-const elog = m => process.stdout.write(chalk.red(m))
-const ylog = m => process.stdout.write(chalk.yellow(m))
-const blog = m => process.stdout.write(chalk.blue(m))
-
-const MESSAGE_TYPES = [
-    'PING',
-    'STORE',
-    'FIND_NODE',
-    'FIND_VALUE'
-  ]
-
-
+const torrentAmorce = {
+	size: 1825361101,
+	infoHash: 'D410CD9245AD33F8E6F385866193ECD60CB699F9',
+	infoHashBuffer: Buffer.from('D410CD9245AD33F8E6F385866193ECD60CB699F9', 'hex'),
+	announce: ['udp://tracker.internetwarriors.net:1337',
+	'udp://p4p.arenabg.ch:1337',
+	'udp://tracker.leechers-paradise.org:6969',
+	'udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80',
+	'udp://torrent.gresille.org:80/announce',
+	'udp://tracker.opentrackr.org:1337/announce',
+	'udp://glotorrents.pw:6969/announce'],
+}
 function noop() {}
 
 // RPC (Remote Procedure Call) is a Kademlia Standard based RPC scheme to build
@@ -42,12 +41,10 @@ function noop() {}
 // (trackers offered peers with Kademlia enabled capability ), those are added
 // to the KBuckets system (see Bucket and Contact)
 //   - Nodes are queried for more Nodes, those are added to the KBuckets
-//   -TO DO- - On reaching limit (timeout or density maximum), best located peers
+//   - On reaching limit (timeout or density maximum), best located peers
 // (see nodes-distance) are requested for the torrent file.
-//   -TO DO- - infoHash is downloaded and sent to the downloader, witch uses a
-// ifferent protocol
-//   -TO DO as bonus- - infoHash and peers are announced and seeded as long as
-// decided
+//   - Peers are fetched and emitted as event
+//   -TO DO as bonus- - infoHash are announced and seeded as long as decided
 //
 // STUB : see KRPC folder for queries, responses and error marshalling
 
@@ -56,11 +53,19 @@ function RPC(opts) {
 
 	const self = this
 
-	if (!opts) opts = {}
+	log.m('bitTorrent client warm-up...')
 
-	this.port = opts.port || 1 + Math.floor(Math.random() * 65535)
-	this.socket = opts.socket || dgram.createSocket('udp4')
-	this.bootstrap = opts.peers || []
+	if (!opts) {
+			tracker.getPeers(torrentAmorce, peers => {
+					self.opts = { peers }
+			})
+	} else {
+		self.opts = opts
+	}
+
+	this.port = this.opts.port || 1 + Math.floor(Math.random() * 65535)
+	this.socket = this.opts.socket || dgram.createSocket('udp4')
+	this.bootstrap = this.opts.peers || []
 	this.socket.on('message', onMessage)
 	this.socket.on('error', onError)
 	this.socket.on('listening', onListening)
@@ -69,6 +74,9 @@ function RPC(opts) {
 	this._buckets.once('ready', () => {
 		self.goReady()
 		})
+	this._buckets.on('loading', stat => {
+		self.unBlock(stat)
+	})
 	this.errors = []
 	this.queries = []
 	this._ids = []
@@ -101,11 +109,11 @@ function RPC(opts) {
 				response.id			= message.r.id
 				response.nodes		= message.r.nodes && message.r.nodes
 				response.token		= message.r.token && message.r.token.toString()
-				response.values		= message.r.values && message.r.values.map(e => e.toString())
+				response.values		= message.r.values && message.r.values
 				response.client			= !!message.v && message.v.toString('binary')
 			} else if (response.type === 'e') {
-				if (!Buffer.isBuffer(message.t)) return
-				self.emit('error', message.e)
+				if (!Buffer.isBuffer(message.e)) return
+				self.emit('error', message.e[1].toString())
 			}
 			if (response.index === -1 || response.tid === 0) {
 				self.emit('response', message, rinfo)
@@ -135,7 +143,7 @@ function RPC(opts) {
 					self.emit('get_peers', values, token)
 				} else if (response.nodes) {
 					const ids = self.parseNodes(response.nodes)
-					if (ids && this.torrent.indexOf(response.req.infoHash) !== -1) {
+					if (ids && self.torrents.indexOf(response.req.infoHash) !== -1) {
 						ids.forEach(p => {
 							self.get_peers(p, response.req.infoHash, null)
 						})
@@ -156,9 +164,16 @@ function RPC(opts) {
 	}
 
 	try {
-		this.open()
-		setTimeout(() => {
-		}, 6000)
+		if (this.opts.peers) {
+			this.open()
+		} else {
+			const interVal = setInterval(() => {
+				if (this.opts.peers){
+					clearInterval(interVal)
+					this.open()
+				}
+			}, 20000)
+		}
 	} catch (e) {
 		this.errors.push(e)
 	}
@@ -176,12 +191,12 @@ RPC.prototype.send = function (message, contact) {
 				this.socket.send(message, 0, message.length, port, contact.ip, noop)
 		}
 	} catch (e) {
-		this.errors.push(e)
+		throw e
 	}
 }
 
 RPC.prototype.open = function () {
-	this.bootstrap.forEach(contact => {
+	this.opts.peers.forEach(contact => {
 		try {
 			this.ping(contact)
 		} catch (e) {
@@ -213,17 +228,30 @@ RPC.prototype.find_node = function (contact, id) {
 		const message = queries.BuildFindNodeQuery(id, anon.nodeId())
 		this.send(message, contact)
 	} catch (e) {
-		this.errors.push(e)
+		throw e
 	}
 }
 
-RPC.prototype.buildAddressBook = function (infoHash) {
-	this.torrents.push(infoHash)
-	this.peers[this.torrents.indexOf(infoHash)] = []
-	const contacts = this.getContactList(infoHash)
+RPC.prototype.buildAddressBook = function (infoHashBuffer) {
+	console.log('getting AddressBook')
+	this.torrents.push(infoHashBuffer)
+	this.peers[this.torrents.indexOf(infoHashBuffer)] = []
+	const contacts = this.getContactList(infoHashBuffer)
 	contacts.forEach(e => {
-		this.get_peers(e, infoHash, null)
+		this.get_peers(e, infoHashBuffer, null)
 	})
+}
+
+RPC.prototype.unBlock = function (stat) {
+	if (this._stat && stat === this._stat) {
+		log.y('unblocking routing table')
+		const contacts = this.getContactList(anon.nodeId())
+		contacts.forEach(c => {
+			this.find_node(c)
+		})
+	} else {
+		this._stat = stat
+	}
 }
 
 RPC.prototype.getContactList = function (hash) {
@@ -240,7 +268,7 @@ RPC.prototype.get_peers = function (contact, infoHash, id) {
 		const message = queries.BuildGetPeersQuery(id, infoHash)
 		this.send(message, contact)
 	} catch (e) {
-		this.errors.push(e)
+		throw e
 	}
 }
 

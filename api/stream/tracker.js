@@ -1,60 +1,38 @@
+/* eslint semi: ["error", "never"]*/
+
 import dgram from 'dgram'
-const urlParse = require('url').parse
 import crypto from 'crypto'
 import torrentParser from './torrent-parser'
 import anon from './anonymizer'
-import chalk from 'chalk'
-const log = m => console.log(chalk.blue(m))
-const ilog = m => process.stdout.write(chalk.cyan(m))
-const elog = m => process.stdout.write(chalk.red(m))
-const ylog = m => process.stdout.write(chalk.yellow(m))
-const blog = m => process.stdout.write(chalk.blue(m))
+import log from './lib/log'
+
+const urlParse = require('url').parse
+
 const __tryout = 3
 let __TO = ''
 let __URL = ''
 
-module.exports.getPeers = (torrent, callback) => {
-
-	const client = dgram.createSocket('udp4')
-	__URL = torrent.announce[0]
-    tryoutCall(__tryout, client, buildConnReq(), torrent.announce)
-
-    client.on('message', response => {
-		clearTimeout(__TO)
-        if (respType(response) === 'connect') {
-            ilog(':')
-            const connResp = parseConnResp(response)
-            const announceReq = buildAnnounceReq(connResp.connectionId, torrent)
-			tryoutCall(__tryout, client, announceReq, __URL)
-        } else if (respType(response) === 'announce') {
-			ylog(':')
-            const announceResp = parseAnnounceResp(response)
-            callback(announceResp.peers)
-        }
-    })
-
-    client.on('error', e => {
-        elog('!')
-        log(e)
-    })
-}
 
 function tryoutCall(tryout, client, message, announce) {
-	blog('.')
-
 	if (Array.isArray(announce) && (tryout === 0)) {
 		tryout = __tryout
 		announce.shift()
-		ylog(',')
 		__URL = announce[0]
 	} else if (tryout === 0) {
-		ylog("Server didn't respond...")
+		log.e("Server didn't respond...")
 		return
 	}
 
 	if (!announce[0]) {
 		throw new Error('Impossible connexion')
 	}
+
+	function udpSend(client, message, rawURL, callback = () => {}) {
+		const url = urlParse(rawURL)
+		client.send(message, 0, message.length, url.port, url.hostname, callback)
+	}
+
+	log.y(`Connection to tracker ${__URL} tryout (${4 - tryout}/3)`)
 	udpSend(client, message, __URL)
 	tryout -= 1
 	__TO = setTimeout(tryoutCall,
@@ -63,18 +41,14 @@ function tryoutCall(tryout, client, message, announce) {
 		client,
 		message,
 		announce,
-	);
-}
-
-function udpSend(client, message, rawURL, callback=()=>{}) {
-    const url = urlParse(rawURL)
-    client.send(message, 0, message.length, url.port, url.hostname, callback)
+	)
 }
 
 function respType(res) {
     const action = res.readUInt32BE(0)
     if (action === 0) return 'connect'
     if (action === 1) return 'announce'
+	return null
 }
 
 function buildConnReq() {
@@ -116,7 +90,7 @@ function parseConnResp(resp) {
 
 function parseAnnounceResp(resp) {
     function group(iter, groupSize) {
-        let groups = []
+        const groups = []
         for (let i = 0; i < iter.length; i += groupSize) {
             groups.push(iter.slice(i, i + groupSize))
         }
@@ -136,4 +110,28 @@ function parseAnnounceResp(resp) {
             }
         })
     }
+}
+
+module.exports.getPeers = (torrent, callback) => {
+	log.i('Starting bitTorrent client')
+	console.log()
+	const client = dgram.createSocket('udp4')
+	__URL = torrent.announce[0]
+    tryoutCall(__tryout, client, buildConnReq(), torrent.announce)
+
+    client.on('message', response => {
+		clearTimeout(__TO)
+        if (respType(response) === 'connect') {
+            const connResp = parseConnResp(response)
+            const announceReq = buildAnnounceReq(connResp.connectionId, torrent)
+			tryoutCall(__tryout, client, announceReq, __URL)
+        } else if (respType(response) === 'announce') {
+            const announceResp = parseAnnounceResp(response)
+            callback(announceResp.peers)
+        }
+    })
+
+    client.on('error', () => {
+        log.e('!')
+    })
 }

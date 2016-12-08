@@ -1,5 +1,9 @@
+/* eslint semi: ["error", "never"]*/
+import bencode from 'bencode'
+
 const y = 'r'
 // and r as returned values
+
 
 function decodeMessage(rawMessage){
 	let message = rawMessage.toStrng('binary')
@@ -28,7 +32,7 @@ function decodeMessage(rawMessage){
 }
 
 function BuildPingResponse(t) {
-	let message = {
+	const message = {
 		t,
 		y,
 		r	: {
@@ -40,7 +44,7 @@ function BuildPingResponse(t) {
 }
 
 function BuildFindNodeResponse(t, nodes) {
-	let message = {
+	const message = {
 		t,
 		y,
 		r	: {
@@ -52,7 +56,7 @@ function BuildFindNodeResponse(t, nodes) {
 }
 
 function BuildGetPeersResponse(t, token, values, nodes, scrape) {
-	let message = {
+	const message = {
 		t,
 		y,
 		r	: {
@@ -73,7 +77,7 @@ function BuildGetPeersResponse(t, token, values, nodes, scrape) {
 }
 
 function BuildAnnouncePeerResponse(t) {
-	let message = {
+	const message = {
 		t,
 		y,
 		r	: {

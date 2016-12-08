@@ -1,3 +1,4 @@
+/* eslint semi: ["error", "never"]*/
 // torrent.js validates a movie identified in the request and downloads it if
 // its status is not downloaded. If
 // downloaded or when enough downloaded for being played, outputed
@@ -12,15 +13,34 @@
 // <video>: FLAC in MP4
 
 import bencode from 'bencode'
-import chalk from 'chalk'
 import https from 'https'
 import TorrentFile from './Torrentfile'
 import magnetURIDecode from './magnet-parser'
+import RPC from './KRPC/rpc'
+import tracker from './tracker'
+import log from './lib/log'
 
 // inherits(torrent, EventEmitter)
 
-const log = m => console.log(chalk.blue(m))
+const torrentAmorce = {
+	size: 1825361101,
+	infoHash: 'D410CD9245AD33F8E6F385866193ECD60CB699F9',
+	infoHashBuffer: Buffer.from('D410CD9245AD33F8E6F385866193ECD60CB699F9', 'hex'),
+	announce: [
+	'udp://p4p.arenabg.ch:1337',
+	'udp://tracker.leechers-paradise.org:6969',
+	'udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80',
+	'udp://torrent.gresille.org:80/announce',
+	'udp://tracker.opentrackr.org:1337/announce',
+	'udp://glotorrents.pw:6969/announce'],
+}
 
+let KRPC = null
+setTimeout(() => {
+	tracker.getPeers(torrentAmorce, peers => {
+			KRPC = new RPC({ peers })
+	})
+}, 300)
 const _validResolution = [
     '8k',
     '2160p',
@@ -32,17 +52,12 @@ const _validResolution = [
 ]
 const _preferredResolution = '8k'
 
-const torrentRoute = async (req, res, next) => {
-	const movie = authorizeFileTransfer(req.params.movie || {}) // is movie the parameter's name?
-    if (movie.success) {
-        await torrent(movie.data, next)
-    } else {
-        next()
-    }
-}
-
 const authorizeFileTransfer = (movie) => {
-    return ({success: true, status: 'success', message: "torrent file should be downloaded", data: {
+    return ({
+		success: true,
+		status: 'success',
+		message: 'torrent file should be downloaded',
+		data: {
     "title" : "Life",
     "year" : 2015,
     "runtime" : 111,
@@ -90,7 +105,7 @@ const authorizeFileTransfer = (movie) => {
             return {success: true, status: 'success', message: "torrent file should be downloaded", data: movie}
         } else return {success: false, status: 'error', message: "torrent file won't be downloaded", data: movie}
     } catch(err) {
-        log('File transfer authorization error: ', err)
+        log.e('File transfer authorization error: ', err)
     }
 }
 
@@ -100,8 +115,7 @@ const selectTorrent = (torrents) => {
     for (let i = _validResolution.indexOf(_preferredResolution);
 	(selected.length === 0 && i < _validResolution.length);
 	i += 1) {
-        selected = torrents.filter(e => (e.quality === _validResolution[i])
-        )
+        selected = torrents.filter(e => (e.quality === _validResolution[i]))
 	}
     if (selected.length > 0) {
 		return {
@@ -109,12 +123,12 @@ const selectTorrent = (torrents) => {
 		id: torrents.indexOf(selected[0])
 		}
 	}
-	console.log('error')
+	log.e('error')
 }
 
 const torrentFromMagnet = (magnet, cb) => {
     if (magnet) {
-        let torrent = magnetURIDecode(magnet)
+        const torrent = magnetURIDecode(magnet)
         cb(torrent)
     }
     return null
@@ -132,10 +146,9 @@ const torrentFromFile = (url, cb) => {
 				throw e
 			})
 			res.on('end', () => {
-                let torrent = bencode.decode(rawData, 'utf8')
-                if (!torrent.announce || !(/^udp/.test(torrent.announce))) { throw new Error('improper torrent entry')}
+                const torrent = bencode.decode(rawData, 'utf8')
+                if (!torrent.announce || !(/^udp/.test(torrent.announce))) { throw new Error('improper torrent entry') }
                 cb(torrent)
-
 			})
 		})
 	} catch (e) {
@@ -144,11 +157,17 @@ const torrentFromFile = (url, cb) => {
 }
 
 const startDownload = torrent => {
-    const torrentFile = new TorrentFile(torrent)
+	if (!KRPC) {
+		log.e('Kadmelia RPC not loaded')
+	}
+	try {
+		const torrentFile = new TorrentFile(torrent, KRPC)
+	} catch (e) {
+		log.e(e.message)
+	}
 }
 
 const torrent = async (movie, next) => {
-
     // this downloads the movie to fs and updates database
 	// then next() is called to start streaming process. next() call should
 	// happen when streaming process an be started
@@ -157,15 +176,31 @@ const torrent = async (movie, next) => {
     try {
         const torrents = movie.torrents
         const file = selectTorrent(torrents)
-		console.log(file)
         if (file.torrent.magnet) {
             torrentFromMagnet(file.torrent.magnet, startDownload)
         } else {
             torrentFromFile(file.torrent.url, startDownload)
         }
     } catch (e) {
-        console.log(`Torrent API master error: ${e}`)
+        log.e(`Torrent API master error: ${e}`)
+		log.e(e)
     }
+}
+
+const torrentRoute = async (req, res, next) => {
+	if (!KRPC) {
+		res.send({
+			status: 'error',
+			message: 'Torrent client not loaded yet',
+		})
+	} else {
+		const movie = authorizeFileTransfer(req.params.movie || {}) // is movie the parameter's name?
+		if (movie.success) {
+			await torrent(movie.data, next)
+		} else {
+			next()
+		}
+	}
 }
 
 export default torrentRoute;
