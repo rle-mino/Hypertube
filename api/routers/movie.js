@@ -17,7 +17,7 @@ export default (app) => {
 
 	app.get('/api/movie/:id', info.getData);
 
-	app.put('/api/movie/addpath/:id', scrap.addPath);
+	app.put('/api/movie/addpath/:id', scrap.addPath); // ?path=path&s=1&e=2&q=1
 
 	// scrap.yts(); //	UNCOMMENT THIS WHEN PROJECT IS FINISHED -- commented for compliance issues
 

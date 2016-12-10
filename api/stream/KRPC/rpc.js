@@ -16,8 +16,8 @@ import tracker from '../tracker'
 
 const torrentAmorce = {
 	size: 1825361101,
-	infoHash: 'D410CD9245AD33F8E6F385866193ECD60CB699F9',
-	infoHashBuffer: Buffer.from('D410CD9245AD33F8E6F385866193ECD60CB699F9', 'hex'),
+	infoHash: '7306674e857c3561715a9beb3510e13db25348ff',
+	infoHashBuffer: Buffer.from('7306674e857c3561715a9beb3510e13db25348ff', 'hex'),
 	announce: ['udp://tracker.internetwarriors.net:1337',
 	'udp://p4p.arenabg.ch:1337',
 	'udp://tracker.leechers-paradise.org:6969',
@@ -240,10 +240,12 @@ RPC.prototype.buildAddressBook = function (infoHashBuffer) {
 	contacts.forEach(e => {
 		this.get_peers(e, infoHashBuffer, null)
 	})
+	const interVal = setInterval(() => this.buildaddressBook(infoHashBuffer), 30000)
+	this.on('get_peers', () => clearInterval(interVal))
 }
 
 RPC.prototype.unBlock = function (stat) {
-	if (this._stat && stat === this._stat) {
+	if (this._stat && stat === this._stat && this._stat <= 10 ** 6) {
 		log.y('unblocking routing table')
 		const contacts = this.getContactList(anon.nodeId())
 		contacts.forEach(c => {
@@ -259,6 +261,7 @@ RPC.prototype.getContactList = function (hash) {
 }
 
 RPC.prototype.get_peers = function (contact, infoHash, id) {
+	if (this._stat && this._stat > 250000) return
 	try {
 		if (!id) {
 			id = anon.newKrpcId()

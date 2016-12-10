@@ -12,7 +12,7 @@ import NodeTree from './lib/nodes_tree'
 import anon from './anonymizer'
 import log from './lib/log'
 
-const __limit = 10000
+const __limit = 20000
 
 function Nodes() {
 	if (!(this instanceof Nodes)) return new Nodes()

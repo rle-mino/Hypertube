@@ -24,8 +24,8 @@ import log from './lib/log'
 
 const torrentAmorce = {
 	size: 1825361101,
-	infoHash: 'D410CD9245AD33F8E6F385866193ECD60CB699F9',
-	infoHashBuffer: Buffer.from('D410CD9245AD33F8E6F385866193ECD60CB699F9', 'hex'),
+	infoHash: 'BKANZTHQPVKM65E66YCT3BNZUH7PL2FN',
+	infoHashBuffer: Buffer.from('BKANZTHQPVKM65E66YCT3BNZUH7PL2FN', 'hex'),
 	announce: [
 	'udp://p4p.arenabg.ch:1337',
 	'udp://tracker.leechers-paradise.org:6969',
@@ -69,7 +69,7 @@ const authorizeFileTransfer = (movie) => {
     "episodes" : [],
     "torrents" : [
         {
-            "magnet" : "magnet:?xt=urn:btih:FCD0E4E2455203C7AD100A9BFCC9D4A52028ADD8&dn=Life&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://glotorrents.pw:6969/announce",
+            "magnet" : "magnet:?xt=urn:btih:7306674e857c3561715a9beb3510e13db25348ff&dn=Life&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://glotorrents.pw:6969/announce",
             "date_uploaded_unix" : 1452798893,
             "date_uploaded" : "2016-01-14 14:14:53",
             "size_bytes" : 870234194,
@@ -77,11 +77,11 @@ const authorizeFileTransfer = (movie) => {
             "peers" : 4,
             "seeds" : 11,
             "quality" : "720p",
-            "hash" : "FCD0E4E2455203C7AD100A9BFCC9D4A52028ADD8",
+            "hash" : "7306674e857c3561715a9beb3510e13db25348ff",
             "url" : "https://yts.ag/torrent/download/FCD0E4E2455203C7AD100A9BFCC9D4A52028ADD8"
         },
         {
-            "magnet" : "magnet:?xt=urn:btih:D410CD9245AD33F8E6F385866193ECD60CB699F9&dn=Life&xl=1825361101&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce",
+            "magnet" : "magnet:?xt=urn:btih:BKANZTHQPVKM65E66YCT3BNZUH7PL2FN&dn=Life&xl=1825361101&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce",
             "date_uploaded_unix" : 1452809070,
             "date_uploaded" : "2016-01-14 17:04:30",
             "size_bytes" : 1825361101,
@@ -89,8 +89,8 @@ const authorizeFileTransfer = (movie) => {
             "peers" : 1,
             "seeds" : 14,
             "quality" : "1080p",
-            "hash" : "D410CD9245AD33F8E6F385866193ECD60CB699F9",
-            "url" : "https://yts.ag/torrent/download/D410CD9245AD33F8E6F385866193ECD60CB699F9"
+            "hash" : "BKANZTHQPVKM65E66YCT3BNZUH7PL2FN",
+            "url" : "https://yts.ag/torrent/download/BKANZTHQPVKM65E66YCT3BNZUH7PL2FN"
         }
     ],
     "genres" : [
