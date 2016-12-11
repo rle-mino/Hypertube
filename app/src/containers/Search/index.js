@@ -29,6 +29,8 @@ class Search extends React.Component {
 		page: 0,
 	}
 
+	_form = null
+
 	componentDidMount() {
 		this._mounted = true
 		this.loadMore = _.debounce(this.loadMore, 300)
@@ -40,7 +42,7 @@ class Search extends React.Component {
 			minRate: minrate || 0,
 			maxRate: maxrate || 10,
 			category: category || 'all',
-			sort: sort || 'name',
+			sort: sort || 'year',
 			page: 0,
 		} })
 		this.props.dispatch(bIn())
@@ -75,13 +77,13 @@ class Search extends React.Component {
 	}
 
 	componentWillReceiveProps = (newProps) => {
-		if (!this.refs.searchFormDetailed) return false
+		if (!this._form) return false
 		const {
 			yearValue,
 			rateValue,
 			catVal,
 			sortVal
-		} = this.refs.searchFormDetailed.state
+		} = this._form.state
 
 		this.requestFilms(true, { params: {
 			title: newProps.location.query.title,
@@ -103,9 +105,9 @@ class Search extends React.Component {
 	}
 
 	loadMore = () => {
-		if (!this.refs.searchFormDetailed.state) return false
+		if (!this._form.state) return false
 		const { page, noResults, more } = this.state
-		const { yearValue, rateValue, catVal, sortVal } = this.refs.searchFormDetailed.state
+		const { yearValue, rateValue, catVal, sortVal } = this._form.state
 		const nextPage = page + 1
 
 		if (noResults || !more) return false
@@ -120,6 +122,25 @@ class Search extends React.Component {
 			sort: lang.sorts[sortVal][0],
 		} })
 		this.setState({ page: nextPage })
+	}
+
+	formUpdate = () => {
+		const {
+			yearValue,
+			rateValue,
+			catVal,
+			sortVal,
+		} = this._form.state
+		this.requestFilms(true, { params: {
+			title: this.props.location.query.title,
+			page: 0,
+			minYear: yearValue.min,
+			maxYear: yearValue.max,
+			minRate: rateValue.min,
+			maxRate: rateValue.max,
+			category: lang.categories[catVal][0],
+			sort: lang.sorts[sortVal][0],
+		} })
 	}
 
 	render() {
@@ -142,7 +163,11 @@ class Search extends React.Component {
 						color={mainColor} style={linearStyle}
 					/>
 				}
-				<SearchFormDetailed l={l} ref="searchFormDetailed"/>
+				<SearchFormDetailed
+					l={l}
+					ref={(form) => this._form = form}
+					onUpdate={this.formUpdate}
+				/>
 				<h3 className="resultsStatus">{noResults ? lang.noResultsFound[this.props.l] : null}</h3>
 				<InfiniteScroll
 					pageStart={0}

@@ -1,7 +1,12 @@
 import React				from 'react'
 
-export default ({ available, mainColor, currentTime, click, onMouseDown }) =>
-	<div className="seekBar">
+/*
+*	Referencing this component is nescessary
+*	because the parent needs his position
+*	to calculate the asked time
+*/
+export default ({ available, mainColor, currentTime, click, onMouseDown, onRef }) =>
+	<div className="seekBar" ref={onRef}>
 		<div className="seekProgress"
 			onClick={click}
 			style={{
@@ -14,7 +19,7 @@ export default ({ available, mainColor, currentTime, click, onMouseDown }) =>
 			onMouseDown={onMouseDown}
 			style={{
 				backgroundColor: mainColor,
-				left: `${currentTime}%`
+				left: `${currentTime - 1}%`,
 			}}
 		/>
 	</div>
