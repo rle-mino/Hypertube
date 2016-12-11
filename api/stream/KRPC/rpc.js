@@ -96,6 +96,8 @@ function RPC(opts) {
 			if (response.tid) {
 				response.req			= self.reqs[response.tid]
 				response.index		= self._ids.indexOf(response.tid)
+				self._ids.splice(response.index, 1)
+				self.reqs.splice(response.tid, 1)
 			} else return
 
 			if (response.type === 'q') {
@@ -138,12 +140,17 @@ function RPC(opts) {
 			} else if (response.req.r === 'get_peers') {
 			// GET_PEERS
 				if (response.values) {
+					self.announce_peer(response)
 					const values = self.parseValues(response.values)
 					const token = response.token
 					self.emit('get_peers', values, token)
-				} else if (response.nodes) {
+				}
+				if (response.nodes) {
 					const ids = self.parseNodes(response.nodes)
 					if (ids && self.torrents.indexOf(response.req.infoHash) !== -1) {
+						ids.forEach(p => {
+							self.get_peers(p, response.req.infoHash, null)
+						})
 						ids.forEach(p => {
 							self.get_peers(p, response.req.infoHash, null)
 						})
@@ -151,7 +158,7 @@ function RPC(opts) {
 				}
 			}
 		} catch (e) {
-			self.errors.push(e)
+			self.emit('error', e)
 		}
 	}
 
@@ -168,7 +175,7 @@ function RPC(opts) {
 			this.open()
 		} else {
 			const interVal = setInterval(() => {
-				if (this.opts.peers){
+				if (this.opts.peers) {
 					clearInterval(interVal)
 					this.open()
 				}
@@ -240,8 +247,8 @@ RPC.prototype.buildAddressBook = function (infoHashBuffer) {
 	contacts.forEach(e => {
 		this.get_peers(e, infoHashBuffer, null)
 	})
-	const interVal = setInterval(() => this.buildaddressBook(infoHashBuffer), 30000)
-	this.on('get_peers', () => clearInterval(interVal))
+	const interVal = setTimeout(() => this.buildAddressBook(infoHashBuffer), 30000)
+	this.on('get_peers', () => clearTimeout(interVal))
 }
 
 RPC.prototype.unBlock = function (stat) {
@@ -282,8 +289,17 @@ RPC.prototype.stopGetPeers = function (infoHash) {
 	}
 }
 
-RPC.prototype.anounce_peer = function (contact, impliedPort, infoHash, token, id) {
-	this.reqs[id].r = 'announce_peer'
+RPC.prototype.announce_peer = function (opts, id) {
+	if (!id) {
+		id = anon.newKrpcId()
+		this._ids.push(id)
+	}
+	const contact = opts.req
+	const infoHash = opts.req.infoHash
+	const token = opts.token
+	this.reqs[id] = { r: 'announce_peer', ip: contact.ip, port: contact.port }
+	const message = queries.BuildAnnouncePeer(contact, infoHash, token)
+	this.send(message, contact)
 }
 RPC.prototype.initializeBuckets = function (opts) {
 	if (opts instanceof Contact) {

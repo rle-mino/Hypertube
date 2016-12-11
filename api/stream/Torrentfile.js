@@ -19,6 +19,7 @@ function TorrentFile(torrent, rpc) {
 	this.kadmelia = rpc
     this.Pieces = [] // this is a list of movie Pieces
 	this.queue = [] // this is a queue for torrent files
+	this.feedbacks = 0
 
 	if (torrent) self.addTorrent(torrent)
 }
@@ -26,6 +27,7 @@ function TorrentFile(torrent, rpc) {
 inherits(TorrentFile, EventEmitter)
 
 TorrentFile.prototype.addTorrent = function (torrent) {
+	const self = this
 	if (this.kadmelia.state !== 'ready') {
 		this.queue = [torrent, ...this.queue]
 		this.kadmelia.once('ready', () => {
@@ -36,13 +38,14 @@ TorrentFile.prototype.addTorrent = function (torrent) {
 		this.torrent = torrent
 		this.kadmelia.buildAddressBook(torrent.infoHashBuffer)
 	}
-	this.kadmelia.on('get_peers', this.addPeer)
+	this.kadmelia.on('get_peers', (p) => self.addPeer(p))
+	this.kadmelia.on('error', () => {})
 }
 
-TorrentFile.prototype.addPeer = function (peers, token) {
+TorrentFile.prototype.addPeer = function (peers) {
 	const self = this
-	// log.r('|o|')
-	console.log(this.torrent.infoHash)
+	self.feedbacks += 1
+	log.r(self.feedbacks)
 	if (!self.downloader) {
 		self.downloader = new Downloader(self.torrent, peers)
 	}

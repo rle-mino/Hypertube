@@ -10,7 +10,7 @@ import crypto from 'crypto'
 import _ from 'lodash'
 import XOR from './lib/nodes_distance'
 
-const K = 20;
+const K = 40;
 
 const log = m => console.log(chalk.blue(m))
 const ilog = m => process.stdout.write(chalk.cyan(m))

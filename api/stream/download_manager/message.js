@@ -10,8 +10,8 @@ module.exports.buildHandshake = torrent => {
 	buf.writeUInt32BE(0, 20)
 	buf.writeUInt32BE(0, 24)
 
-	torrent.infoHash.copy(buf, 28)
-	buf.write(anon.newId())
+	torrent.infoHashBuffer.copy(buf, 28)
+	anon.nodeId().copy(buf, 0)
 	return buf
 }
 

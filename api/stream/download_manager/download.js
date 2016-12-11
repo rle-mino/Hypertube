@@ -7,12 +7,11 @@ import torrentParser from '../torrent-parser'
 import log from '../lib/log'
 
 process.on('uncaughtException', function (err) {
-    console.log(err)
+    log.e('.')
 })
 
 function Downloader(torrent, peers, port) {
 	if (!(this instanceof Downloader)) return new Downloader(torrent, peers, port)
-	console.log('constructor', torrent)
 	this.requested = []
 	this.queue = []
 	this.peers = []
@@ -29,9 +28,8 @@ Downloader.prototype.addPeers = function (peers) {
 }
 
 Downloader.prototype.download = function (peer, torrent, requested) {
-	console.log(torrent)
 	this.client = new net.Socket()
-	this.client.on('error', console.log)
+	this.client.on('error', () => log.e('.'))
 	this.client.connect(peer.port, peer.ip, () => {
 		this.client.write(message.buildHandshake(torrent))
 	})
@@ -39,7 +37,6 @@ Downloader.prototype.download = function (peer, torrent, requested) {
 }
 
 Downloader.prototype.msgHandler = (msg, client, requested) => {
-	console.log(msg)
 	if (this.isHandshake(msg)) {
 		client.write(message.buildInterested())
 	} else {
@@ -97,6 +94,10 @@ Downloader.prototype.requestPiece = function(socket, requested, queue) {
 		queue.shift()
 		client.write(message.buildRequest(pieceIndex))
 	}
+}
+
+Downloader.prototype.pieceHandler = function (payload, client, requested, queue) {
+	log.r('||X||')
 }
 
 export default Downloader

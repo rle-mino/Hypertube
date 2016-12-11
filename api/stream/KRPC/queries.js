@@ -51,21 +51,21 @@ export function BuildGetPeersQuery(t, infoHash, noseed, scrape) {
 	return Buffer.from(bencode.encode(message))
 }
 
-function BuildAnnouncePeer(contact, infoHash, token) {
-	if (!contact || !contact.port) { throw new Error('Contact informations incomplete')}
-	let message = {
-		t	: anon.newKrpcId(),
+export function BuildAnnouncePeer(contact, infoHash, token) {
+	if (!contact || !contact.port) { throw new Error('Contact informations incomplete') }
+	const message = {
+		t: anon.newKrpcId(),
 		y,
-		q	: 'announce_peer',
-		a	: {
-			implied_port	: 1,
-			info_hash		: infoHash,
-			port			: contact.port,
-			token			: token
+		q: 'announce_peer',
+		a: {
+			implied_port: 1,
+			info_hash: infoHash,
+			port: contact.port,
+			token,
 		}
 	}
 	if (!contact.implied_port) message.a.implied_port = 0
-	if (contact.seending.indexOf(infoHash) !== -1) message.a.seed = 1
+	if (contact.seeding && contact.seeding.indexOf(infoHash) !== -1) message.a.seed = 1
 
-return bencode.encode(message)
+	return bencode.encode(message)
 }

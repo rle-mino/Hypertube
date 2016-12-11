@@ -17,7 +17,7 @@ import https from 'https'
 import TorrentFile from './Torrentfile'
 import magnetURIDecode from './magnet-parser'
 import RPC from './KRPC/rpc'
-import tracker from './tracker'
+import * as tracker from './tracker'
 import log from './lib/log'
 
 // inherits(torrent, EventEmitter)
@@ -81,7 +81,7 @@ const authorizeFileTransfer = (movie) => {
             "url" : "https://yts.ag/torrent/download/FCD0E4E2455203C7AD100A9BFCC9D4A52028ADD8"
         },
         {
-            "magnet" : "magnet:?xt=urn:btih:BKANZTHQPVKM65E66YCT3BNZUH7PL2FN&dn=Life&xl=1825361101&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce",
+            "magnet" : "magnet:?xt=urn:btih:EC341BBC6F228AD669C9B5397DE7904E496A5EB9&dn=Life&xl=1825361101&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce",
             "date_uploaded_unix" : 1452809070,
             "date_uploaded" : "2016-01-14 17:04:30",
             "size_bytes" : 1825361101,
@@ -89,8 +89,8 @@ const authorizeFileTransfer = (movie) => {
             "peers" : 1,
             "seeds" : 14,
             "quality" : "1080p",
-            "hash" : "BKANZTHQPVKM65E66YCT3BNZUH7PL2FN",
-            "url" : "https://yts.ag/torrent/download/BKANZTHQPVKM65E66YCT3BNZUH7PL2FN"
+            "hash" : "EC341BBC6F228AD669C9B5397DE7904E496A5EB9",
+            "url" : "https://yts.ag/torrent/download/EC341BBC6F228AD669C9B5397DE7904E496A5EB9"
         }
     ],
     "genres" : [

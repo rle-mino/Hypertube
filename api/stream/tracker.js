@@ -12,7 +12,6 @@ const __tryout = 3
 let __TO = ''
 let __URL = ''
 
-
 function tryoutCall(tryout, client, message, announce) {
 	if (Array.isArray(announce) && (tryout === 0)) {
 		tryout = __tryout
@@ -112,9 +111,9 @@ function parseAnnounceResp(resp) {
     }
 }
 
-module.exports.getPeers = (torrent, callback) => {
-	log.i('Starting bitTorrent client')
-	console.log()
+log.i('Starting bitTorrent client')
+
+export const getPeers = function (torrent, callback) {
 	const client = dgram.createSocket('udp4')
 	__URL = torrent.announce[0]
     tryoutCall(__tryout, client, buildConnReq(), torrent.announce)
@@ -126,8 +125,12 @@ module.exports.getPeers = (torrent, callback) => {
             const announceReq = buildAnnounceReq(connResp.connectionId, torrent)
 			tryoutCall(__tryout, client, announceReq, __URL)
         } else if (respType(response) === 'announce') {
-            const announceResp = parseAnnounceResp(response)
-            callback(announceResp.peers)
+			const announceResp = parseAnnounceResp(response)
+			if (announceResp.peers.length > 5) {
+				callback(announceResp.peers)
+			} else {
+				getPeers(torrent, callback)
+			}
         }
     })
 
