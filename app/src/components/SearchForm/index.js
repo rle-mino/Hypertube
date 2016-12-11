@@ -1,5 +1,5 @@
 import React							from 'react'
-import ReactDOM							from 'react-dom'
+// import ReactDOM							from 'react-dom'
 import _								from 'lodash'
 import { browserHistory }				from 'react-router'
 import MouseTrap						from 'mousetrap'
@@ -25,6 +25,8 @@ export default class SearchForm extends React.Component {
 		title: '',
 	}
 
+	_searchInput = null
+
 	componentDidMount() {
 		this._mounted = true
 		MouseTrap.bind(alphabet, this.focusSearch)
@@ -34,7 +36,7 @@ export default class SearchForm extends React.Component {
 	}
 
 	focusSearch = () => {
-		const searchInput = ReactDOM.findDOMNode(this.refs.searchInput)
+		const searchInput = this._searchInput
 		if (searchInput) searchInput.focus()
 	}
 
@@ -122,7 +124,7 @@ export default class SearchForm extends React.Component {
 						onChange={this.searchFilm}
 						value={title}
 						autoComplete="off"
-						ref="searchInput"
+						ref={(searchInput) => this._searchInput = searchInput}
 					/>
 					<input type="submit" hidden={true} />
 				</form>

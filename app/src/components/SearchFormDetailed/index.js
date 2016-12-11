@@ -28,7 +28,7 @@ export default class SearchFormDetailed extends React.Component {
 			max: 10,
 		},
 		catVal: 0,
-		sortVal: 0,
+		sortVal: 2,
 		showAdvanced: false,
 	}
 
@@ -40,10 +40,10 @@ export default class SearchFormDetailed extends React.Component {
 		this._mounted = false
 	}
 
-	updateYear = (e, values) => this.setState({ yearValue: values })
-	updateRate = (e, values) => this.setState({ rateValue: values })
-	updateCat = (e, index, value) => this.setState({ catVal: value })
-	updateSort = (e, index, value) => this.setState({ sortVal: value })
+	updateYear = (e, values) => this.setState({ yearValue: values }, this.props.onUpdate)
+	updateRate = (e, values) => this.setState({ rateValue: values }, this.props.onUpdate)
+	updateCat = (e, index, value) => this.setState({ catVal: value }, this.props.onUpdate)
+	updateSort = (e, index, value) => this.setState({ sortVal: value }, this.props.onUpdate)
 
 	showAdvanced = () => this.setState({ showAdvanced: !this.state.showAdvanced })
 
