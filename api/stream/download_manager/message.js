@@ -2,6 +2,7 @@
 
 import anon from '../anonymizer'
 
+
 module.exports.buildHandshake = torrent => {
 	const buf = Buffer.alloc(68)
 
@@ -11,7 +12,7 @@ module.exports.buildHandshake = torrent => {
 	buf.writeUInt32BE(0, 24)
 
 	torrent.infoHashBuffer.copy(buf, 28)
-	anon.nodeId().copy(buf, 0)
+	buf.write(anon.nodeId())
 	return buf
 }
 
@@ -100,13 +101,13 @@ module.exports.buildPort = payload => {
 }
 
 module.exports.parse = msg => {
-	const id = msg.length > 4 ? msg.readUInt8(4) : null
+	const id = msg.length > 4 ? msg.readInt8(4) : null
 	let payload = msg.length > 5 ? msg.slice(5) : null
 	if (id === 6 || id === 7 || id === 8) {
 		const rest = payload.slice(8)
 		payload = {
-			index: payload.readUInt32BE(0),
-			begin: payload.readUInt32BE(4)
+			index: payload.readInt32BE(0),
+			begin: payload.readInt32BE(4)
 		}
 		payload[id === 7 ? 'block' : 'length'] = rest
 	}
