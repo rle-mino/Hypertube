@@ -18,6 +18,8 @@
 	@include aspect-ratio(16, 9)
 	& .controls
 		position: absolute
+		overflow: hidden
+		opacity: 0
 		bottom: 0
 		width: 100%
 		height: 100%
@@ -25,6 +27,50 @@
 		display: flex
 		flex-direction: column
 		justify-content: space-between
+		transition: opacity .2s
+		&:hover
+			opacity: 1
+
+		& .volumeContainer
+			margin-left: auto
+			height: calc(100% - 50px)
+			display: flex
+			flex-direction: column
+			align-items: center
+			position: relative
+			margin-top: 5px
+			margin-right: 5px
+			&:hover > .volBarContainer > .volBar
+				height: 100%
+				& + .slidePoint
+					opacity: 1
+
+			& .volIco
+				border-radius: 50%
+				color: white
+				width: 50px
+				height: 50px
+				display: flex
+				justify-content: center
+				align-items: center
+
+			& .volBarContainer
+				width: 20px
+				display: flex
+				justify-content: center
+				height: 40%
+				position: relative
+				& .volBar
+					height: 0
+					width: 5px
+					margin-top: -1px
+					border-radius: 5px
+					cursor: pointer
+					transition: height .2s
+				& .slidePoint
+					margin-top: -5px
+					opacity: 0
+					transition: opacity .2s .1s
 
 		& .bot
 			position: relative
@@ -68,11 +114,11 @@
 		width: 110px
 		margin-left: 10px
 
-	& .seekPoint
+	& .slidePoint
 		width: 20px
 		height: 20px
 		border-radius: 50%
 		position: absolute
-		transition: left .2s
+		transition: left .2s, top .2s
 		top: -7px
 		cursor: pointer

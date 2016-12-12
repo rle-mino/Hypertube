@@ -59,13 +59,19 @@ module.exports = {
 	errorP: {
 		'any.empty': [ 'required', 'requis' ],
 		'any.required': [ 'required', 'requis' ],
-		'string.alphanum': [ 'alpha-numeric characters only', 'caractères alpha-numerique uniquement' ],
+		'string.alphanum': [
+			'alpha-numeric characters only',
+			'caractères alpha-numerique uniquement',
+		],
 		'string.min': [ '3 characters minimum', '3 caractères minimum' ],
 		'string.max': [ '16 characters maximum', '16 caractères maximum' ],
 		'string.regex.base': [ 'unsecure', 'non sécurisé' ],
 		'string.email': [ 'invalid', 'invalide' ],
 	},
-	userDoesntExist: [ 'Wrong login or password', 'Mauvais mot de login ou mot de passe' ],
+	userDoesntExist: [
+		'Wrong login or password',
+		'Mauvais mot de login ou mot de passe',
+	],
 	userDoesntExistAl: [ 'User doesnt exist', 'l\'utilisateur n\'existe pas' ],
 	mailDoesntExist: [ 'Mail doesnt exist', 'Adresse mail inexistante' ],
 	wrongCode: [ 'Wrong code', 'Code invalid' ],
@@ -80,6 +86,14 @@ module.exports = {
 	update: [ 'Update', 'mettre à jour' ],
 	updatePassword: [ 'Update your password', 'Changer de mot de passe' ],
 	updateYourProfile: [ 'Update your profile', 'Mettre à jour votre profil' ],
+	yourProfileHasBeenUpdated: [
+		'Your profile has been updated',
+		'Votre profil a été mis à jour',
+	],
+	yourPasswordHasBeenUpdated: [
+		'Your password has been updated',
+		'Votre mot de passe a été mis a jour',
+	],
 	changeYourImage: [ 'Change your image', 'Mettez à jour votre image' ],
 	empty: [ 'empty', 'vide' ],
 	settings: [ 'settings', 'paramètres' ],

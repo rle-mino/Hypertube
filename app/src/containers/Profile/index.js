@@ -1,8 +1,10 @@
 import React			from 'react'
 import { connect }		from 'react-redux'
+import lang				from '../../lang'
 import api				from '../../apiCall'
 
 import CircularProgress	from 'material-ui/CircularProgress'
+import Snackbar			from 'material-ui/Snackbar'
 import EditPassword		from '../../components/EditPassword'
 import EditImage		from '../../components/EditImage'
 import History			from '../../components/History'
@@ -16,6 +18,8 @@ class Profile extends React.Component {
 
 	state = {
 		data: null,
+		updated: false,
+		updatedPass: false
 	}
 
 	componentDidMount = async () => {
@@ -32,11 +36,16 @@ class Profile extends React.Component {
 	updateData = async () => {
 		const { data } = await api.getProfile()
 		if (!this._mounted) return false
-		this.setState({ data: data.profile })
+		this.setState({ data: data.profile, updated: true })
 	}
 
+	passUpdated = () => this.setState({ updatedPass: true })
+
+	handleRequestClose = () => this.setState({ updated: false })
+	handleRequestClosePass = () => this.setState({ updatedPass: false })
+
 	render() {
-		const { data } = this.state
+		const { data, updated, updatedPass } = this.state
 		const { mainColor, l, dispatch } = this.props
 		const editable = data && data.provider.includes('local')
 		return (
@@ -46,7 +55,13 @@ class Profile extends React.Component {
 			}
 			{data &&
 				<div className="userData">
-					{editable && <EditPassword mainColor={mainColor} l={l} />}
+					{editable &&
+						<EditPassword
+							mainColor={mainColor}
+							l={l}
+							onUpdate={this.passUpdated}
+						/>
+					}
 					<div
 						className="image"
 						style={{ backgroundImage: `url('${data.image}'), url('${noImage}')` }}
@@ -71,6 +86,18 @@ class Profile extends React.Component {
 				</div>
 			}
 			{data && <History history={data.history} l={l} dispatch={dispatch}/>}
+			<Snackbar
+				open={updated}
+				message={lang.yourProfileHasBeenUpdated[l]}
+				autoHideDuration={4000}
+				onRequestClose={this.handleRequestClose}
+			/>
+			<Snackbar
+				open={updatedPass}
+				message={lang.yourPasswordHasBeenUpdated[l]}
+				autoHideDuration={4000}
+				onRequestClose={this.handleRequestClosePass}
+			/>
 			</div>
 		)
 	}

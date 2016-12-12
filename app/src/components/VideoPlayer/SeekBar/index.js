@@ -15,7 +15,7 @@ export default ({ available, mainColor, currentTime, click, onMouseDown, onRef }
 			}}
 		/>
 		<div
-			className="seekPoint"
+			className="slidePoint"
 			onMouseDown={onMouseDown}
 			style={{
 				backgroundColor: mainColor,

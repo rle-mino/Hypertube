@@ -13,7 +13,7 @@ import ms				from 'mousetrap'
 
 const MouseTrap = msPause(ms)
 
-export default class extends React.Component {
+export default class EditPassword extends React.Component {
 	state = {
 		open: false,
 		password: '',
@@ -27,7 +27,6 @@ export default class extends React.Component {
 
 	handleOpen = () => {
 		this.setState({ open: true })
-		console.log(MouseTrap)
 		MouseTrap.pause()
 	}
 
@@ -88,7 +87,10 @@ export default class extends React.Component {
 			} else if (data.details.includes('wrong password')){
 				this.setState({ passwordR: lang.wrongPassword[l] })
 			} else this.setState({ serverResponse: lang.error[l] })
-		} else this.setState({ open: false });
+		} else {
+			this.setState({ open: false });
+			this.props.onUpdate()
+		}
 	}
 
 	checkSub = (e) => {

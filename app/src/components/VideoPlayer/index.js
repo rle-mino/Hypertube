@@ -1,10 +1,10 @@
 import React				from 'react'
 
-import PlayPause			from '../PlayPause'
-import SeekBar				from '../SeekBar'
-import FullScreenButton		from '../FullScreenButton'
-import Timer				from '../Timer'
-import VolumeCTRL			from '../VolumeCTRL'
+import PlayPause			from './PlayPause'
+import SeekBar				from './SeekBar'
+import FullScreenButton		from './FullScreenButton'
+import Timer				from './Timer'
+import VolumeCTRL			from './VolumeCTRL'
 
 import './sass/player.sass'
 
@@ -14,7 +14,9 @@ export default class VideoPlayer extends React.Component {
 		currentTime: 0,
 		completeCurrentTime: 0,
 		completeDuration: 0,
-		volume: localStorage.getItem('volume') || 0.5,
+		volume: 0.5,
+		mute: false,
+		oldVol: 0,
 		available: 0,
 		mouseDown: false,
 		draggingSeek: false,
@@ -24,6 +26,7 @@ export default class VideoPlayer extends React.Component {
 
 	_player = null
 	_seekBar = null
+	_volBar = null
 
 	/*
 	*	triggered every seconds,
@@ -93,37 +96,95 @@ export default class VideoPlayer extends React.Component {
 		clearInterval(this.interval)
 	}
 
+	toggleFullScreen = () => {
+		if (this._player.requestFullScreen) {
+			this._player.requestFullScreen()
+		} else if (this._player.mozRequestFullScreen) {
+			this._player.mozRequestFullScreen()
+		} else if (this._player.webkitRequestFullScreen) {
+			this._player.webkitRequestFullScreen()
+		}
+	}
 
 	/*
-	*	Update the currentTime using the seekBar
+	*	Updates the currentTime using the seekBar
 	*/
-	setNewTime = (clientX, target) => {
+	setNewTime = (clientX) => {
 		const { _player, _seekBar } = this
 		if (!_player || !_seekBar) return false
-		/* required if target = the play/pause SVG button */
-		if (!target || !target.className || !target.className.includes) return false
 
-		/* get position of the seekBar */
+		/* get position / width of the seekBar */
 		const progressRect = _seekBar.getBoundingClientRect()
-
-		/* get start/end pixel from seekBar */
 		const startPixel = +progressRect.left
 		const endPixel = +progressRect.right
-		/* stops if client is pointing after the seekBar */
+		const width = progressRect.width
+
+		/* stops if client is pointing out of the seekBar */
 		if (clientX > endPixel) return false
 
-		const width = progressRect.width
-		/* get the number of pixels from the starting point */
+		/* calculate where the client is */
 		const clickPoint = +clientX - +startPixel
-		/* from pixels to percent */
-		let clickPointPercent = ((clickPoint / width) * 100)
+		let clickPointPercent = (clickPoint / width) * 100
 		if (clickPointPercent < 0) clickPointPercent = 0
-		/* updates the currentTime */
-		_player.currentTime = _player.duration * (clickPointPercent / 100)
 
-		/* force the update of state.currentTime immediately | UX++ */
+		/* updates */
+		_player.currentTime = _player.duration * (clickPointPercent / 100)
 		const currentTime = (_player.currentTime * 100) / _player.duration
 		this.setState({ currentTime })
+	}
+
+	/*
+	*	Updates the volume using de volBar
+	*/
+	setNewVolume = (clientY) => {
+		const { _volBar, _player } = this
+		if (!_volBar || !_player) return false
+
+		/* get position and height of volBar */
+		const volRect = _volBar.getBoundingClientRect()
+		const startPixel = volRect.top
+		const endPixel = volRect.bottom
+		const height = +volRect.height
+
+		/*
+		*	if the client is out of the volBar
+		*	we directly set to volume to the extrem
+		*/
+		if (clientY < startPixel) {
+			this.setState({ volume: 0 })
+			return true
+		} else if (clientY > endPixel) {
+			this.setState({ volume: 1 })
+			return true
+		}
+
+		/* calculates where the client is */
+		const clickPoint = +clientY - +startPixel
+		let clickPointPercent = (clickPoint / height) * 100
+		if (clickPointPercent < 0) clickPointPercent = 0
+		if (clickPointPercent > 100) clickPointPercent = 1
+
+		/* updates */
+		_player.volume = clickPointPercent / 100.000
+		this.setState({ volume: clickPointPercent / 100, mute: false })
+	}
+
+	mute = () => {
+		const { _player } = this
+		if (this.state.mute) {
+			this.setState({
+				mute: false,
+				volume: this.state.oldVol,
+			})
+			_player.volume = this.state.oldVol
+		} else {
+			this.setState({
+				mute: true,
+				oldVol: this.state.volume,
+				volume: 0,
+			})
+			_player.volume = 0
+		}
 	}
 
 	/*
@@ -146,6 +207,13 @@ export default class VideoPlayer extends React.Component {
 			this.setState({ playing: true, available: 100 })
 		}
 	}
+
+	/*
+	*	Fires when the volume changes in fullscreen
+	*	to keep sync the custom volume slider with
+	*	the actual volume
+	*/
+	volumeChange = () => this.setState({ volume: this._player.volume })
 
 	/*
 	*	The play/pause status is stored in the state to
@@ -197,7 +265,7 @@ export default class VideoPlayer extends React.Component {
 	*/
 	onMouseMove = (e) => {
 		if (this.state.draggingSeek) this.setNewTime(e.clientX, e.target)
-		else if (this.state.draggingVol) this.setNewVol(e.clientY, e.target)
+		else if (this.state.draggingVol) this.setNewVolume(e.clientY, e.target)
 		else return false
 	}
 
@@ -207,18 +275,16 @@ export default class VideoPlayer extends React.Component {
 	*/
 	seekClick = (e) => {
 		e.preventDefault()
-
-		this.setNewTime(e.clientX, e.target)
+		this.setNewTime(e.clientX)
 	}
 
-	toggleFullScreen = () => {
-		if (this._player.requestFullScreen) {
-			this._player.requestFullScreen()
-		} else if (this._player.mozRequestFullScreen) {
-			this._player.mozRequestFullScreen()
-		} else if (this._player.webkitRequestFullScreen) {
-			this._player.webkitRequestFullScreen()
-		}
+	/*
+	*	Re-calculate the volume
+	*	when the user clicks over the volBar
+	*/
+	volClick = (e) => {
+		e.preventDefault()
+		this.setNewVolume(e.clientY)
 	}
 
 	render() {
@@ -241,6 +307,10 @@ export default class VideoPlayer extends React.Component {
 					<VolumeCTRL
 						volume={volume}
 						mainColor={mainColor}
+						onClick={this.volClick}
+						onMute={this.mute}
+						onMouseDown={this.onMouseDownVol}
+						onRef={(volBar) => this._volBar = volBar}
 					/>
 					<div className="bot">
 						<PlayPause
@@ -277,6 +347,7 @@ export default class VideoPlayer extends React.Component {
 					onPlay={this.play}
 					onPause={this.pause}
 					onCanPlayThrough={this.canPlayThrough}
+					onVolumeChange={this.volumeChange}
 				>
 					<source
 						src="http://www.supportduweb.com/page/media/videoTag/BigBuckBunny.ogg"
