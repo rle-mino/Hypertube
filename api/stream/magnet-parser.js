@@ -1,3 +1,4 @@
+/* eslint semi: ["error", "never"]*/
 /**
  * Created by opichou on 11/23/16.
  */
@@ -17,8 +18,8 @@ function magnetURIDecode (uri) {
         const keyval = params.split('=')
 
         if (keyval.length !== 2) return
-        let key = keyval[0],
-            val = keyval[1]
+        const key = keyval[0]
+        let val = keyval[1]
 
         if (key === 'dn') val = decodeURIComponent(val).replace(/\+/g, ' ')
 

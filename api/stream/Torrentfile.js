@@ -4,11 +4,6 @@
  /* eslint semi: ["error", "never"]*/
 import { EventEmitter } from 'events'
 import inherits from 'inherits'
-import Piece from './piece'
-import torrentParser from './torrent-parser'
-import tracker from './tracker'
-import anon from './anonymizer'
-import RPC from './KRPC/rpc'
 import Downloader from './download_manager/download'
 import log from './lib/log'
 
@@ -17,7 +12,6 @@ function TorrentFile(torrent, rpc) {
 	if (!rpc) throw new Error('Cannot initialize torrent without routing table')
 	const self = this
 	this.kadmelia = rpc
-    this.Pieces = [] // this is a list of movie Pieces
 	this.queue = [] // this is a queue for torrent files
 	this.feedbacks = 0
 
