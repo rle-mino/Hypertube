@@ -1,6 +1,7 @@
 /* eslint semi: ["error", "never"]*/
 import net from 'net'
 import fs from 'fs'
+import bencode from 'bencode'
 import message from './message'
 import log from '../lib/log'
 import Pieces from './Pieces'
@@ -21,22 +22,32 @@ function Downloader(torrent, peers) {
 }
 
 Downloader.prototype.addPeers = function (peers) {
-	peers.forEach(p => {
-		this.download(p, this.torrent, this.pieces)
-	})
+	if (this.torrent.magnet && !this.torrent.info) {
+		this.peers = [...this.peers, peers]
+		const peer = this.peers.shift()
+		this.download(peer, this.torrent, this.pieces, true)
+		this.peers.push(peer)
+	} else {
+		peers.forEach(p => {
+			this.download(p, this.torrent, this.pieces)
+		})
+	}
 }
 
-Downloader.prototype.download = function (peer, torrent, pieces) {
+Downloader.prototype.download = function (peer, torrent, pieces, ext) {
 	const client = new net.Socket()
 	client.on('error', () => log.e('.'))
 	client.connect(peer.port, peer.ip, () => {
-		client.write(message.buildHandshake(torrent))
+		client.write(message.buildHandshake(torrent, (torrent.magnet && !torrent.info)))
 	})
 	const queue = new Queue(torrent)
 	this.onWholeMsg(client, msg => this.msgHandler(msg, client, pieces, queue))
 }
 
 Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
+	if (this.torrent.magnet && !!this.torrent.info && this.isExtended(msg)) {
+		this.extendedHandler(client, pieces, queue, msg)
+	}
 	if (this.isHandshake(msg)) {
 		client.write(message.buildInterested())
 	} else {
@@ -53,6 +64,8 @@ Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
 			break
 			case 7: this.pieceHandler(client, pieces, queue, m.payload)
 			break
+			case 20: this.extendedHandler(client, pieces, queue, m.payload)
+			break
 			default: break
 		}
 	}
@@ -61,6 +74,44 @@ Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
 Downloader.prototype.isHandshake = function (msg) {
 	return msg.length === msg.readUInt8(0) + 49 &&
 		msg.toString('utf8', 1) === 'BitTorrent protocol'
+}
+
+Downloader.prototype.isExtended = function (msg) {
+	const header = message.fastParse(msg)
+	return (Boolean(header.reservedByte[5] & 0x10))
+}
+
+Downloader.prototype.extendedHandler = function (client, pieces, queue, msg) {
+	const extMessage = message.fastParse(msg)
+	if (extMessage.extId === 0) this.extHandshake(client, extMessage)
+	else this.extMetaData(extMessage)
+}
+
+Downloader.prototype.extHandshake = function (client, msg) {
+	console.log(msg)
+	const dict = bencode.decode(msg.payload)
+	if (dict.m.ut_metadata) {
+		if (!this.metaInfo) {
+			this.metaInfo = new Array(Math.ceil(dict.metadata_size / 16384))
+			this.metaInfo.fill(0)
+		}
+		this.metaInfoSize = dict.metadata_size
+		for (let i = 0; i < this.metInfo.length; i += 1) {
+			client.write(message.buildExtRequest(this.torrent, i, dict.m.ut_metadata))
+		}
+	}
+}
+Downloader.prototype.extMetaData = function (msg) {
+	const dict = bencode.decode(msg.payload)
+	const piece = msg.payload.slice(msg.payload.length - dict.total_size, dict.total_size)
+	this.metaInfo[dict.piece] = piece
+	if (this.metaInfo.every(e => e > 0)) {
+		const info = Buffer.concat(this.metaInfo, this.metaInfoSize)
+		if (message.verify(this.torrent, info)) { // DOIT CREER LA FONCTION QUI VERIFIE LE INFO GRACE AU HASH
+			this.torrent.info = message.torrentInfoParser(info) // DOIT CREER LA FONCTION QUI PARSE LE FICHIER TELECHARGE
+			this.doDownload() // DOIT CREER LA FONCTION QUI DEQUE LORSQUE L INFOHASH EST RECUPERE
+		}
+	}
 }
 
 Downloader.prototype.onWholeMsg = (client, callback) => {

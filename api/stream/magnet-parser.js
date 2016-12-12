@@ -75,6 +75,8 @@ function magnetURIDecode (uri) {
 
 	uniq(result.announce)
 	uniq(result.urlList)
+	result.magnet = true
+	result.info = false
 
 	return result
 
