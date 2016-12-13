@@ -6,6 +6,7 @@ import api				from '../../apiCall'
 import CircularProgress	from 'material-ui/CircularProgress'
 import Snackbar			from 'material-ui/Snackbar'
 import EditPassword		from '../../components/EditPassword'
+import QualitySelector	from '../../components/QualitySelector'
 import EditImage		from '../../components/EditImage'
 import History			from '../../components/History'
 import EditComp			from '../../components/EditComp'
@@ -62,6 +63,7 @@ class Profile extends React.Component {
 							onUpdate={this.passUpdated}
 						/>
 					}
+					<QualitySelector />
 					<div
 						className="image"
 						style={{ backgroundImage: `url('${data.image}'), url('${noImage}')` }}
