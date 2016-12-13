@@ -39,7 +39,6 @@ TorrentFile.prototype.addTorrent = function (torrent) {
 TorrentFile.prototype.addPeer = function (peers) {
 	const self = this
 	self.feedbacks += 1
-	log.r(self.feedbacks)
 	if (!self.downloader) {
 		self.downloader = new Downloader(self.torrent, peers)
 	}
