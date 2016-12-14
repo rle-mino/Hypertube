@@ -1,9 +1,6 @@
-import anon from '../anonymizer'
+/* eslint semi: ["error", "never"]*/
 import bencode from 'bencode'
-import chalk from 'chalk'
-
-const log = m => console.log(chalk.blue(m))
-const ilog = m => process.stdout.write(chalk.cyan(m))
+import anon from '../anonymizer'
 
 const y = 'q'
 // and q as method value string
@@ -11,26 +8,26 @@ const y = 'q'
 
 export function BuildPingQuery(t, _port) {
 	const port = _port || null
-	let message	= {
+	const message	= {
 		t,
 		y,
-		q		: 'ping',
-		a		: {
-			id		: anon.nodeId(port)
-		}
+		q: 'ping',
+		a: {
+			id: anon.nodeId(port),
+		},
 	}
 	return Buffer.from(bencode.encode(message))
 }
 
 export function BuildFindNodeQuery(t, target, _port) {
-	let message = {
+	const message = {
 		t,
 		y,
-		q	: 'find_node',
-		a	: {
-			id	: anon.nodeId(_port),
-			target
-		}
+		q: 'find_node',
+		a: {
+			id: anon.nodeId(_port),
+			target,
+		},
 	}
 	return Buffer.from(bencode.encode(message))
 }
@@ -39,11 +36,11 @@ export function BuildGetPeersQuery(t, infoHash, noseed, scrape) {
 	const message = {
 		t,
 		y,
-		q	: 'get_peers',
-		a	: {
-			id				: anon.nodeId(),
-			info_hash		: infoHash
-		}
+		q: 'get_peers',
+		a: {
+			id: anon.nodeId(),
+			info_hash: infoHash,
+		},
 	}
 	if (noseed) message.a.noseed = 1
 	if (scrape) message.a.scrape = 1
@@ -62,7 +59,7 @@ export function BuildAnnouncePeer(contact, infoHash, token) {
 			info_hash: infoHash,
 			port: contact.port,
 			token,
-		}
+		},
 	}
 	if (!contact.implied_port) message.a.implied_port = 0
 	if (contact.seeding && contact.seeding.indexOf(infoHash) !== -1) message.a.seed = 1

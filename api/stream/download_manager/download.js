@@ -7,28 +7,40 @@ import log from '../lib/log'
 import Pieces from './Pieces'
 import Queue from './Queue'
 
-process.on('uncaughtException', () => log.e('.'))
+// process.on('uncaughtException', () => log.e('.'))
 
 function Downloader(torrent, peers) {
-	if (!(this instanceof Downloader)) return new Downloader(torrent, peers, port)
+	if (!(this instanceof Downloader)) return new Downloader(torrent, peers)
+	const self = this
 	this.requested = []
 	this.received = []
 	this.peers = []
 	this.torrent = torrent
-	this.size = torrent.xl || torrent.size || torrent.info.pieces.length / 20 || 0
-	this.pieces = new Pieces(torrent)
-	this.file = fs.open(torrent.name, 'w')
+	if (torrent && torrent.info && torrent.info.pieces) {
+		self.size = torrent.info.pieces.length / 20
+		this.pieces = new Pieces(torrent)
+	} else {
+		self.size = 0
+	}
+	this.file = fs.openSync(torrent.name, 'w')
 	if (peers) this.addPeers(peers)
 }
 
 Downloader.prototype.addPeers = function (peers) {
+	log.l('+')
 	if (this.torrent.magnet && !this.torrent.info) {
+		log.l('X')
 		this.peers = [...this.peers, peers]
 		const peer = this.peers.shift()
 		this.download(peer, this.torrent, this.pieces, true)
 		this.peers.push(peer)
 	} else {
-		peers.forEach(p => {
+		if (this.peers.length !== 0) {
+			this.peers.forEach(p => {
+				this.download(p, this.torrent, this.pieces)
+			})
+		}
+		this.peers.forEach(p => {
 			this.download(p, this.torrent, this.pieces)
 		})
 	}
@@ -36,20 +48,22 @@ Downloader.prototype.addPeers = function (peers) {
 
 Downloader.prototype.download = function (peer, torrent, pieces, ext) {
 	const client = new net.Socket()
-	client.on('error', () => log.e('.'))
+	client.on('error', e => console.log('new socket', e))
 	client.connect(peer.port, peer.ip, () => {
-		client.write(message.buildHandshake(torrent, (torrent.magnet && !torrent.info)))
+		client.write(message.buildHandshake(torrent, ext))
 	})
 	const queue = new Queue(torrent)
 	this.onWholeMsg(client, msg => this.msgHandler(msg, client, pieces, queue))
 }
 
 Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
-	if (this.torrent.magnet && !!this.torrent.info && this.isExtended(msg)) {
-		this.extendedHandler(client, pieces, queue, msg)
-	}
 	if (this.isHandshake(msg)) {
-		client.write(message.buildInterested())
+		if (this.torrent.magnet && !!this.torrent.info && this.isExtended(msg)) {
+			console.log('O')
+			this.extendedHandler(client, pieces, queue, msg)
+		} else {
+			client.write(message.buildInterested())
+		}
 	} else {
 		const m = message.parse(msg)
 
@@ -78,7 +92,7 @@ Downloader.prototype.isHandshake = function (msg) {
 
 Downloader.prototype.isExtended = function (msg) {
 	const header = message.fastParse(msg)
-	return (Boolean(header.reservedByte[5] & 0x10))
+	return (Boolean(header.reservedByte[5] & 16))
 }
 
 Downloader.prototype.extendedHandler = function (client, pieces, queue, msg) {

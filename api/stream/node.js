@@ -2,10 +2,7 @@
 /* eslint semi: ["error", "never"]*/
 
 import inherits from 'inherits'
-import bencode from 'bencode'
-import crypto from 'crypto'
 import { EventEmitter } from 'events'
-import XOR from './lib/nodes_distance'
 import Bucket from './bucket'
 import Contact from './contact'
 import NodeTree from './lib/nodes_tree'

@@ -1,12 +1,10 @@
 /* eslint semi: ["error", "never"]*/
-import {inherits} from 'util'
-import {EventEmitter} from 'events'
+import { inherits } from 'util'
+import { EventEmitter } from 'events'
 import bencode from 'bencode'
-import Contact from '../contact'
-import KRPCMessage from './krpcmessage'
-import Bucket from '../bucket'
-import Nodes from '../node'
 import dgram from 'dgram'
+import Contact from '../contact'
+import Nodes from '../node'
 import * as queries from './queries'
 import * as responses from './responses'
 import * as errors from './errors'
@@ -88,7 +86,8 @@ function RPC(opts) {
 	function onMessage(buf, rinfo) {
 		const response = {}
 		try {
-			const message	= bencode.decode(buf)
+			const message		= bencode.decode(buf)
+			if (!message) { return }
 
 			response.tid			= message.t && message.t.toString()
 			response.type			= message.y && message.y.toString()
@@ -158,12 +157,12 @@ function RPC(opts) {
 				}
 			}
 		} catch (e) {
-			self.emit('error', e)
+			console.log(e)
 		}
 	}
 
 	function onError(e) {
-		self.emit('error', e)
+		self.emit('error', e.message)
 	}
 
 	function onListening() {
@@ -182,7 +181,7 @@ function RPC(opts) {
 			}, 20000)
 		}
 	} catch (e) {
-		this.errors.push(e)
+		self.emit('error', e.message)
 	}
 }
 
@@ -239,7 +238,7 @@ RPC.prototype.find_node = function (contact, id) {
 	}
 }
 
-RPC.prototype.buildAddressBook = function (infoHashBuffer) {
+RPC.prototype.buildAddressBook = function (infoHashBuffer, inter) {
 	console.log('getting AddressBook')
 	this.torrents.push(infoHashBuffer)
 	this.peers[this.torrents.indexOf(infoHashBuffer)] = []
@@ -247,8 +246,10 @@ RPC.prototype.buildAddressBook = function (infoHashBuffer) {
 	contacts.forEach(e => {
 		this.get_peers(e, infoHashBuffer, null)
 	})
-	const interVal = setTimeout(() => this.buildAddressBook(infoHashBuffer), 30000)
-	this.on('get_peers', () => clearTimeout(interVal))
+	if (!inter) {
+		const interVal = setInterval(() => this.buildAddressBook(infoHashBuffer, interVal), 5000)
+		this.on('get_peers', () => clearInterval(interVal))
+	}
 }
 
 RPC.prototype.unBlock = function (stat) {
@@ -316,7 +317,7 @@ RPC.prototype.addNode = function (opts) {
 		this._buckets.addContact(contact)
 		this.find_node(contact, opts.tid)
 	} catch (e) {
-		this.errors.push(e)
+		console.log(e)
 	}
 }
 RPC.prototype.parseShortContacts = function (opts) {
@@ -369,6 +370,10 @@ RPC.prototype.parseValues = function (values) {
 		return { ip, port }
 	})
 	return ids
+}
+
+RPC.prototype.abortAll = function () {
+	this.socket.close()
 }
 
 RPC.prototype.getErrors = function () {

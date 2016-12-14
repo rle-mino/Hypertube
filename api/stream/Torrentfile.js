@@ -11,9 +11,11 @@ function TorrentFile(torrent, rpc) {
     if (!(this instanceof TorrentFile)) return new TorrentFile(torrent, rpc)
 	if (!rpc) throw new Error('Cannot initialize torrent without routing table')
 	const self = this
-	this.kadmelia = rpc
+	this.kademlia = rpc
 	this.queue = [] // this is a queue for torrent files
 	this.feedbacks = 0
+
+	this.kademlia.on('error', console.log)
 
 	if (torrent) self.addTorrent(torrent)
 }
@@ -22,21 +24,21 @@ inherits(TorrentFile, EventEmitter)
 
 TorrentFile.prototype.addTorrent = function (torrent) {
 	const self = this
-	if (this.kadmelia.state !== 'ready') {
+	if (this.kademlia.state !== 'ready') {
 		this.queue = [torrent, ...this.queue]
-		this.kadmelia.once('ready', () => {
+		this.kademlia.once('ready', () => {
 			this.torrent = this.queue[0]
-			this.kadmelia.buildAddressBook(this.torrent.infoHashBuffer)
+			this.kademlia.buildAddressBook(this.torrent.infoHashBuffer)
 		})
 	} else {
 		this.torrent = torrent
-		this.kadmelia.buildAddressBook(torrent.infoHashBuffer)
+		this.kademlia.buildAddressBook(torrent.infoHashBuffer)
 	}
-	this.kadmelia.on('get_peers', (p) => self.addPeer(p))
-	this.kadmelia.on('error', () => {})
+	this.kademlia.on('get_peers', (p) => self.addPeer(p))
 }
 
 TorrentFile.prototype.addPeer = function (peers) {
+	// this.kademlia.abortAll() // use to force close the udp rcp
 	const self = this
 	self.feedbacks += 1
 	if (!self.downloader) {

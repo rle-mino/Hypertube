@@ -46,6 +46,9 @@ const log = {
 			break
 		}
 	},
+	l: m => {
+		process.stdout.write(chalk.cyan(m))
+	},
 }
 
 module.exports = log

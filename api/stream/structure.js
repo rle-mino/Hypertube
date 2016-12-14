@@ -6,3 +6,7 @@ Route -> Torrent \
 				      .\ nodes -> manages all nodes Buckets
 					   .\ bucket -> stocks up to 20 nodes in youth order
 					    .\ contact -> all infos for a node (nodeId, ip, port)
+					.\ downloader uses BitTorrent protocol to fetch :
+						- torrent info missing in the magnet link
+						- files requested by the magnet link
+						

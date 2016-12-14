@@ -15,7 +15,8 @@ function KRPCMessage(spec) {
 
 	if (KRPCMessage.isRequest(spec)) {
 		this.id = spec.id || Message.createID()
-		this.method = spec.methodthis.params = spec.params
+		this.method = spec.method
+		this.params = spec.params
 	} else if (KRPCMessage.isResponse(spec)) {
 		this.is = spec.id
 		this.result = merge({}, spec.result)
