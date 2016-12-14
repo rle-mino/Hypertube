@@ -1,4 +1,6 @@
 /* eslint no-bitwise: ["error", { "allow": ["<<", ">>", "&"] }] */
+/* eslint semi: ["error", "never"]*/
+
 import chalk from 'chalk'
 import LRU from 'lru'
 import anon from './anonymizer'
@@ -10,26 +12,18 @@ import crypto from 'crypto'
 import _ from 'lodash'
 import XOR from './lib/nodes_distance'
 
-const K = 40;
-
-const log = m => console.log(chalk.blue(m))
-const ilog = m => process.stdout.write(chalk.cyan(m))
-const elog = m => process.stdout.write(chalk.red(m))
-const ylog = m => process.stdout.write(chalk.yellow(m))
-const blog = m => process.stdout.write(chalk.blue(m))
+const K = 40
 
 function Bucket() {
 	if (!(this instanceof Bucket)) return new Bucket()
-	const self = this
-
 	this._contacts = []
 }
 
-Bucket.prototype.getSize = function() {
+Bucket.prototype.getSize = function () {
 	return this._contacts.length
 }
 
-Bucket.prototype.isGood = function() {
+Bucket.prototype.isGood = function () {
 	return true
 }
 
@@ -37,7 +31,7 @@ Bucket.prototype.getContactList = function () {
 	return _.clone(this._contacts)
 }
 
-Bucket.prototype.getContact = function(index) {
+Bucket.prototype.getContact = function (index) {
 	if (index < 0) throw new Error('Contact index cannot be negative')
 	if (index >= K) throw new Error('Contact index out of range')
 	return this._contacts[index] || null
@@ -60,23 +54,20 @@ Bucket.prototype.addContact = function (contact, bits) {
 		return false
 	}
 		try {
-			let temp = this._contacts
+			const temp = this._contacts
 			if (!this.hasContact(contact.nodeId)) {
-				let index = _.sortedIndexBy(temp, contact, contact => {
+				const index = _.sortedIndexBy(temp, contact, contact => {
 					return contact.lastSeen
 				})
 				this._contacts.splice(index, 0, contact)
-			} else {
-				elog('contact already exists')
 			}
 			return true
 		} catch (e) {
-			elog('error in add Contact : ' + e.message)
+			throw e
 		}
-
 }
 
-Bucket.prototype.removeContact = function(contact) {
+Bucket.prototype.removeContact = function (contact) {
 	const index = this.indexOf(contact)
 
 	if (index >= 0) {
@@ -86,18 +77,17 @@ Bucket.prototype.removeContact = function(contact) {
 	return false
 }
 
-Bucket.prototype.hasContact = function(contact) {
+Bucket.prototype.hasContact = function (contact) {
 	try {
-		for (let i = 0; i < this.getSize(); i++) {
+		for (let i = 0; i < this.getSize(); i += 1) {
 			if (this.getContact(i).nodeId === contact.nodeId) {
 				return i
 			}
 		}
 		return false
-	} catch(e) {
-		ylog('hascontact' + e.messages)
+	} catch (e) {
+		throw e
 	}
-
 }
 
 Bucket.prototype.indexOf = function (index) {
@@ -115,23 +105,22 @@ Bucket.prototype.indexOf = function (index) {
 // addContact).
 
 Bucket.prototype.halve = function (bits) {
-
-	let tmp = []
+	const tmp = []
 	const depth = 160 - bits.length
 	const byte = Math.floor(depth / 8)
 	const bit = 7 - (depth % 8)
 	const split = (d) => {
-		const tmp = new Bucket()
-		tmp._halveDepth = (depth + 1)
+		const tmpB = new Bucket()
+		tmpB._halveDepth = (depth + 1)
 		const zeros = this._contacts.filter(e => {
 			const buf = Buffer.alloc(1)
 			e.nodeId.copy(buf, 0, byte, byte + 1)
 			return (((buf[0] & (2 ** bit)) >> bit) === d)
 		})
 		for (let i = 0; i < zeros.length; i += 1) {
-			tmp.addContact(zeros[i])
+			tmpB.addContact(zeros[i])
 		}
-		return tmp
+		return tmpB
 	}
 	tmp[0] = split(0)
 	tmp[1] = split(1)

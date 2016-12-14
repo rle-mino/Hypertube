@@ -2,32 +2,46 @@
 import net from 'net'
 import fs from 'fs'
 import bencode from 'bencode'
+import uniq from 'uniq'
 import message from './message'
 import log from '../lib/log'
 import Pieces from './Pieces'
 import Queue from './Queue'
 
-process.on('uncaughtException', () => log.e('.'))
+// process.on('uncaughtException', () => log.e('.'))
 
 function Downloader(torrent, peers) {
-	if (!(this instanceof Downloader)) return new Downloader(torrent, peers, port)
+	if (!(this instanceof Downloader)) return new Downloader(torrent, peers)
+	const self = this
 	this.requested = []
 	this.received = []
 	this.peers = []
+	this.handshakes = []
 	this.torrent = torrent
-	this.size = torrent.xl || torrent.size || torrent.info.pieces.length / 20 || 0
-	this.pieces = new Pieces(torrent)
-	this.file = fs.open(torrent.name, 'w')
+	if (torrent && torrent.info && torrent.info.pieces) {
+		self.size = torrent.info.pieces.length / 20
+		this.pieces = new Pieces(torrent)
+	} else {
+		self.size = 0
+	}
+	this.file = fs.openSync(torrent.name, 'w')
 	if (peers) this.addPeers(peers)
 }
 
 Downloader.prototype.addPeers = function (peers) {
+	log.l('+')
 	if (this.torrent.magnet && !this.torrent.info) {
-		this.peers = [...this.peers, peers]
-		const peer = this.peers.shift()
-		this.download(peer, this.torrent, this.pieces, true)
-		this.peers.push(peer)
+		log.l('X')
+		this.peers = [...this.peers, ...peers]
+		uniq(this.peers)
+		uniq(peers)
+		peers.forEach(p => {
+			setTimeout(() => this.download(p, this.torrent, this.pieces, true), 500)
+		})
 	} else {
+		this.peers.forEach(p => {
+			this.download(p, this.torrent, this.pieces)
+		})
 		peers.forEach(p => {
 			this.download(p, this.torrent, this.pieces)
 		})
@@ -36,23 +50,22 @@ Downloader.prototype.addPeers = function (peers) {
 
 Downloader.prototype.download = function (peer, torrent, pieces, ext) {
 	const client = new net.Socket()
-	client.on('error', () => log.e('.'))
+	client.on('error', e => console.log('socket error', peer, e))
 	client.connect(peer.port, peer.ip, () => {
-		client.write(message.buildHandshake(torrent, (torrent.magnet && !torrent.info)))
+		client.write(message.buildHandshake(torrent, ext))
 	})
 	const queue = new Queue(torrent)
 	this.onWholeMsg(client, msg => this.msgHandler(msg, client, pieces, queue))
 }
 
 Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
-	if (this.torrent.magnet && !!this.torrent.info && this.isExtended(msg)) {
+	if (this.torrent.magnet && !this.torrent.info && this.isExtended(msg)) {
+		console.log('O')
 		this.extendedHandler(client, pieces, queue, msg)
-	}
-	if (this.isHandshake(msg)) {
+	} else if (this.torrent.info && this.isHandshake(msg)) {
 		client.write(message.buildInterested())
-	} else {
+	} else if (this.torrent.info) {
 		const m = message.parse(msg)
-
 		switch (m.id) {
 			case 0: this.chockHandler(client)
 			break
@@ -68,6 +81,8 @@ Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
 			break
 			default: break
 		}
+	} else {
+		this.handshakes.push({ msg, client, pieces, queue })
 	}
 }
 
@@ -78,7 +93,10 @@ Downloader.prototype.isHandshake = function (msg) {
 
 Downloader.prototype.isExtended = function (msg) {
 	const header = message.fastParse(msg)
-	return (Boolean(header.reservedByte[5] & 0x10))
+	const salut = (header.reservedByte[5] & 16)
+	console.log(header)
+	console.log(header.reservedByte[5])
+	return (salut === 1)
 }
 
 Downloader.prototype.extendedHandler = function (client, pieces, queue, msg) {
@@ -109,9 +127,16 @@ Downloader.prototype.extMetaData = function (msg) {
 		const info = Buffer.concat(this.metaInfo, this.metaInfoSize)
 		if (message.verify(this.torrent, info)) { // DOIT CREER LA FONCTION QUI VERIFIE LE INFO GRACE AU HASH
 			this.torrent.info = message.torrentInfoParser(info) // DOIT CREER LA FONCTION QUI PARSE LE FICHIER TELECHARGE
-			this.doDownload() // DOIT CREER LA FONCTION QUI DEQUE LORSQUE L INFOHASH EST RECUPERE
+			this.doDownload()
 		}
 	}
+}
+
+Downloader.prototype.doDownload = function () {
+	this.handshakes.forEach(h => {
+		const { msg, client, pieces, queue } = h
+		this.msgHandler(msg, client, pieces, queue)
+	})
 }
 
 Downloader.prototype.onWholeMsg = (client, callback) => {

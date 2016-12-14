@@ -38,7 +38,8 @@ const torrentAmorce = {
 let KRPC = null
 setTimeout(() => {
 	tracker.getPeers(torrentAmorce, peers => {
-			KRPC = new RPC({ peers })
+		// console.log('Running in safe mode')
+		KRPC = new RPC({ peers })
 	})
 }, 300)
 const _validResolution = [
@@ -163,7 +164,7 @@ const startDownload = torrent => {
 	try {
 		const torrentFile = new TorrentFile(torrent, KRPC)
 	} catch (e) {
-		log.e(e.message)
+		console.log(e)
 	}
 }
 
@@ -183,7 +184,6 @@ const torrent = async (movie, next) => {
         }
     } catch (e) {
         log.e(`Torrent API master error: ${e}`)
-		log.e(e)
     }
 }
 
@@ -203,4 +203,4 @@ const torrentRoute = async (req, res, next) => {
 	}
 }
 
-export default torrentRoute;
+export default torrentRoute
