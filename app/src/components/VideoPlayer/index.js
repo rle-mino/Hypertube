@@ -227,7 +227,7 @@ export default class VideoPlayer extends React.Component {
 	/*
 	*	EVENT TRIGGERING
 	*/
-	playPause = () => {
+	playPause = (e) => {
 		const { _player } = this
 		if (_player) _player[_player.paused ? 'play' : 'pause']()
 	}
@@ -303,7 +303,7 @@ export default class VideoPlayer extends React.Component {
 				onMouseUp={this.onMouseUp}
 				onMouseMove={this.onMouseMove}
 			>
-				<div className="controls">
+				<div className="controls" onDoubleClick={this.toggleFullScreen}>
 					<VolumeCTRL
 						volume={volume}
 						mainColor={mainColor}

@@ -97,6 +97,10 @@ module.exports = {
 	changeYourImage: [ 'Change your image', 'Mettez à jour votre image' ],
 	empty: [ 'empty', 'vide' ],
 	settings: [ 'settings', 'paramètres' ],
+	episode: [ 'episode', 'épisode' ],
+	season: [ 'season', 'saison' ],
+	next: [ 'next', 'suivant' ],
+	prev: [ 'previous', 'précédent' ],
 	logout: [ 'logout', 'déconnexion' ],
 	lang: [ 'en', 'fr' ],
 }
