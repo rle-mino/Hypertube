@@ -5,6 +5,7 @@ import api						from '../../apiCall'
 import * as bodyDis				from '../../action/body'
 
 import IconMenu					from 'material-ui/IconMenu'
+import LinearProgress			from 'material-ui/LinearProgress'
 import IconButton				from 'material-ui/IconButton'
 import SearchForm				from '../../components/SearchForm'
 import LangPicker				from '../../components/LangPicker'
@@ -15,15 +16,33 @@ import noImage					from '../../../public/No-image-found.jpg'
 
 import './sass/header.sass'
 
+const progressStyle = {
+	backgroundColor: 'transparent',
+	position: 'fixed',
+	zIndex: '1000',
+	top: 0,
+	left: 0,
+}
+
 class HyperHeader extends React.Component {
 	_mounted = false
 
 	state = {
 		image: null,
+		linearColor: 'white',
 	}
 
 	componentDidMount = async () => {
 		this._mounted = true
+		const { mainColor } = this.props
+		window.onscroll = () => {
+			if ((window.pageYOffset ||
+				(document.documentElement ||
+				document.body.parentNode ||
+				document.body).scrollTop)
+			 > 80) this.setState({ linearColor: mainColor })
+			else this.setState({ linearColor: 'white' })
+		}
 		const { data } = await api.getPict()
 		if (!this._mounted) return false
 		if (data.status.includes('success')) {
@@ -41,6 +60,7 @@ class HyperHeader extends React.Component {
 
 	componentWillUnmount() {
 		this._mounted = false
+		window.removeEventListener('scroll')
 	}
 
 	goHome = () => {
@@ -50,10 +70,15 @@ class HyperHeader extends React.Component {
 	}
 
 	render() {
-		const { mainColor, location, l, dispatch } = this.props
-		const { image } = this.state
+		const { mainColor, location, l, dispatch, pending } = this.props
+		const { image, linearColor } = this.state
 		return (
 			<div style={{ backgroundColor: mainColor }} className="headerContainer">
+				{pending && <LinearProgress
+					mode="indeterminate"
+					color={linearColor}
+					style={progressStyle}
+				/>}
 				<span className="hyperTitle" onClick={this.goHome}>HYPERTUBE</span>
 				<SearchForm location={location} l={l} dispatch={dispatch}/>
 				<div className="profSet">
@@ -81,9 +106,10 @@ class HyperHeader extends React.Component {
 	}
 }
 
-const mapStateToProps = ({ lang, theme }) => ({
+const mapStateToProps = ({ lang, theme, pending }) => ({
 	l: lang.l,
 	mainColor: theme.mainColor,
+	pending: pending
 })
 
 export default connect(mapStateToProps)(HyperHeader)

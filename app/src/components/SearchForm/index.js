@@ -1,9 +1,9 @@
 import React							from 'react'
-// import ReactDOM							from 'react-dom'
 import _								from 'lodash'
 import { browserHistory }				from 'react-router'
 import MouseTrap						from 'mousetrap'
 import { goMoviePage, bOut }			from '../../action/body'
+import * as pending						from '../../action/pending'
 import api								from '../../apiCall'
 import lang								from '../../lang'
 
@@ -70,9 +70,13 @@ export default class SearchForm extends React.Component {
 		if (!e.target.value || e.target.value.length < 1) {
 			this.setState({ results: [] })
 		}
+
+		this.props.dispatch(pending.set())
 		const { data } = await api.fastSearch({
 			params: { title: e.target.value }
 		})
+		this.props.dispatch(pending.unset())
+
 		if (data.status.includes('success')) {
 			this.setState({ results: data.results })
 		}

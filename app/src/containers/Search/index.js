@@ -2,20 +2,15 @@ import React						from 'react'
 import { connect }					from 'react-redux'
 import _							from 'lodash'
 import { goMoviePage, bIn }			from '../../action/body'
+import * as pending					from '../../action/pending'
 import lang							from '../../lang'
 import api							from '../../apiCall'
 
-import LinearProgress				from 'material-ui/LinearProgress'
 import InfiniteScroll				from 'react-infinite-scroller'
 import SearchFormDetailed			from '../../components/SearchFormDetailed'
 import MiniMovie					from '../../components/MiniMovie'
 
 import './sass/search.sass'
-
-const linearStyle = {
-	width: '50%',
-	margin: 'auto'
-}
 
 class Search extends React.Component {
 	_mounted = false
@@ -23,7 +18,6 @@ class Search extends React.Component {
 	state = {
 		results: [],
 		serverStatus: null,
-		pending: true,
 		noResults: false,
 		more: false,
 		page: 0,
@@ -53,24 +47,22 @@ class Search extends React.Component {
 	}
 
 	requestFilms = async (clearRes, reqSet) => {
-		this.setState({ pending: true })
+
+		this.props.dispatch(pending.set())
 		const { data } = await api.search(reqSet)
-		if (!data.status) {
-			this.setState({ pending: false })
-			return false
-		}
+		this.props.dispatch(pending.unset())
+
+		if (!data.status) return false
 		if (data.status.includes('success')) {
 			this.setState({
 				results: clearRes ? data.results : [...this.state.results, ...data.results],
 				noResults: false,
-				pending: false,
 				more: data.results.length === 20
 			})
 		} else {
 			this.setState({
 				noResults: true,
 				results: [],
-				pending: false,
 				more: false
 			})
 		}
@@ -144,31 +136,18 @@ class Search extends React.Component {
 	}
 
 	render() {
-		const { l, mainColor } = this.props
-		const { noResults, pending, more } = this.state
+		const { l } = this.props
+		const { noResults, more } = this.state
 		return (
 			<div className="comp searchComp">
-				{(pending &&
-					<LinearProgress
-						key={1}
-						mode="indeterminate"
-						color={mainColor}
-						style={linearStyle}
-					/>)
-						||
-					<LinearProgress
-						key={2}
-						mode="determinate"
-						value={0}
-						color={mainColor} style={linearStyle}
-					/>
-				}
 				<SearchFormDetailed
 					l={l}
 					ref={(form) => this._form = form}
 					onUpdate={this.formUpdate}
 				/>
-				<h3 className="resultsStatus">{noResults ? lang.noResultsFound[this.props.l] : null}</h3>
+				<h3 className="resultsStatus">
+					{noResults ? lang.noResultsFound[this.props.l] : null}
+				</h3>
 				<InfiniteScroll
 					pageStart={0}
 					loadMore={this.loadMore}

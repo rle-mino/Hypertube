@@ -15,7 +15,14 @@ const resolutions = [
 
 export default class QualitySelector extends React.Component {
 	state = {
-		quality: localStorage.getItem('selectedQuality') || '420p',
+		quality: localStorage.getItem('selectedQuality') || '1080p',
+	}
+
+	componentWillMount() {
+		const quality = localStorage.getItem('selectedQuality')
+		if (!quality) {
+			localStorage.setItem('selectedQuality', '1080p')
+		}
 	}
 
 	drawResolutions = () => resolutions.map((resolution, key) =>

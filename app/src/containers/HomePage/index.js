@@ -3,6 +3,7 @@ import { connect }			from 'react-redux'
 import api					from '../../apiCall'
 import lang					from '../../lang'
 import { goMoviePage, bIn }	from '../../action/body'
+import * as pending			from '../../action/pending'
 
 import CircularProgress		from 'material-ui/CircularProgress'
 import Carousel				from '../../components/Carousel'
@@ -22,7 +23,11 @@ class HomePage extends React.Component {
 
 	componentDidMount = async () => {
 		this._mounted = true
+
+		this.props.dispatch(pending.set())
 		const { data } = await api.topSearch()
+		this.props.dispatch(pending.unset())
+
 		if (!this._mounted) return false
 		this.props.dispatch(bIn())
 		if (!data.status) return false

@@ -1,6 +1,7 @@
 import React				from 'react'
 import lang					from '../../lang'
 import api					from '../../apiCall'
+import * as pending			from '../../action/pending'
 
 import IconClickable		from '../IconClickable'
 import Dialog				from 'material-ui/Dialog'
@@ -72,9 +73,14 @@ export default class EditImage extends React.Component {
 			this.setState({ open: false })
 			return false
 		}
+
 		const image = new FormData()
 		image.append('image', this.state.image)
+
+		this.props.dispatch(pending.set())
 		const { data } = await api.upPhoto(image)
+		this.props.dispatch(pending.unset())
+
 		if (data.status && data.status.includes('success')) {
 			this.props.onUpdate()
 			this.setState({ open: false })

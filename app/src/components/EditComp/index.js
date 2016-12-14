@@ -1,4 +1,5 @@
 import React			from 'react'
+import * as pending		from '../../action/pending'
 import lang				from '../../lang'
 import api				from '../../apiCall'
 
@@ -57,8 +58,10 @@ export default class EditComp extends React.Component {
 			mail,
 			password,
 		}
-		const { l } = this.props
+		const { l, dispatch } = this.props
+		dispatch(pending.set())
 		const { data } = await api.updateProfile(cred)
+		dispatch(pending.unset())
 		this.setState({ errors: {} })
 		if (data.status.includes('error')) {
 			if (data.details.includes('invalid request')) {

@@ -6,9 +6,9 @@ import { animateScroll }			from 'react-scroll'
 import api							from '../../apiCall'
 import lang							from '../../lang'
 import { goMoviePage, bIn, bOut }	from '../../action/body'
+import * as pending					from '../../action/pending'
 
 import Chip							from 'material-ui/Chip'
-import CircularProgress				from 'material-ui/CircularProgress'
 import VideoPlayer					from '../../components/VideoPlayer'
 import EpisodeSelector				from '../../components/EpisodeSelector'
 import MiniMovie					from '../../components/MiniMovie'
@@ -49,9 +49,14 @@ class Movie extends React.Component {
 	*	fetch data from api using id in props.params
 	*/
 	getData = async (props) => {
+		const { dispatch } = this.props
+
+		dispatch(pending.set())
 		const { data } = await api.getMovie(props.params.id, props.l)
+		dispatch(pending.unset())
+
 		if (!this._mounted) return false
-		this.props.dispatch(bIn())
+		dispatch(bIn())
 		if (data.status.includes('success')) {
 			this.setState({
 				data: data.result,
@@ -181,11 +186,11 @@ class Movie extends React.Component {
 
 	render() {
 		const { data, selectedEpisode, serie } = this.state
-		const { l, mainColor } = this.props
-		if (!data) return (<CircularProgress color={mainColor} style={{ marginTop: '20px' }} />)
+		const { l, mainColor, dispatch } = this.props
+		if (!data) return (<div className="comp movie"/>)
 		return (
 			<div className="comp movie">
-				<VideoPlayer mainColor={mainColor} l={l} />
+				<VideoPlayer mainColor={mainColor} l={l} dispatch={dispatch}/>
 				<div className="filmData">
 
 					<div

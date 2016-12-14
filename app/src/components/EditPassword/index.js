@@ -1,4 +1,6 @@
 import React			from 'react'
+import * as pending		from '../../action/pending'
+
 import Dialog			from 'material-ui/Dialog'
 import FlatButton		from 'material-ui/FlatButton'
 import TextField		from 'material-ui/TextField'
@@ -62,7 +64,7 @@ export default class EditPassword extends React.Component {
 			newPasswordR: null,
 			checkPassR: null,
 		})
-		const { l } = this.props
+		const { l, dispatch } = this.props
 		const { password, newPassword, checkPass } = this.state
 		if (newPassword !== checkPass) {
 			this.setState({ checkPassR: lang.passwordAreDifferent[l] })
@@ -73,7 +75,10 @@ export default class EditPassword extends React.Component {
 			newPassword,
 			checkPass,
 		}
+
+		dispatch(pending.set())
 		const { data } = await api.updatePass(cred)
+		dispatch(pending.unset())
 
 		if (data.status && data.status.includes('error')) {
 			if (data.details.includes('invalid request')) {

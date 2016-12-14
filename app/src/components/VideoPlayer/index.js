@@ -1,4 +1,5 @@
 import React				from 'react'
+import * as pending			from '../../action/pending'
 
 import PlayPause			from './PlayPause'
 import SeekBar				from './SeekBar'
@@ -89,6 +90,7 @@ export default class VideoPlayer extends React.Component {
 	componentDidMount() {
 		this._mounted = true
 		this.interval = setInterval(this.updateVideoData, 1000)
+		this.props.dispatch(pending.set())
 	}
 
 	componentWillUnmount() {
@@ -197,6 +199,7 @@ export default class VideoPlayer extends React.Component {
 	*/
 	canPlayThrough = () => {
 		const { _player } = this
+		this.props.dispatch(pending.unset())
 		if (_player) {
 			_player.volume = this.state.volume
 			_player.play()

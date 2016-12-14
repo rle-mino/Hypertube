@@ -42,6 +42,7 @@ class ForgotPassForm extends React.Component {
 		e.preventDefault()
 		const cred = { mail: this.state.mail }
 		const { l } = this.props
+
 		const { data } = await api.forgotPass(cred)
 
 		this.setState({ serverResponse: null, mailR: null })

@@ -1,16 +1,18 @@
-import React			from 'react'
-import { connect }		from 'react-redux'
-import lang				from '../../lang'
-import api				from '../../apiCall'
+import React				from 'react'
+import { connect }			from 'react-redux'
+import { browserHistory }	from 'react-router'
+import lang					from '../../lang'
+import api					from '../../apiCall'
+import * as pending			from '../../action/pending'
 
-import CircularProgress	from 'material-ui/CircularProgress'
-import Snackbar			from 'material-ui/Snackbar'
-import EditPassword		from '../../components/EditPassword'
-import QualitySelector	from '../../components/QualitySelector'
-import EditImage		from '../../components/EditImage'
-import History			from '../../components/History'
-import EditComp			from '../../components/EditComp'
-import noImage			from '../../../public/No-image-found.jpg'
+import CircularProgress		from 'material-ui/CircularProgress'
+import Snackbar				from 'material-ui/Snackbar'
+import EditPassword			from '../../components/EditPassword'
+import QualitySelector		from '../../components/QualitySelector'
+import EditImage			from '../../components/EditImage'
+import History				from '../../components/History'
+import EditComp				from '../../components/EditComp'
+import noImage				from '../../../public/No-image-found.jpg'
 
 import './sass/profile.sass'
 
@@ -25,8 +27,15 @@ class Profile extends React.Component {
 
 	componentDidMount = async () => {
 		this._mounted = true
+
+		this.props.dispatch(pending.set())
 		const { data } = await api.getProfile()
+		this.props.dispatch(pending.unset())
+
 		if (!this._mounted) return false
+		if (data.status && data.status.includes('error')) {
+			browserHistory.push('/')
+		}
 		this.setState({ data: data.profile })
 	}
 
@@ -60,6 +69,7 @@ class Profile extends React.Component {
 						<EditPassword
 							mainColor={mainColor}
 							l={l}
+							dispatch={dispatch}
 							onUpdate={this.passUpdated}
 						/>
 					}
@@ -68,7 +78,12 @@ class Profile extends React.Component {
 						className="image"
 						style={{ backgroundImage: `url('${data.image}'), url('${noImage}')` }}
 					>
-						{editable && <EditImage l={l} onUpdate={this.updateData} mainColor={mainColor} />}
+						{editable && <EditImage
+							l={l}
+							onUpdate={this.updateData}
+							mainColor={mainColor}
+							dispatch={dispatch}
+						/>}
 					</div>
 					<div className={editable ? 'userCred' : 'miniCred'}>
 						<h3>{data.username}</h3>
@@ -82,6 +97,7 @@ class Profile extends React.Component {
 								onUpdate={this.updateData}
 								mainColor={mainColor}
 								l={l}
+								dispatch={dispatch}
 							/>
 						}
 					</div>
