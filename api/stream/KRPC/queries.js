@@ -48,8 +48,7 @@ export function BuildGetPeersQuery(t, infoHash, noseed, scrape) {
 	return Buffer.from(bencode.encode(message))
 }
 
-export function BuildAnnouncePeer(contact, infoHash, token) {
-	if (!contact || !contact.port) { throw new Error('Contact informations incomplete') }
+export function BuildAnnouncePeer(port, infoHash, token) {
 	const message = {
 		t: anon.newKrpcId(),
 		y,
@@ -57,12 +56,9 @@ export function BuildAnnouncePeer(contact, infoHash, token) {
 		a: {
 			implied_port: 1,
 			info_hash: infoHash,
-			port: contact.port,
+			port: port || 0,
 			token,
 		},
 	}
-	if (!contact.implied_port) message.a.implied_port = 0
-	if (contact.seeding && contact.seeding.indexOf(infoHash) !== -1) message.a.seed = 1
-
 	return bencode.encode(message)
 }

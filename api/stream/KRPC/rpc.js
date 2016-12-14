@@ -299,7 +299,7 @@ RPC.prototype.announce_peer = function (opts, id) {
 	const infoHash = opts.req.infoHash
 	const token = opts.token
 	this.reqs[id] = { r: 'announce_peer', ip: contact.ip, port: contact.port }
-	const message = queries.BuildAnnouncePeer(contact, infoHash, token)
+	const message = queries.BuildAnnouncePeer(0, infoHash, token)
 	this.send(message, contact)
 }
 RPC.prototype.initializeBuckets = function (opts) {

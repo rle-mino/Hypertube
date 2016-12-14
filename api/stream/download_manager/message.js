@@ -16,7 +16,7 @@ module.exports.buildHandshake = (torrent, ext) => {
 	}
 
 	torrent.infoHashBuffer.copy(buf, 28)
-	buf.write(anon.nodeId(), 44)
+	anon.nodeId().copy(buf, 48)
 	return buf
 }
 
@@ -87,12 +87,12 @@ module.exports.buildPiece = payload => {
 }
 
 module.exports.fastParse = (msg) => {
-	const id = msg.length > 4 ? msg.readInt8(4) : null
 	const size = msg.readUInt32BE(0)
-	const extId = msg.readUInt8(5)
-	const reservedByte = msg.slice(size + 1, 8)
-	const infoHash = msg.slice(size + 9, 20)
-	const peerId = msg.slice(size + 29, 20)
+	const id = msg.length > 4 ? msg.readUInt8(4) : null
+	const extId = msg.length > 5 ? msg.readUInt8(5) : null
+	const reservedByte = msg.slice(size, 8)
+	const infoHash = msg.slice(size + 8, 20)
+	const peerId = msg.slice(size + 28, 20)
 	const payload = msg.slice(1, size)
 	return { id, extId, size, reservedByte, infoHash, peerId, payload }
 }
