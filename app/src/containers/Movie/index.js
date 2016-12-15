@@ -80,9 +80,11 @@ class Movie extends React.Component {
 	*	during fetch
 	*/
 	componentWillReceiveProps = (newProps) => {
-		this.props.dispatch(bIn())
-		this.setState({ data: null })
-		this.getData(newProps)
+		if (newProps.params.id !== this.props.params.id) {
+			this.props.dispatch(bIn())
+			this.setState({ data: null })
+			this.getData(newProps)
+		}
 	}
 
 	componentWillUnmount() { this._mounted = false }
@@ -192,7 +194,6 @@ class Movie extends React.Component {
 			<div className="comp movie">
 				<VideoPlayer mainColor={mainColor} l={l} dispatch={dispatch}/>
 				<div className="filmData">
-
 					<div
 						className="poster"
 						style={{ backgroundImage: `url('${data.poster}'), url('${noImage}')` }}

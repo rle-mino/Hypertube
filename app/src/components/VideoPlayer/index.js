@@ -26,6 +26,7 @@ export default class VideoPlayer extends React.Component {
 	}
 
 	_player = null
+	_container = null
 	_seekBar = null
 	_volBar = null
 
@@ -99,12 +100,28 @@ export default class VideoPlayer extends React.Component {
 	}
 
 	toggleFullScreen = () => {
-		if (this._player.requestFullScreen) {
-			this._player.requestFullScreen()
-		} else if (this._player.mozRequestFullScreen) {
-			this._player.mozRequestFullScreen()
-		} else if (this._player.webkitRequestFullScreen) {
-			this._player.webkitRequestFullScreen()
+		const { _container } = this
+		const { fullscreen } = this.state
+
+		if (!_container) return false
+		if (!fullscreen) {
+			if (_container.requestFullScreen) {
+				_container.requestFullScreen()
+			} else if (_container.mozRequestFullScreen) {
+				_container.mozRequestFullScreen()
+			} else if (_container.webkitRequestFullScreen) {
+				_container.webkitRequestFullScreen()
+			}
+			this.setState({ fullscreen: true })
+		} else {
+			if (document.cancelFullScreen) {
+				document.cancelFullScreen()
+			} else if (document.mozCancelFullScreen) {
+				document.mozCancelFullScreen()
+			} else if (document.webkitCancelFullScreen) {
+				document.webkitCancelFullScreen()
+			}
+			this.setState({ fullscreen: false })
 		}
 	}
 
@@ -303,8 +320,10 @@ export default class VideoPlayer extends React.Component {
 		const { mainColor } = this.props
 		return (
 			<div className="playerContainer"
+				style={fullscreen ? { width: '100%', height: '100%', background: 'black' } : {}}
 				onMouseUp={this.onMouseUp}
 				onMouseMove={this.onMouseMove}
+				ref={(container) => this._container = container}
 			>
 				<div className="controls" onDoubleClick={this.toggleFullScreen}>
 					<VolumeCTRL
@@ -335,7 +354,7 @@ export default class VideoPlayer extends React.Component {
 							mainColor={mainColor}
 						/>
 						<FullScreenButton
-							enbabled={fullscreen}
+							enabled={fullscreen}
 							mainColor={mainColor}
 							onTouchTap={this.toggleFullScreen}
 						/>
