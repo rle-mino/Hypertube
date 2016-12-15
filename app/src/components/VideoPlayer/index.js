@@ -1,4 +1,5 @@
 import React				from 'react'
+import mouseTrap			from 'mousetrap'
 import * as pending			from '../../action/pending'
 
 import PlayPause			from './PlayPause'
@@ -92,11 +93,13 @@ export default class VideoPlayer extends React.Component {
 		this._mounted = true
 		this.interval = setInterval(this.updateVideoData, 1000)
 		this.props.dispatch(pending.set())
+		mouseTrap.bind('space', (e) => this.playPause(e))
 	}
 
 	componentWillUnmount() {
 		this._mounted = false
 		clearInterval(this.interval)
+		mouseTrap.reset()
 	}
 
 	toggleFullScreen = () => {
@@ -248,6 +251,11 @@ export default class VideoPlayer extends React.Component {
 	*	EVENT TRIGGERING
 	*/
 	playPause = (e) => {
+		if (e) {
+			e.stopPropagation()
+			e.preventDefault()
+		}
+
 		const { _player } = this
 		if (_player) _player[_player.paused ? 'play' : 'pause']()
 	}
