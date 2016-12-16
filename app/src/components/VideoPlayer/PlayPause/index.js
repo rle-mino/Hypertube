@@ -5,11 +5,13 @@ const pause = "M11,10 L18,13.74 18,22.28 11,26 M18,13.74 L26,18 26,18 18,22.28"
 
 export default class PlayPause extends React.Component {
 	componentWillReceiveProps = (newProps) => {
+		const { _playPauseAn } = this
 		if (newProps.playing !== this.props.playing) {
-			const animate = document.querySelector('.playPauseAn')
-			if (animate) animate.beginElement()
+			if (_playPauseAn) _playPauseAn.beginElement()
 		}
 	}
+
+	_playPauseAn = false
 
 	render() {
 		const { onClick, playing, mainColor } = this.props
@@ -34,7 +36,7 @@ export default class PlayPause extends React.Component {
 			         <path id="ytp-12" d={play}>
 			            <animate
 							id="animation"
-							className="playPauseAn"
+							ref={(playPlauseAn) => this._playPauseAn = playPlauseAn}
 							begin="indefinite"
 							attributeType="XML"
 							attributeName="d"

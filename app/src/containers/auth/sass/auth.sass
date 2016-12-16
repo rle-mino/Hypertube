@@ -17,15 +17,6 @@
 		height: 575px
 	&.for
 		height: 350px
-	&.toCircle
-		border-radius: 50%
-		background:
-			image: url(../../../svg/ic_done_white_24px.svg)
-			position: 0 0
-			size: cover
-			color: $green
-		height: 100px
-		width: 100px
 		& .topColored
 			opacity: 0
 		& .floatButton
@@ -161,6 +152,10 @@
 
 	100%
 		transform: translate(-50%, -50%)
+
+@-moz-document url-prefix()
+	.authComp.toLeave
+		transform: translate(-50%, 200px)
 
 @media screen and (max-width:1080px)
 	.authComp

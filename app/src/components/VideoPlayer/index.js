@@ -212,6 +212,7 @@ export default class VideoPlayer extends React.Component {
 	/*
 	*	EVENT HANDLING
 	*/
+
 	/*
 	*	Fires when the browser can play through the audio/video
 	*	without stopping for buffering,
@@ -230,7 +231,6 @@ export default class VideoPlayer extends React.Component {
 			this.setState({ playing: true, available: 100 })
 		}
 	}
-
 	/*
 	*	Fires when the volume changes in fullscreen
 	*	to keep sync the custom volume slider with

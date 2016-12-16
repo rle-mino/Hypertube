@@ -34,15 +34,7 @@ class HyperHeader extends React.Component {
 
 	componentDidMount = async () => {
 		this._mounted = true
-		const { mainColor } = this.props
-		window.onscroll = () => {
-			if ((window.pageYOffset ||
-				(document.documentElement ||
-				document.body.parentNode ||
-				document.body).scrollTop)
-			 > 80) this.setState({ linearColor: mainColor })
-			else this.setState({ linearColor: 'white' })
-		}
+		window.onscroll = this.handleScroll
 		const { data } = await api.getPict()
 		if (!this._mounted) return false
 		if (data.status.includes('success')) {
@@ -60,7 +52,17 @@ class HyperHeader extends React.Component {
 
 	componentWillUnmount() {
 		this._mounted = false
-		window.removeEventListener('scroll')
+		window.removeEventListener('scroll', this.handleScroll)
+	}
+
+	handleScroll = () => {
+		const { mainColor } = this.props
+		if ((window.pageYOffset ||
+			(document.documentElement ||
+			document.body.parentNode ||
+			document.body).scrollTop)
+		 > 80) this.setState({ linearColor: mainColor })
+		else this.setState({ linearColor: 'white' })
 	}
 
 	goHome = () => {
