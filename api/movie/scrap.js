@@ -151,6 +151,7 @@ const addMovie = (movie) => {
 const yts = () => {
     const client = request.createClient('https://yts.ag/api/v2/');
     client.get('list_movies.json', (error, response, body) => {
+        if (typeof body !== 'object') return (console.log('Could not get data from YTS'));
         const max = Math.ceil(body.data.movie_count / 50);
         for (let i = 1; i <= max; i += 1) {
             client.get(`list_movies.json?limit=50&page=${i}`, (err, res, data) => {
@@ -171,6 +172,7 @@ const eztvPrepare = (id) => {
 const eztv = () => {
     const client = request.createClient('http://eztvapi.ml/');
     client.get('shows', (error, response, body) => {
+        if (typeof body !== 'object') return (console.log('Could not get data from EZTV'));
         const max = body.pop().split('/')[1];
         for (let i = 1; i <= max; i += 1) {
             client.get(`shows/${i}`, (err, res, data) => {
