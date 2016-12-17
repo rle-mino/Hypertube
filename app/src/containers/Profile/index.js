@@ -1,6 +1,6 @@
 import React				from 'react'
 import { connect }			from 'react-redux'
-import { browserHistory }	from 'react-router'
+import browserHistory		from 'react-router/lib/browserHistory'
 import lang					from '../../lang'
 import api					from '../../apiCall'
 import * as pending			from '../../action/pending'
@@ -67,10 +67,10 @@ class Profile extends React.Component {
 				<div className="userData">
 					{editable &&
 						<EditPassword
-							mainColor={mainColor}
-							l={l}
-							dispatch={dispatch}
 							onUpdate={this.passUpdated}
+							mainColor={mainColor}
+							dispatch={dispatch}
+							l={l}
 						/>
 					}
 					<QualitySelector />

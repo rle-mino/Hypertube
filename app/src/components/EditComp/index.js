@@ -37,6 +37,7 @@ export default class EditComp extends React.Component {
 	}
 
 	componentWillUnmount() {
+		MouseTrap.unpause()
 		this._mounted = false
 	}
 
@@ -62,6 +63,7 @@ export default class EditComp extends React.Component {
 		dispatch(pending.set())
 		const { data } = await api.updateProfile(cred)
 		dispatch(pending.unset())
+
 		this.setState({ errors: {} })
 		if (data.status.includes('error')) {
 			if (data.details.includes('invalid request')) {

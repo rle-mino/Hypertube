@@ -12,7 +12,7 @@ const HeadAndBody = ({ location, children, bodyClass, mainColor }) =>
 			{children}
 		</div>
 		<div id="hyperFooter" style={{ backgroundColor: mainColor, opacity: bodyClass ? 0 : 1 }}>
-			@2016 MJARRAYA - OPICHOU - ATRANG - RLE-MINO
+			@2016 ATRANG - OPICHOU - MJARRAYA - RLE-MINO
 		</div>
 	</div>
 

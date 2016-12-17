@@ -1,6 +1,6 @@
 import React							from 'react'
 import _								from 'lodash'
-import { browserHistory }				from 'react-router'
+import browserHistory					from 'react-router/lib/browserHistory'
 import MouseTrap						from 'mousetrap'
 import { goMoviePage, bOut }			from '../../action/body'
 import * as pending						from '../../action/pending'

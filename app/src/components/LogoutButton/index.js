@@ -1,5 +1,5 @@
 import React				from 'react'
-import { browserHistory }	from 'react-router'
+import browserHistory		from 'react-router/lib/browserHistory'
 import lang					from '../../lang'
 
 import MenuItem				from 'material-ui/MenuItem'

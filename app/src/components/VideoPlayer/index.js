@@ -24,6 +24,7 @@ export default class VideoPlayer extends React.Component {
 		draggingSeek: false,
 		draggingVol: false,
 		fullscreen: false,
+		visible: '',
 	}
 
 	_player = null
@@ -99,7 +100,7 @@ export default class VideoPlayer extends React.Component {
 	componentWillUnmount() {
 		this._mounted = false
 		clearInterval(this.interval)
-		mouseTrap.reset()
+		mouseTrap.unbind('space')
 	}
 
 	toggleFullScreen = () => {
@@ -315,6 +316,17 @@ export default class VideoPlayer extends React.Component {
 		this.setNewVolume(e.clientY)
 	}
 
+	showControls = () => {
+		this.setState({ visible: 'visible' })
+		clearTimeout(this.timeout)
+		this.timeout = setTimeout(() => this.setState({ visible: '' }), 4000)
+	}
+
+	hideControls = () => {
+		clearTimeout(this.timeout)
+		this.setState({ visible: '' })
+	}
+
 	render() {
 		const {
 			playing,
@@ -324,6 +336,7 @@ export default class VideoPlayer extends React.Component {
 			completeDuration,
 			fullscreen,
 			volume,
+			visible,
 		} = this.state
 		const { mainColor } = this.props
 		return (
@@ -333,7 +346,17 @@ export default class VideoPlayer extends React.Component {
 				onMouseMove={this.onMouseMove}
 				ref={(container) => this._container = container}
 			>
-				<div className="controls" onDoubleClick={this.toggleFullScreen}>
+				<div
+					className={`controls ${visible}`}
+					onMouseEnter={this.showControls}
+					onMouseLeave={this.hideControls}
+					onMouseMove={this.showControls}
+				>
+					<div
+						className="dClickZone"
+						onDoubleClick={this.toggleFullScreen}
+						onClick={this.playPause}
+					/>
 					<VolumeCTRL
 						volume={volume}
 						mainColor={mainColor}

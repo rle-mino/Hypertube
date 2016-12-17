@@ -1,6 +1,6 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
-import { browserHistory }		from 'react-router'
+import browserHistory			from 'react-router/lib/browserHistory'
 import api						from '../../apiCall'
 import * as bodyDis				from '../../action/body'
 

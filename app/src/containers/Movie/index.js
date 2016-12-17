@@ -1,6 +1,6 @@
 import React						from 'react'
 import { connect }					from 'react-redux'
-import { browserHistory }			from 'react-router'
+import browserHistory				from 'react-router/lib/browserHistory'
 import _							from 'lodash'
 import { animateScroll }			from 'react-scroll'
 import api							from '../../apiCall'

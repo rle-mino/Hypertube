@@ -42,6 +42,7 @@ export default class EditImage extends React.Component {
 
 	componentWillUnmount() {
 		this._mounted = false
+		MouseTrap.unpause()
 	}
 
 	handleOpen = () => {

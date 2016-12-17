@@ -1,6 +1,6 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
-import { browserHistory }		from 'react-router'
+import browserHistory			from 'react-router/lib/browserHistory'
 import lang						from '../../lang'
 import colors					from '../../colors/colors'
 import { selectAuth }			from '../../action/auth'

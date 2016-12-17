@@ -1,5 +1,8 @@
 import React											from 'react'
-import { Router, Route, IndexRoute, browserHistory }	from 'react-router'
+import Router											from 'react-router/lib/Router'
+import Route											from 'react-router/lib/Route'
+import IndexRoute										from 'react-router/lib/IndexRoute'
+import browserHistory									from 'react-router/lib/browserHistory'
 import MuiThemeProvider									from 'material-ui/styles/MuiThemeProvider'
 
 import Auth										from './containers/auth'
