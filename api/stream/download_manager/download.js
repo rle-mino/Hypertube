@@ -13,6 +13,7 @@ import Queue from './Queue'
 function Downloader(torrent, peers) {
 	if (!(this instanceof Downloader)) return new Downloader(torrent, peers)
 	const self = this
+	this.metaId = 3
 	this.requested = []
 	this.received = []
 	this.peers = []
@@ -50,7 +51,7 @@ Downloader.prototype.addPeers = function (peers) {
 
 Downloader.prototype.download = function (peer, torrent, pieces, ext) {
 	const client = new net.Socket()
-	client.on('error', e => console.log('socket error', peer, e))
+	client.on('error', () => {})
 	client.connect(peer.port, peer.ip, () => {
 		client.write(message.buildHandshake(torrent, ext))
 	})
@@ -59,8 +60,15 @@ Downloader.prototype.download = function (peer, torrent, pieces, ext) {
 }
 
 Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
-	if (this.torrent.magnet && !this.torrent.info && this.isExtended(msg)) {
-		console.log('O')
+	if (this.torrent.magnet
+		&& !this.torrent.info
+		&& this.isExtended(msg)
+		&& this.isHandshake(msg)) {
+		const handshake = bencode.encode({ m: { ut_metadata: this.metaId } })
+		client.write(message.buildExtRequest(this.torrent, 0, handshake))
+	} else if (this.torrent.magnet
+		&& !this.torrent.info
+		&& msg.readUInt8(4) === 20) {
 		this.extendedHandler(client, pieces, queue, msg)
 	} else if (this.torrent.info && this.isHandshake(msg)) {
 		client.write(message.buildInterested())
@@ -77,8 +85,6 @@ Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
 			break
 			case 7: this.pieceHandler(client, pieces, queue, m.payload)
 			break
-			case 20: this.extendedHandler(client, pieces, queue, m.payload)
-			break
 			default: break
 		}
 	} else {
@@ -87,38 +93,72 @@ Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
 }
 
 Downloader.prototype.isHandshake = function (msg) {
-	return msg.length === msg.readUInt8(0) + 49 &&
-		msg.toString('utf8', 1) === 'BitTorrent protocol'
+	return (msg.length === msg.readUInt8(0) + 49 &&
+		msg.toString('utf8', 1, 20) === 'BitTorrent protocol')
 }
 
 Downloader.prototype.isExtended = function (msg) {
-	const header = message.fastParse(msg)
-	const salut = (header.reservedByte[5] & 16)
-	console.log(header)
-	console.log(header.reservedByte[5])
-	return (salut === 1)
+	const size = msg.readUInt8(0)
+	return msg.slice(size + 1, size + 9)[5] === 16
 }
 
 Downloader.prototype.extendedHandler = function (client, pieces, queue, msg) {
+	if (msg.toString('utf8', 1, 20) === 'BitTorrent protocol') return
 	const extMessage = message.fastParse(msg)
-	if (extMessage.extId === 0) this.extHandshake(client, extMessage)
-	else this.extMetaData(extMessage)
-}
-
-Downloader.prototype.extHandshake = function (client, msg) {
-	console.log(msg)
-	const dict = bencode.decode(msg.payload)
-	if (dict.m.ut_metadata) {
-		if (!this.metaInfo) {
-			this.metaInfo = new Array(Math.ceil(dict.metadata_size / 16384))
-			this.metaInfo.fill(0)
-		}
-		this.metaInfoSize = dict.metadata_size
-		for (let i = 0; i < this.metInfo.length; i += 1) {
-			client.write(message.buildExtRequest(this.torrent, i, dict.m.ut_metadata))
+	let payload = msg.extId === 0
+	try {
+		payload = bencode.decode(extMessage.payload.toString('ascii'))
+	} catch (e) {
+		log.e('!')
+	}
+	const msgType = payload.msg_type || 'x'
+	if (payload) {
+		console.log('msg_type: ', msgType)
+		switch (msgType) {
+			case 'x': {
+				const utMetadata = payload.m && payload.m.ut_metadata
+				const metadataSize = payload.metadata_size
+				if (!this.metaPieces && metadataSize > 0) {
+					this.metaPieces = new Array(Math.ceil(metadataSize / 16384))
+					this.metaPieces.fill(0)
+				}
+				const req = bencode.encode({ msg_type: 0, piece: this.metaPieces.indexOf(0) })
+				console.log(bencode.decode(message.fastParse(message.buildExtRequest(this.torrent, utMetadata, req)).payload.toString('ascii')))
+				client.write(message.buildExtRequest(this.torrent, utMetadata, req))
+			} break
+			case 1: {
+				const piece = extMessage.payload.slice(msg.payload.length - payload.total_size, msg.payload.length)
+				this.metaPieces[payload.piece] = piece
+				if (this.metaInfo.every(e => e !== 0)) {
+					const info = Buffer.concat(this.metaInfo, this.metaInfoSize)
+					if (message.verify(this.torrent, info)) { // DOIT CREER LA FONCTION QUI VERIFIE LE INFO GRACE AU HASH
+						this.torrent.info = message.torrentInfoParser(info) // DOIT CREER LA FONCTION QUI PARSE LE FICHIER TELECHARGE
+						this.doDownload()
+					}
+				}
+			}break
+			case 0: console.log('requestXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+			break
+			case 2: console.log('rejected requestXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+			break
+			default: console.log('spammedXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+			break
 		}
 	}
 }
+
+// Downloader.prototype.extHandshake = function (client, dict) {
+// 	if (dict.m.ut_metadata) {
+// 		if (!this.metaInfo) {
+// 			this.metaInfo = new Array(Math.ceil(dict.metadata_size / 16384))
+// 			this.metaInfo.fill(0)
+// 		}
+// 		this.metaInfoSize = dict.metadata_size
+// 		for (let i = 0; i < this.metInfo.length; i += 1) {
+// 			client.write(message.buildExtRequest(this.torrent, i, dict.m.ut_metadata))
+// 		}
+// 	}
+// }
 Downloader.prototype.extMetaData = function (msg) {
 	const dict = bencode.decode(msg.payload)
 	const piece = msg.payload.slice(msg.payload.length - dict.total_size, dict.total_size)

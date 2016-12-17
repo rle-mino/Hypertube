@@ -168,7 +168,7 @@ const startDownload = torrent => {
 	}
 }
 
-const torrent = async (movie, next) => {
+const torrent = (movie, next) => {
     // this downloads the movie to fs and updates database
 	// then next() is called to start streaming process. next() call should
 	// happen when streaming process an be started
@@ -187,7 +187,7 @@ const torrent = async (movie, next) => {
     }
 }
 
-const torrentRoute = async (req, res, next) => {
+const torrentRoute = (req, res, next) => {
 	if (!KRPC) {
 		res.send({
 			status: 'error',
@@ -196,7 +196,7 @@ const torrentRoute = async (req, res, next) => {
 	} else {
 		const movie = authorizeFileTransfer(req.params.movie || {}) // is movie the parameter's name?
 		if (movie.success) {
-			await torrent(movie.data, next)
+			torrent(movie.data, next)
 		} else {
 			next()
 		}

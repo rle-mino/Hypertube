@@ -1,20 +1,20 @@
 /* eslint semi: ["error", "never"]*/
 import bencode from 'bencode'
+import { Uint64BE } from 'int64-buffer'
 import anon from '../anonymizer'
 
 
 module.exports.buildHandshake = (torrent, ext) => {
 	const buf = Buffer.alloc(68)
-
 	buf.writeUInt8(19, 0)
 	buf.write('BitTorrent protocol', 1)
-	buf.writeUInt32BE(0, 20)
 	if (ext) {
-		buf.writeUInt32BE(1048576, 24)
+		const big = new Uint64BE(1048576)
+		big.toBuffer().copy(buf, 20)
 	} else {
+		buf.writeUInt32BE(0, 20)
 		buf.writeUInt32BE(0, 24)
 	}
-
 	torrent.infoHashBuffer.copy(buf, 28)
 	anon.nodeId().copy(buf, 48)
 	return buf
@@ -86,33 +86,6 @@ module.exports.buildPiece = payload => {
 	return buf
 }
 
-module.exports.fastParse = (msg) => {
-	const size = msg.readUInt32BE(0)
-	const id = msg.length > 4 ? msg.readUInt8(4) : null
-	const extId = msg.length > 5 ? msg.readUInt8(5) : null
-	const reservedByte = msg.slice(size, 8)
-	const infoHash = msg.slice(size + 8, 20)
-	const peerId = msg.slice(size + 28, 20)
-	const payload = msg.slice(1, size)
-	return { id, extId, size, reservedByte, infoHash, peerId, payload }
-}
-
-module.exports.buileExtRequest = (torrent, piece, id) => {
-	const newMsg = { msg_type: 0, piece }
-	const msg = bencode.encode(newMsg)
-	const size = msg.length
-	const buf = Buffer.alloc(size + 54)
-	buf.writeUInt32BE(size + 6, 0)
-	buf.writeUInt8(20, 4)
-	buf.writeUInt8(id, 5)
-	buf.write(msg, 6)
-	buf.writeUInt32BE(0, size + 6)
-	buf.writeUInt32BE(1048576, size + 10)
-	torrent.infoHashBuffer.copy(buf, size + 14)
-	buf.write(anon.nodeId(), size + 34)
-	return buf
-}
-
 module.exports.verify = (torrent, info) => {
 	return true
 }
@@ -156,4 +129,25 @@ module.exports.parse = msg => {
 		id,
 		payload,
 	}
+}
+
+module.exports.fastParse = (msg) => {
+	const ret = {}
+	ret.size = msg.readUInt32BE(0)
+	ret.Id = msg.readUInt8(4)
+	ret.extId = msg.readUInt8(5)
+	ret.payload = msg.slice(6)
+	return ret
+}
+
+module.exports.buildExtRequest = (torrent, id, msg) => {
+	const msgBuf = Buffer.from(msg, 'ascii')
+	const size = msgBuf.length
+	const buf = Buffer.alloc(size + 5)
+	buf.writeUInt32BE(size, 0)
+	buf.writeUInt8(20, 4)
+	buf.writeUInt8(id, 5)
+	// buf.write(msg, 6, 'ascii')
+	msgBuf.copy(buf, 6)
+	return buf
 }
