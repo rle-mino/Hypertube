@@ -27,10 +27,12 @@ export default class VideoPlayer extends React.Component {
 		visible: '',
 	}
 
+	_mounted = false
 	_player = null
 	_container = null
 	_seekBar = null
 	_volBar = null
+	_timeout = null
 
 	/*
 	*	triggered every seconds,
@@ -38,6 +40,7 @@ export default class VideoPlayer extends React.Component {
 	*	and the available part of the video
 	*/
 	updateVideoData = () => {
+		if (!this._mounted) return false
 		const { _player } = this
 
 		/*
@@ -100,6 +103,7 @@ export default class VideoPlayer extends React.Component {
 	componentWillUnmount() {
 		this._mounted = false
 		clearInterval(this.interval)
+		clearTimeout(this._timeout)
 		mouseTrap.unbind('space')
 	}
 
@@ -318,12 +322,12 @@ export default class VideoPlayer extends React.Component {
 
 	showControls = () => {
 		this.setState({ visible: 'visible' })
-		clearTimeout(this.timeout)
-		this.timeout = setTimeout(() => this.setState({ visible: '' }), 4000)
+		clearTimeout(this._timeout)
+		this._timeout = setTimeout(() => this.setState({ visible: '' }), 4000)
 	}
 
 	hideControls = () => {
-		clearTimeout(this.timeout)
+		clearTimeout(this._timeout)
 		this.setState({ visible: '' })
 	}
 

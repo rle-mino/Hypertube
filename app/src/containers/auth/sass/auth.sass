@@ -12,15 +12,11 @@
 	&.log
 		height: 520px
 	&.reg
-		height: 800px
+		height: 750px
 	&.res
 		height: 575px
 	&.for
 		height: 350px
-		& .topColored
-			opacity: 0
-		& .floatButton
-			opacity: 0
 
 	&.toLeave
 		transform: translate(0, 200px)
@@ -38,7 +34,7 @@
 
 	& .topColored
 		width: calc(100% - 100px)
-		min-height: calc(25% - 70px)
+		height: 80px
 		padding: 35px 50px
 		position: relative
 		color: white
@@ -163,7 +159,7 @@
 		position: relative
 		box-shadow: none
 		animation: none
-		overflow: auto
+		overflow: visible
 
 	&.toLeave, &.toCircle
 		top: 50%
@@ -176,3 +172,21 @@
 	.formContainer
 		animation: titleIn .2s ease-out
 		transition: all .2s ease-out
+
+
+@media screen and (max-height:750px)
+	.authComp.reg
+		margin:
+			top: 5vh
+			bottom: 1vh
+
+@media screen and (max-height:620px)
+	.authComp
+		&.reg
+			margin:
+				top: 20vh
+				bottom: 2vh
+		&.res
+			margin:
+				top: 10vh
+				bottom: 2vh
