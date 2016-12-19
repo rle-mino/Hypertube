@@ -141,13 +141,13 @@ module.exports.fastParse = (msg) => {
 }
 
 module.exports.buildExtRequest = (torrent, id, msg) => {
-	const msgBuf = Buffer.from(msg, 'ascii')
-	const size = msgBuf.length
-	const buf = Buffer.alloc(size + 5)
+	// const msgBuf = Buffer.from(msg, 'ascii')
+	const size = msg.length
+	const buf = Buffer.alloc(size + 6)
 	buf.writeUInt32BE(size, 0)
 	buf.writeUInt8(20, 4)
 	buf.writeUInt8(id, 5)
-	// buf.write(msg, 6, 'ascii')
-	msgBuf.copy(buf, 6)
+	buf.write(msg.toString(), 6, 'utf8')
+	// msgBuf.copy(buf, 6)
 	return buf
 }

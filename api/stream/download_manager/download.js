@@ -13,12 +13,13 @@ import Queue from './Queue'
 function Downloader(torrent, peers) {
 	if (!(this instanceof Downloader)) return new Downloader(torrent, peers)
 	const self = this
-	this.metaId = 3
+	this.metaId = 2
 	this.requested = []
 	this.received = []
 	this.peers = []
 	this.handshakes = []
 	this.torrent = torrent
+	this.metaDataSize = 0
 	if (torrent && torrent.info && torrent.info.pieces) {
 		self.size = torrent.info.pieces.length / 20
 		this.pieces = new Pieces(torrent)
@@ -64,10 +65,11 @@ Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
 		&& !this.torrent.info
 		&& this.isExtended(msg)
 		&& this.isHandshake(msg)) {
-		const handshake = bencode.encode({ m: { ut_metadata: this.metaId } })
+		const handshake = bencode.encode({ m: { ut_metadata: this.metaId }, metadata_size: this.metaDataSize })
 		client.write(message.buildExtRequest(this.torrent, 0, handshake))
 	} else if (this.torrent.magnet
 		&& !this.torrent.info
+		&& msg.length > 4
 		&& msg.readUInt8(4) === 20) {
 		this.extendedHandler(client, pieces, queue, msg)
 	} else if (this.torrent.info && this.isHandshake(msg)) {
@@ -109,24 +111,24 @@ Downloader.prototype.extendedHandler = function (client, pieces, queue, msg) {
 	try {
 		payload = bencode.decode(extMessage.payload.toString('ascii'))
 	} catch (e) {
-		log.e('!')
+		console.log(e)
 	}
 	const msgType = payload.msg_type || 'x'
 	if (payload) {
-		console.log('msg_type: ', msgType)
 		switch (msgType) {
 			case 'x': {
 				const utMetadata = payload.m && payload.m.ut_metadata
 				const metadataSize = payload.metadata_size
+				this.metaDataSize = metadataSize
 				if (!this.metaPieces && metadataSize > 0) {
 					this.metaPieces = new Array(Math.ceil(metadataSize / 16384))
 					this.metaPieces.fill(0)
 				}
 				const req = bencode.encode({ msg_type: 0, piece: this.metaPieces.indexOf(0) })
-				console.log(bencode.decode(message.fastParse(message.buildExtRequest(this.torrent, utMetadata, req)).payload.toString('ascii')))
 				client.write(message.buildExtRequest(this.torrent, utMetadata, req))
-			} break
+				} break
 			case 1: {
+				console.log('msg_type: ', msgType)
 				const piece = extMessage.payload.slice(msg.payload.length - payload.total_size, msg.payload.length)
 				this.metaPieces[payload.piece] = piece
 				if (this.metaInfo.every(e => e !== 0)) {
