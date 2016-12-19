@@ -1,6 +1,6 @@
 /* eslint semi: ["error", "never"]*/
 import bencode from 'bencode'
-import anon from '../anonymizer'
+import anon from '../lib/anonymizer'
 
 const y = 'r'
 // and r as returned values

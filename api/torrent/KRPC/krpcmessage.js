@@ -1,6 +1,6 @@
 import dgram from 'dgram'
 import crypto from 'crypto'
-import anon from '../anonymizer'
+import anon from '../lib/anonymizer'
 import bencode from 'bencode'
 import hat from 'hat'
 import merge from 'merge'

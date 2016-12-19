@@ -3,14 +3,14 @@ import { inherits } from 'util'
 import { EventEmitter } from 'events'
 import bencode from 'bencode'
 import dgram from 'dgram'
-import Contact from '../contact'
-import Nodes from '../node'
+import Contact from './contact'
+import Nodes from './node'
 import * as queries from './queries'
 import * as responses from './responses'
 import * as errors from './errors'
-import anon from '../anonymizer'
+import anon from '../lib/anonymizer'
 import log from '../lib/log'
-import tracker from '../tracker'
+import tracker from '../tracker/tracker'
 
 const torrentAmorce = {
 	size: 1825361101,
@@ -157,7 +157,7 @@ function RPC(opts) {
 				}
 			}
 		} catch (e) {
-			console.log(e)
+			e => {}
 		}
 	}
 
@@ -239,7 +239,7 @@ RPC.prototype.find_node = function (contact, id) {
 }
 
 RPC.prototype.buildAddressBook = function (infoHashBuffer, inter) {
-	console.log('getting AddressBook')
+	log.i('getting AddressBook')
 	this.torrents.push(infoHashBuffer)
 	this.peers[this.torrents.indexOf(infoHashBuffer)] = []
 	const contacts = this.getContactList(infoHashBuffer)
@@ -247,6 +247,7 @@ RPC.prototype.buildAddressBook = function (infoHashBuffer, inter) {
 		this.get_peers(e, infoHashBuffer, null)
 	})
 	if (!inter) {
+		log.i('getting AddressBook...')
 		const interVal = setInterval(() => this.buildAddressBook(infoHashBuffer, interVal), 5000)
 		this.on('get_peers', () => clearInterval(interVal))
 	}

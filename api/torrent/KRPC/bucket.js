@@ -3,14 +3,14 @@
 
 import chalk from 'chalk'
 import LRU from 'lru'
-import anon from './anonymizer'
+import anon from '../lib/anonymizer'
 import Contact from './contact'
 import {EventEmitter} from 'events'
 import inherits from 'inherits'
 import bencode from 'bencode'
 import crypto from 'crypto'
 import _ from 'lodash'
-import XOR from './lib/nodes_distance'
+import XOR from '../lib/nodes_distance'
 
 const K = 40
 

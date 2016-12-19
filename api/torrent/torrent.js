@@ -17,7 +17,7 @@ import https from 'https'
 import TorrentFile from './Torrentfile'
 import magnetURIDecode from './magnet-parser'
 import RPC from './KRPC/rpc'
-import * as tracker from './tracker'
+import * as tracker from './tracker/tracker'
 import log from './lib/log'
 
 // inherits(torrent, EventEmitter)

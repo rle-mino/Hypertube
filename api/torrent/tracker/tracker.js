@@ -2,9 +2,9 @@
 
 import dgram from 'dgram'
 import crypto from 'crypto'
-import torrentParser from './torrent-parser'
-import anon from './anonymizer'
-import log from './lib/log'
+import torrentParser from '../download_manager/torrent-parser'
+import anon from '../lib/anonymizer'
+import log from '../lib/log'
 
 const urlParse = require('url').parse
 

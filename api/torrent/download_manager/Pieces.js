@@ -1,6 +1,6 @@
 /* eslint semi: ["error", "never"]*/
 
-import tp from '../torrent-parser'
+import tp from './torrent-parser'
 
 module.exports = class {
 	constructor(torrent) {

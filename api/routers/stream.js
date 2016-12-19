@@ -1,4 +1,4 @@
-import torrent                  from '../stream/torrent.js'
+import torrent                  from '../torrent/torrent'
 import stream                   from '../stream/stream'
 
 export default (app) => {
