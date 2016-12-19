@@ -5,11 +5,12 @@ import inherits from 'inherits'
 import { EventEmitter } from 'events'
 import Bucket from './bucket'
 import Contact from './contact'
-import NodeTree from './lib/nodes_tree'
-import anon from './anonymizer'
-import log from './lib/log'
+import NodeTree from '../lib/nodes_tree'
+import anon from '../lib/anonymizer'
+import log from '../lib/log'
 
 const __limit = 20000
+const __maxNodes = 250000
 
 function Nodes() {
 	if (!(this instanceof Nodes)) return new Nodes()
@@ -67,6 +68,7 @@ Nodes.prototype.isGood = function (contact, id) {
 }
 
 Nodes.prototype.addContact = function (contact) {
+	if (this.contacts >= __maxNodes) return
 	if (!(contact instanceof Contact)) {
 		throw new Error({ message: 'Unhandled argument: contact is not a Contact' })
 	}

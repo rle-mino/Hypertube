@@ -1,7 +1,7 @@
 /* eslint semi: ["error", "never"]*/
 import bencode from 'bencode'
 import { Uint64BE } from 'int64-buffer'
-import anon from '../anonymizer'
+import anon from '../lib/anonymizer'
 
 
 module.exports.buildHandshake = (torrent, ext) => {
@@ -133,21 +133,21 @@ module.exports.parse = msg => {
 
 module.exports.fastParse = (msg) => {
 	const ret = {}
-	ret.size = msg.readUInt32BE(0)
-	ret.Id = msg.readUInt8(4)
-	ret.extId = msg.readUInt8(5)
-	ret.payload = msg.slice(6)
+	if (msg.length > 4) {
+		ret.size = msg.readUInt32BE(0)
+		ret.Id = msg.readUInt8(4)
+		ret.extId = msg.readUInt8(5)
+		ret.payload = msg.slice(6)
+	}
 	return ret
 }
 
-module.exports.buildExtRequest = (torrent, id, msg) => {
-	// const msgBuf = Buffer.from(msg, 'ascii')
-	const size = msg.length
-	const buf = Buffer.alloc(size + 6)
+module.exports.buildExtRequest = (id, msg) => {
+	const size = msg.length + 2
+	const buf = Buffer.alloc(size + 4)
 	buf.writeUInt32BE(size, 0)
 	buf.writeUInt8(20, 4)
 	buf.writeUInt8(id, 5)
-	buf.write(msg.toString(), 6, 'utf8')
-	// msgBuf.copy(buf, 6)
+	msg.copy(buf, 6)
 	return buf
 }

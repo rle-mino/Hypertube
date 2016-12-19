@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import Bucket from '../bucket'
+import Bucket from '../KRPC/bucket'
 
 const log = m => console.log(chalk.blue(m))
 const mlog = m => process.stdout.write(chalk.magenta(m))
