@@ -25,9 +25,19 @@ class Search extends React.Component {
 
 	_form = null
 
+	componentWillMount() {
+	}
+
+	/*
+	*		When the component is mounted, we debounce the loadMore,
+	*		the formUpdate and we search
+	*/
 	componentDidMount() {
 		this._mounted = true
+
 		this.loadMore = _.debounce(this.loadMore, 300)
+		this.formUpdate = _.debounce(this.formUpdate, 300)
+
 		const { minyear, maxyear, minrate, maxrate, category, sort } = this.props.location.query
 		this.requestFilms(false, { params: {
 			title: this.props.location.query.title || '',
@@ -46,6 +56,12 @@ class Search extends React.Component {
 		this._mounted = false
 	}
 
+	/*
+	*		Request the api
+	*		The first parameter let us know if we need to
+	*		append the results to the array or if we need to
+	*		ignore the last result.
+	*/
 	requestFilms = async (clearRes, reqSet) => {
 
 		this.props.dispatch(pending.set())
@@ -68,6 +84,10 @@ class Search extends React.Component {
 		}
 	}
 
+	/*
+	*		When we receive new props, we need to search again
+	*		because the search input updates the props.query
+	*/
 	componentWillReceiveProps = (newProps) => {
 		if (!this._form) return false
 		const {
@@ -89,13 +109,9 @@ class Search extends React.Component {
 		} })
 	}
 
-	drawResults = () => {
-		const { results } = this.state
-		return results.map((result, key) =>
-			<MiniMovie data={result} key={key} click={() => goMoviePage(result.id, this.props.dispatch)} />
-		)
-	}
-
+	/*
+	*		Triggered when the user scrolls
+	*/
 	loadMore = () => {
 		if (!this._form.state) return false
 		const { page, noResults, more } = this.state
@@ -116,6 +132,9 @@ class Search extends React.Component {
 		this.setState({ page: nextPage })
 	}
 
+	/*
+	*		every time the advanced form is updated, we request the api
+	*/
 	formUpdate = () => {
 		const {
 			yearValue,
@@ -133,6 +152,16 @@ class Search extends React.Component {
 			category: lang.categories[catVal][0],
 			sort: lang.sorts[sortVal][0],
 		} })
+	}
+
+	/*
+	*		DRAWING METHOD
+	*/
+	drawResults = () => {
+		const { results } = this.state
+		return results.map((result, key) =>
+			<MiniMovie data={result} key={key} click={() => goMoviePage(result.id, this.props.dispatch)} />
+		)
 	}
 
 	render() {
