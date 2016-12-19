@@ -32,6 +32,11 @@ class HyperHeader extends React.Component {
 		linearColor: 'white',
 	}
 
+
+	/*
+	*		When the component is mounted, we setup the onscroll event for
+	*		the entire window and get the profile image from the api
+	*/
 	componentDidMount = async () => {
 		this._mounted = true
 		window.onscroll = this.handleScroll
@@ -50,11 +55,18 @@ class HyperHeader extends React.Component {
 		}
 	}
 
+	/*
+	*		remove the event in case the client logout
+	*/
 	componentWillUnmount() {
 		this._mounted = false
 		window.removeEventListener('scroll', this.handleScroll)
 	}
 
+	/*
+	*		We need to know how hight is client
+	*		to adjust the loading bar color
+	*/
 	handleScroll = () => {
 		const { mainColor } = this.props
 		if ((window.pageYOffset ||

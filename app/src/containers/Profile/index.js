@@ -1,18 +1,18 @@
-import React				from 'react'
+import React						from 'react'
 import { connect }			from 'react-redux'
 import browserHistory		from 'react-router/lib/browserHistory'
-import lang					from '../../lang'
-import api					from '../../apiCall'
+import lang							from '../../lang'
+import api							from '../../apiCall'
 import * as pending			from '../../action/pending'
 
-import CircularProgress		from 'material-ui/CircularProgress'
-import Snackbar				from 'material-ui/Snackbar'
+import CircularProgress	from 'material-ui/CircularProgress'
+import Snackbar					from 'material-ui/Snackbar'
 import EditPassword			from '../../components/EditPassword'
-import QualitySelector		from '../../components/QualitySelector'
-import EditImage			from '../../components/EditImage'
-import History				from '../../components/History'
-import EditComp				from '../../components/EditComp'
-import noImage				from '../../../public/No-image-found.jpg'
+import QualitySelector	from '../../components/QualitySelector'
+import EditImage				from '../../components/EditImage'
+import History					from '../../components/History'
+import EditComp					from '../../components/EditComp'
+import noImage					from '../../../public/No-image-found.jpg'
 
 import './sass/profile.sass'
 
@@ -25,6 +25,10 @@ class Profile extends React.Component {
 		updatedPass: false
 	}
 
+	/*
+	*		get profile from api and redirect the user to login
+	*		if an error occurred
+	*/
 	componentDidMount = async () => {
 		this._mounted = true
 
@@ -43,12 +47,22 @@ class Profile extends React.Component {
 		this._mounted = false
 	}
 
+	/*
+	*		When the user updates his profile
+	*		we request the api to get the updated profile
+	*/
 	updateData = async () => {
 		const { data } = await api.getProfile()
 		if (!this._mounted) return false
 		this.setState({ data: data.profile, updated: true })
 	}
 
+	/*
+	*		if the password is updated
+	*		we do not need to get the updated profile
+	*		so we just set the updatedPass to true
+	*		to render the Snackbar
+	*/
 	passUpdated = () => this.setState({ updatedPass: true })
 
 	handleRequestClose = () => this.setState({ updated: false })

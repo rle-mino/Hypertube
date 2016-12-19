@@ -28,6 +28,16 @@ export default class SearchForm extends React.Component {
 
 	_searchInput = null
 
+
+	focusSearch = () => {
+		const searchInput = this._searchInput
+		if (searchInput) searchInput.focus()
+	}
+
+	/*
+	*		When the component is mounted, we setup MouseTrap
+	*		to automatically focus the search input on keydown (alphabet only)
+	*/
 	componentDidMount() {
 		this._mounted = true
 		MouseTrap.bind(alphabet, this.focusSearch)
@@ -36,20 +46,22 @@ export default class SearchForm extends React.Component {
 		}
 	}
 
-	focusSearch = () => {
-		const searchInput = this._searchInput
-		if (searchInput) searchInput.focus()
-	}
-
+	/*
+	*		disables mouseTrap when the component is unmounted 
+	*/
 	componentWillUnmount() {
 		this._mounted = false
 		MouseTrap.unbind(alphabet, this.focusSearch)
 	}
 
 	componentWillMount() {
-		this.debouncedSearchFilm = _.debounce(this.debouncedSearchFilm, 300)
+		this.debounceSearchFilm = _.debounce(this.debounceSearchFilm, 300)
 	}
 
+	/*
+	*		If the new user switch to the search page, the search block
+	*		go down to render only one search input
+	*/
 	componentWillReceiveProps = (newProps) => {
 		if (newProps.location.pathname.includes('/ht/search')) {
 			this.setState({ searchView: true, results: [] })
@@ -58,6 +70,11 @@ export default class SearchForm extends React.Component {
 		}
 	}
 
+	/*
+	*		Triggered on focus/blur
+	*		we reset 'selected' and update focused
+	*		to know if we need to render the results list
+	*/
 	updateFocus = (e) => {
 		if (e.type.includes('blur')) {
 			setTimeout(() => this.setState({ focused: !this.state.focused, selected: -1 }), 200)
@@ -66,7 +83,11 @@ export default class SearchForm extends React.Component {
 		}
 	}
 
-	debouncedSearchFilm = async (e) => {
+
+	/*
+	*		search for a movie using the written title
+	*/
+	debounceSearchFilm = async (e) => {
 		if (this.state.searchView) return false
 		if (!e.target.value || e.target.value.length < 1) {
 			this.setState({ results: [] })
@@ -83,12 +104,26 @@ export default class SearchForm extends React.Component {
 		}
 	}
 
+	/*
+	*		Triggered when the input changes.
+	*		We update the input's value and we call
+	*		a debounced function which will search for a movie
+	*		with the written title
+	*/
 	searchFilm = (e) => {
 		this.setState({ title: e.target.value })
 		e.persist()
-		this.debouncedSearchFilm(e)
+		this.debounceSearchFilm(e)
 	}
 
+
+	/*
+	*		Triggered when the user submit.
+	*		We directly redirect the user if
+	*		an element is selected from results,
+	*		else we just redirect to the search page with
+	*		the written title
+	*/
 	handleSubmit = (e) => {
 		e.preventDefault()
 		if (this.props.location.pathname.includes('/ht/search')) {
@@ -105,6 +140,13 @@ export default class SearchForm extends React.Component {
 		}
 	}
 
+	/*
+	*		We select an element from results
+	*		when the user press up or down key,
+	*		we do nothing if the key pressed is enter,
+	*		and we reset selected (-1) if the user press
+	*		any other key
+	*/
 	updateSelected = (e) => {
 		if (e.keyCode === 40 || e.keyCode === 38) {
 			e.preventDefault()
@@ -113,17 +155,20 @@ export default class SearchForm extends React.Component {
 
 			if (!results.length) return false
 			let newSelected = -1
+			// DOWN
 			if (e.keyCode === 40) {
-				// DOWN
 				newSelected = selected === results.length -1 ? results.length -1 : selected + 1
+			// UP
 			} else if (e.keyCode === 38) {
-				// UP
 				newSelected = selected === -1 ? -1 : selected - 1
 			}
 			this.setState({ selected: newSelected })
 		} else if (e.keyCode !== 13) this.setState({ selected: -1 })
 	}
 
+	/*
+	*		DRAWING METHOD
+	*/
 	drawResultsList = () => {
 		const { results, selected } = this.state
 		const { dispatch } = this.props
