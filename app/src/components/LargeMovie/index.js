@@ -4,11 +4,11 @@ import { ListItem }		from 'material-ui/List'
 
 import './largeMovie.sass'
 
-export default ({ data, click }) => {
+export default ({ data, click, selected }) => {
 	return (
 		<ListItem
 			className="largeMovie"
-			style={{}}
+			style={{ backgroundColor: selected ? 'rgba(0, 0, 0, .1)' : 'white' }}
 			innerDivStyle={{ padding: '3px 0px', margin: '0' }}
 			onTouchTap={click}
 		>

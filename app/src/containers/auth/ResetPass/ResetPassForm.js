@@ -105,6 +105,7 @@ class ResetPassForm extends React.Component {
 					name="username"
 					type="text"
 					errorText={usernameR}
+					autoFocus={true}
 					{...textFieldSet}
     			/>
 				<TextField

@@ -149,7 +149,9 @@ class registerForm extends React.Component {
 		}
 
 		if (!image || image === '') {
-			this.setState({ imageInput: `${lang.errorP['any.empty'][l]}: ${lang.chooseAnImage[l]}` })
+			this.setState({
+				imageInput: `${lang.errorP['any.empty'][l]}: ${lang.chooseAnImage[l]}`
+			})
 			return false
 		}
 
@@ -188,10 +190,11 @@ class registerForm extends React.Component {
 			<form className="authForm" onChange={this.handleChange} onKeyDown={this.checkSub}>
 				<TextField
 			    	floatingLabelText={lang.username[l]}
-					name="username"
-					type="text"
-					errorText={usernameR}
-					{ ...styles.textFieldSet }
+						name="username"
+						type="text"
+						errorText={usernameR}
+						autoFocus={true}
+						{ ...styles.textFieldSet }
     			/>
 				<TextField
 					floatingLabelText={lang.lastname[l]}

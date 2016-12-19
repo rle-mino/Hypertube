@@ -71,6 +71,7 @@ class ForgotPassForm extends React.Component {
 					name="mail"
 					type="text"
 					errorText={mailR}
+					autoFocus={true}
 					{ ...textFieldSet }
     			/>
 				<FlatButton

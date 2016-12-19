@@ -23,6 +23,7 @@ export default class SearchForm extends React.Component {
 		results: [],
 		searchView: false,
 		title: '',
+		selected: -1,
 	}
 
 	_searchInput = null
@@ -59,7 +60,7 @@ export default class SearchForm extends React.Component {
 
 	updateFocus = (e) => {
 		if (e.type.includes('blur')) {
-			setTimeout(() => this.setState({ focused: !this.state.focused }), 200)
+			setTimeout(() => this.setState({ focused: !this.state.focused, selected: -1 }), 200)
 		} else {
 			this.setState({ focused: !this.state.focused })
 		}
@@ -93,21 +94,50 @@ export default class SearchForm extends React.Component {
 		if (this.props.location.pathname.includes('/ht/search')) {
 			browserHistory.push(`/ht/search?title=${this.state.title}`)
 		} else {
+			const { selected, results } = this.state
 			this.props.dispatch(bOut())
 			this.setState({ results: [] })
-			setTimeout(() => browserHistory.push(`/ht/search?title=${this.state.title}`), 500)
+			if (selected !== -1) {
+				goMoviePage(results[selected].id, this.props.dispatch)
+			} else {
+				setTimeout(() => browserHistory.push(`/ht/search?title=${this.state.title}`), 500)
+			}
 		}
 	}
 
+	updateSelected = (e) => {
+		if (e.keyCode === 40 || e.keyCode === 38) {
+			e.preventDefault()
+
+			const { selected, results } = this.state
+
+			if (!results.length) return false
+			let newSelected = -1
+			if (e.keyCode === 40) {
+				// DOWN
+				newSelected = selected === results.length -1 ? results.length -1 : selected + 1
+			} else if (e.keyCode === 38) {
+				// UP
+				newSelected = selected === -1 ? -1 : selected - 1
+			}
+			this.setState({ selected: newSelected })
+		} else if (e.keyCode !== 13) this.setState({ selected: -1 })
+	}
+
 	drawResultsList = () => {
-		const { results } = this.state
+		const { results, selected } = this.state
 		const { dispatch } = this.props
-		return results ?
-			results.map((el) => <LargeMovie
-				key={el.id}
-				data={el}
-				click={() => goMoviePage(el.id, dispatch)} />) :
-			<div></div>
+		if (results) {
+			return (results.map((el, key) =>
+				<LargeMovie
+					key={el.id}
+					data={el}
+					selected={key === selected}
+					click={() => goMoviePage(el.id, dispatch)}
+				/>)
+			)
+		}
+		return <div></div>
 	}
 
 	render() {
@@ -121,6 +151,7 @@ export default class SearchForm extends React.Component {
 					<input
 						type="text"
 						placeholder={lang.typeHereAnyMovieName[this.props.l]}
+						onKeyDown={this.updateSelected}
 						className="searchInput"
 						name="title"
 						onFocus={this.updateFocus}

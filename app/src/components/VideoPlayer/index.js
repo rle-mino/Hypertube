@@ -321,6 +321,7 @@ export default class VideoPlayer extends React.Component {
 	}
 
 	showControls = () => {
+		if (!this.state.available) return false
 		this.setState({ visible: 'visible' })
 		clearTimeout(this._timeout)
 		this._timeout = setTimeout(() => this.setState({ visible: '' }), 4000)

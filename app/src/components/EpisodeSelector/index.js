@@ -72,6 +72,7 @@ export default ({ selectedEpisode, episodesList, onEpisodeSelect, l, onClickPrev
 	const getStyle = (isVisible) => ({
 		opacity: isVisible ? 1 : 0,
 		cursor: isVisible ? 'pointer' : 'default',
+		pointerEvent: isVisible ? 'auto' : 'none',
 	})
 
 	return (
@@ -80,12 +81,12 @@ export default ({ selectedEpisode, episodesList, onEpisodeSelect, l, onClickPrev
 				<FlatButton
 					label={lang.prev[l]}
 					style={getStyle(!!hasPrev)}
-					onTouchTap={!!hasPrev ? onClickPrev : () => null}
+					onTouchTap={onClickPrev}
 				/>
 				<FlatButton
 					label={lang.next[l]}
 					style={getStyle(!!hasNext)}
-					onTouchTap={!!hasNext ? onClickNext : () => null}
+					onTouchTap={onClickNext}
 				/>
 			</div>
 			<div>
