@@ -24,6 +24,11 @@ const torrentAmorce = {
 	'udp://tracker.opentrackr.org:1337/announce',
 	'udp://glotorrents.pw:6969/announce'],
 }
+
+const MAX_ROUTING_TABLE = 25000
+const MAX_NODES_LIMIT = 25000
+const MAX_PEERS_LIMIT = 100
+
 function noop() {}
 
 // RPC (Remote Procedure Call) is a Kademlia Standard based RPC scheme to build
@@ -61,13 +66,14 @@ function RPC(opts) {
 		self.opts = opts
 	}
 
-	this.port = this.opts.port || 1 + Math.floor(Math.random() * 65535)
+	this.port = this.opts.port || 6881
 	this.socket = this.opts.socket || dgram.createSocket('udp4')
 	this.bootstrap = this.opts.peers || []
 	this.socket.on('message', onMessage)
 	this.socket.on('error', onError)
 	this.socket.on('listening', onListening)
 	this.state = 'loading'
+	this._peers = 0
 	this._buckets = new Nodes()
 	this._buckets.once('ready', () => {
 		self.goReady()
@@ -81,6 +87,7 @@ function RPC(opts) {
 	this.reqs = []
 	this.peers = []
 	this.torrents = []
+	this._contacts = 0
 	this._halveDepth = 0
 
 	function onMessage(buf, rinfo) {
@@ -100,8 +107,8 @@ function RPC(opts) {
 			} else return
 
 			if (response.type === 'q') {
-				self.queries.push(response)
-				self.emit('query')
+				self.queries = response
+				self.trash = buf
 			}
 
 			if (response.type === 'r') {
@@ -125,7 +132,9 @@ function RPC(opts) {
 			const { ip, port } = response.req
 			if (response.req.r === 'ping' && (!!response.id)) {
 			// PING
-				self.addNode({ nodes: response.id, ip, port, id: response.tid })
+				if (self._contacts < MAX_NODES_LIMIT) {
+						self.addNode({ nodes: response.id, ip, port, id: response.tid })
+				}
 			} else if (response.req.r === 'find_node') {
 			// FIND_NODE
 			if (!response.nodes) return
@@ -141,15 +150,13 @@ function RPC(opts) {
 				if (response.values) {
 					self.announce_peer(response)
 					const values = self.parseValues(response.values)
+					self._peers += values.length
 					const token = response.token
 					self.emit('get_peers', values, token)
 				}
 				if (response.nodes) {
 					const ids = self.parseNodes(response.nodes)
-					if (ids && self.torrents.indexOf(response.req.infoHash) !== -1) {
-						ids.forEach(p => {
-							self.get_peers(p, response.req.infoHash, null)
-						})
+					if (ids && self.torrents.indexOf(response.req.infoHash) !== -1 && self._peers < MAX_PEERS_LIMIT) {
 						ids.forEach(p => {
 							self.get_peers(p, response.req.infoHash, null)
 						})
@@ -254,7 +261,7 @@ RPC.prototype.buildAddressBook = function (infoHashBuffer, inter) {
 }
 
 RPC.prototype.unBlock = function (stat) {
-	if (this._stat && stat === this._stat && this._stat <= 10 ** 6) {
+	if (this._stat && stat === this._stat && this._stat <= MAX_ROUTING_TABLE) {
 		log.y('unblocking routing table')
 		const contacts = this.getContactList(anon.nodeId())
 		contacts.forEach(c => {
@@ -270,7 +277,7 @@ RPC.prototype.getContactList = function (hash) {
 }
 
 RPC.prototype.get_peers = function (contact, infoHash, id) {
-	if (this._stat && this._stat > 250000) return
+	// if (this._stat && this._stat > MAX_ROUTING_TABLE) return
 	try {
 		if (!id) {
 			id = anon.newKrpcId()
@@ -300,7 +307,7 @@ RPC.prototype.announce_peer = function (opts, id) {
 	const infoHash = opts.req.infoHash
 	const token = opts.token
 	this.reqs[id] = { r: 'announce_peer', ip: contact.ip, port: contact.port }
-	const message = queries.BuildAnnouncePeer(0, infoHash, token)
+	const message = queries.BuildAnnouncePeer(this.port, infoHash, token)
 	this.send(message, contact)
 }
 RPC.prototype.initializeBuckets = function (opts) {
@@ -315,6 +322,7 @@ RPC.prototype.initializeBuckets = function (opts) {
 RPC.prototype.addNode = function (opts) {
 	try {
 		const contact = new Contact(opts)
+		this._contacts += 1
 		this._buckets.addContact(contact)
 		this.find_node(contact, opts.tid)
 	} catch (e) {

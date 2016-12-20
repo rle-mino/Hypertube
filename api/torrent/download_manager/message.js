@@ -20,6 +20,16 @@ module.exports.buildHandshake = (torrent, ext) => {
 	return buf
 }
 
+module.exports.buildExtRequest = (id, msg) => {
+	const size = msg.length + 1
+	const buf = Buffer.alloc(size + 5)
+	buf.writeUInt32BE(size, 0)
+	buf.writeUInt8(20, 4)
+	buf.writeUInt8(id, 5)
+	msg.copy(buf, 6)
+	return buf
+}
+
 module.exports.buildKeepAlive = () => Buffer.alloc(4)
 
 module.exports.buildChoke = () => {
@@ -140,14 +150,4 @@ module.exports.fastParse = (msg) => {
 		ret.payload = msg.slice(6)
 	}
 	return ret
-}
-
-module.exports.buildExtRequest = (id, msg) => {
-	const size = msg.length + 2
-	const buf = Buffer.alloc(size + 4)
-	buf.writeUInt32BE(size, 0)
-	buf.writeUInt8(20, 4)
-	buf.writeUInt8(id, 5)
-	msg.copy(buf, 6)
-	return buf
 }

@@ -42,9 +42,15 @@ TorrentFile.prototype.addPeer = function (peers) {
 	const self = this
 	self.feedbacks += 1
 	if (!self.downloader) {
-		self.downloader = new Downloader(self.torrent, peers)
+		console.log('new Downloader')
+		console.log(self.downloader)
+		try {
+			self.downloader = new Downloader(self.torrent, peers)
+		} catch (e) { console.log(e) }
+		if (!self.downloader) throw new Error('Object was not created because its shit')
+	} else {
+		this.downloader.addPeers(peers)
 	}
-	this.downloader.addPeers(peers)
 }
 
 TorrentFile.prototype.init = () => {

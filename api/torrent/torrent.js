@@ -19,6 +19,7 @@ import magnetURIDecode from './magnet-parser'
 import RPC from './KRPC/rpc'
 import * as tracker from './tracker/tracker'
 import log from './lib/log'
+import Server from './download_manager/Server'
 
 // inherits(torrent, EventEmitter)
 
@@ -39,9 +40,10 @@ let KRPC = null
 setTimeout(() => {
 	tracker.getPeers(torrentAmorce, peers => {
 		// console.log('Running in safe mode')
-		KRPC = new RPC({ peers })
+		KRPC = new RPC({ peers, port : 6881 })
 	})
 }, 300)
+let server = {}
 const _validResolution = [
     '8k',
     '2160p',
@@ -188,6 +190,7 @@ const torrent = (movie, next) => {
 }
 
 const torrentRoute = (req, res, next) => {
+	// server = new Server({ IP: '127.0.0.1', TCPPort: 6881 })
 	if (!KRPC) {
 		res.send({
 			status: 'error',
