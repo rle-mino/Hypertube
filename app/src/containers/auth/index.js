@@ -1,6 +1,7 @@
 import React					from 'react'
 import { connect }				from 'react-redux'
 import browserHistory			from 'react-router/lib/browserHistory'
+import api						from '../../apiCall'
 import lang						from '../../lang'
 import colors					from '../../colors/colors'
 import { selectAuth }			from '../../action/auth'
@@ -33,6 +34,15 @@ class Auth extends React.Component {
 		nextColor: 'white',
 		formContainer: 'formContainer',
 		container: 'log',
+	}
+
+	componentWillMount() {
+		api.checkAuth()
+		.then(({ data }) => {
+			if (data.status.includes('success')) {
+				browserHistory.push('/ht')
+			} else this.setupAuth(this.props)
+		})
 	}
 
 	componentDidMount = () => {
@@ -99,10 +109,6 @@ class Auth extends React.Component {
 			})
 			dispatch(selectAuth(3))
 		}
-	}
-
-	componentWillMount() {
-		this.setupAuth(this.props)
 	}
 
 	/*

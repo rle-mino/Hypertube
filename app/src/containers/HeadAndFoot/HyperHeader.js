@@ -32,6 +32,13 @@ class HyperHeader extends React.Component {
 		linearColor: 'white',
 	}
 
+	componentWillMount() {
+		api.checkAuth()
+		.then(({ data }) => {
+			console.log(data)
+			if (data.status.includes('error')) browserHistory.push('/')
+		})
+	}
 
 	/*
 	*		When the component is mounted, we setup the onscroll event for

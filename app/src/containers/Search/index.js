@@ -25,9 +25,6 @@ class Search extends React.Component {
 
 	_form = null
 
-	componentWillMount() {
-	}
-
 	/*
 	*		When the component is mounted, we debounce the loadMore,
 	*		the formUpdate and we search
@@ -68,7 +65,7 @@ class Search extends React.Component {
 		const { data } = await api.search(reqSet)
 		this.props.dispatch(pending.unset())
 
-		if (!data.status) return false
+		if (!data.status || !this._mounted) return false
 		if (data.status.includes('success')) {
 			this.setState({
 				results: clearRes ? data.results : [...this.state.results, ...data.results],

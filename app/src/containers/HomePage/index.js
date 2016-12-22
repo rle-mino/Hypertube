@@ -23,13 +23,14 @@ class HomePage extends React.Component {
 
 	componentDidMount = async () => {
 		this._mounted = true
+		const { dispatch } = this.props
 
-		this.props.dispatch(pending.set())
+		dispatch(pending.set())
 		const { data } = await api.topSearch()
-		this.props.dispatch(pending.unset())
+		dispatch(pending.unset())
 
 		if (!this._mounted) return false
-		this.props.dispatch(bIn())
+		dispatch(bIn())
 		if (!data.status) return false
 		if (data.status === 'error') {
 			this.setState({ error: true, pending: false })

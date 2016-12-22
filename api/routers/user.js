@@ -1,6 +1,5 @@
 import passport				from 'passport';
 import expressJwt			from 'express-jwt';
-import jwt 					from 'jsonwebtoken';
 import express				from 'express';
 import session				from 'express-session';
 import * as userController	from '../user/controller';
@@ -47,6 +46,11 @@ export default (app) => {
 	app.post('/api/user/register', userFonc.register);
 
 	app.put('/api/user/login', userFonc.login);
+
+	app.get('/api/user/check_auth', (req, res) => res.send({
+		status: 'success',
+		details: 'user authenticated',
+	}));
 
 // /////////////////////////////////////////////////////////////////////////////
 // ///////              OAUTH ROUTES       		                          //////
@@ -136,7 +140,7 @@ export default (app) => {
 		req.session.query = req.query;
 		console.log(req.query);
 		next();
-	}, passport.authenticate('spotify', {scope: ['user-read-email', 'user-read-private'] }));
+	}, passport.authenticate('spotify', { scope: ['user-read-email', 'user-read-private'] }));
 
 	app.get('/api/user/auth/spotify/callback', userFonc.spotifyLogin, (req, res) => {
 		console.log(req.session.query.next);
