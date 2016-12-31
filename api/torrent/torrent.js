@@ -14,6 +14,8 @@
 
 import bencode from 'bencode'
 import https from 'https'
+import stream from '../stream/stream'
+import * as info from '../movie/info'
 import TorrentFile from './Torrentfile'
 import magnetURIDecode from './magnet-parser'
 import RPC from './KRPC/rpc'
@@ -30,7 +32,8 @@ const torrentAmorce = {
 	announce: [
 	'udp://p4p.arenabg.ch:1337',
 	'udp://tracker.leechers-paradise.org:6969',
-	'udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80',
+	'udp://tracker.coppersurfer.tk:6969',
+	'udp://tracker.openbittorrent.com:80',
 	'udp://torrent.gresille.org:80/announce',
 	'udp://tracker.opentrackr.org:1337/announce',
 	'udp://glotorrents.pw:6969/announce'],
