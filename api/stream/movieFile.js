@@ -59,16 +59,16 @@ class MovieFile extends EventEmitter {
 				flags: 'r',
 				start: 0,
 			})
-			if (this._fileType === 'video/x-matroska') {
+			if (this._fileType === 'video/mp4') {
+				console.log('streaming mp4')
+				return stream
+			} else if (/^video\//.test(this._fileType)) {
 				console.log('transcoding mkv while streaming')
 				return new Transcoder(stream)
 					.videoCodec('h264')
 					.audioCodec('aac')
 					.format('mp4')
 					.stream()
-			} else if (this._fileType === 'video/mp4') {
-				console.log('streaming mp4')
-				return stream
 			}
 			throw new Error('not a supported video file')
 		}

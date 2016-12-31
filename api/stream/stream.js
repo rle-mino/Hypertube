@@ -3,7 +3,7 @@
  */
  /* eslint semi: ["error", "never"]*/
 
- import MovieFile from './movieFile'
+import MovieFile from './movieFile'
 
 const streamRoute = (req, res) => {
 	res.writeHead(200, { 'Content-Type': 'video/mp4' })
