@@ -35,8 +35,9 @@ class MovieFile extends EventEmitter {
 			throw new Error('Invalid query')
 		}
 
-		this._fileType = fileType(readChunk.sync(this._path, 0, 4100)).mime
-		console.log(this.name, this._filetype)
+		this._fileType = fileType(readChunk.sync(this._path, 0, 4100))
+		this._fileType = this._fileType.mime
+		console.log(this.name, this._fileType)
 		this.state = 'loaded'
 		this.emit('loaded', this.name)
 
@@ -54,18 +55,19 @@ class MovieFile extends EventEmitter {
 		}
 
 		this.stream = () => {
-			const format = this._fileType
 			const stream = fs.createReadStream(this._path, {
 				flags: 'r',
 				start: 0,
 			})
-			if (format === 'video/x-matroska') {
+			if (this._fileType === 'video/x-matroska') {
+				console.log('transcoding mkv while streaming')
 				return new Transcoder(stream)
 					.videoCodec('h264')
 					.audioCodec('aac')
 					.format('mp4')
 					.stream()
-			} else if (format === 'video/mp4') {
+			} else if (this._fileType === 'video/mp4') {
+				console.log('streaming mp4')
 				return stream
 			}
 			throw new Error('not a supported video file')

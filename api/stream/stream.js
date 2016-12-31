@@ -9,7 +9,7 @@ const streamRoute = (req, res) => {
 	res.writeHead(200, { 'Content-Type': 'video/mp4' })
     const stream = new MovieFile({
 		query: {
-			path: './MovieLibrary/sample.mkv',
+			path: './MovieLibrary/sample.mp4',
 			name: 'test',
 		},
 	}).stream()
