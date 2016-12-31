@@ -27,7 +27,7 @@ function Downloader(torrent, peers) {
 	} else {
 		self.size = 0
 	}
-	this.file = fs.openSync(torrent.name, 'w')
+	this.file = fs.openSync(`MovieLibrary/${torrent.name}`, 'w')
 	if (peers) this.addPeers(peers)
 }
 

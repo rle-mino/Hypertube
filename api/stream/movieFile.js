@@ -1,46 +1,75 @@
-
+/* eslint semi: ["error", "never"]*/
+import EventEmitter from 'events'
+import fs from 'fs'
+import Transcoder from 'stream-transcoder'
+import readChunk from 'read-chunk'
+import fileType from 'file-type'
 import * as info from '../movie/info'
 
-class MovieStream extends EventEmitter {
-  constructor = (req) => {
-    this._validResolution = [
-        '8k',
-        '2160p',
-        '4k',
-        '1440p',
-        '1080p',
-        '720p',
-        '420p',
-    ]
-    this. _preferredResolution = '8k'
-    this._req = req
-    this.state = 'loading'
-    this._path = ''
-    this._fileFormat = ''
-    this._movie = await fetchMovie(req)
-      if (req.query.path && req.query.name) {
-        this.name = req.query.name
-        this.path = req.query.path
-      } else {
-        this._movie = info.returnData(req).result
-        this.name = this._movie.title
-        this._path = selectPath(this._movie)
-      }
-    console.log('new movie: ', this._movie.title)
-    this.state = loaded
-    this.emit('loaded', )
-  }
-  selectPath = torrents => {
-    for (let i = _validResolution.indexOf(_preferredResolution);
-	     (selected.length === 0 && i < _validResolution.length);
-       i += 1) {
-        selected = torrents.filter(e => (e.quality === _validResolution[i]))
-      if (selected.length > 0) {
-  		return {
-  		torrent: selected[0],
-  		id: torrents.indexOf(selected[0])
-  		}
-  	}
-  }
-  }
+// result.torrent[0].path
+
+
+class MovieFile extends EventEmitter {
+	constructor(req) {
+		super()
+		const _validResolution = [
+			'8k',
+			'2160p',
+			'4k',
+			'1440p',
+			'1080p',
+			'720p',
+			'420p',
+		]
+		this._preferredResolution = '8k'
+		this._req = req
+		this.state = 'loading'
+		if (req.query.path && req.query.name) {
+			this._path = req.query.path
+			this.name = req.query.name
+		} else if (req.param.id) {
+			this._movie = info.returnData(req).result
+			this.name = this._movie.title
+			this._path = this._selectPath(this._movie)
+		} else {
+			throw new Error('Invalid query')
+		}
+		this._fileType = fileType(readChunk.sync(this._path, 0, 4100)).mime
+		console.log('new movie: ', this.name)
+		console.log('format:', this._fileType)
+		this.state = 'loaded'
+		this.emit('loaded', this.name)
+		this._selectPath = torrents => {
+			let selected = []
+			for (let i = this._validResolution.indexOf(this._preferredResolution);
+				(selected.length === 0 && i < this._validResolution.length);
+				i += 1) {
+					selected = torrents.filter(e => (e.quality === this._validResolution[i]))
+				if (selected.length > 0) {
+					return selected[0].path
+				}
+			}
+			return null
+		}
+
+		this.stream = () => {
+			const format = this._fileType
+			const stream = fs.createReadStream(this._path, {
+				flags: 'r',
+				start: 0,
+			})
+			if (format === 'video/x-matroska') {
+				return new Transcoder(stream)
+					.videoCodec('h264')
+					.audioCodec('libfaac')
+					.format('mp4')
+					.stream()
+			} else if (format === 'video/mp4') {
+				return stream
+			}
+			throw new Error('not a supported video file')
+		}
+	}
 }
+
+export default MovieFile

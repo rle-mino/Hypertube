@@ -30,6 +30,7 @@
     "express": "^4.14.0",
     "express-jwt": "^5.1.0",
     "express-session": "^1.14.2",
+    "file-type": "^4.0.0",
     "google-translate-api": "^2.2.2",
     "hat": "0.0.3",
     "inherits": "^2.0.3",
@@ -60,8 +61,10 @@
     "passport-local": "^1.0.0",
     "passport-spotify": "^0.3.0",
     "passport-twitter": "^1.0.4",
+    "read-chunk": "^2.0.0",
     "request": "^2.78.0",
     "request-json": "^0.6.1",
+    "stream-transcoder": "0.0.5",
     "uniq": "^1.0.1"
   },
   "devDependencies": {

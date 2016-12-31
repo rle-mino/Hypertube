@@ -1,6 +1,6 @@
-import torrent                  from '../torrent/torrent'
+// import torrent                  from '../torrent/torrent'
 import stream                   from '../stream/stream'
 
 export default (app) => {
-	app.get('/api/stream', torrent, stream)
+	app.get('/api/stream', stream)
 }
