@@ -34,11 +34,12 @@ class MovieFile extends EventEmitter {
 		} else {
 			throw new Error('Invalid query')
 		}
+
 		this._fileType = fileType(readChunk.sync(this._path, 0, 4100)).mime
-		console.log('new movie: ', this.name)
-		console.log('format:', this._fileType)
+		console.log(this.name, this._filetype)
 		this.state = 'loaded'
 		this.emit('loaded', this.name)
+
 		this._selectPath = torrents => {
 			let selected = []
 			for (let i = this._validResolution.indexOf(this._preferredResolution);
@@ -61,7 +62,7 @@ class MovieFile extends EventEmitter {
 			if (format === 'video/x-matroska') {
 				return new Transcoder(stream)
 					.videoCodec('h264')
-					.audioCodec('libfaac')
+					.audioCodec('aac')
 					.format('mp4')
 					.stream()
 			} else if (format === 'video/mp4') {
