@@ -7,6 +7,7 @@ import message from './message'
 import log from '../lib/log'
 import Pieces from './Pieces'
 import Queue from './Queue'
+// import utMetadataExt from './extension/ut_metadata'
 
 const MAX_ACCEPTED_SIZE = 10000000
 const MAX_CONNEXIONS_LIMIT = 1
@@ -45,6 +46,7 @@ Downloader.prototype.startDownloading = function () {
 			clearInterval(this.callInterval)
 			this.state = 'saturated'
 		} else if (this.peers.length > 0) {
+			this._connexions += 1
 			const peer = this.peers.pop()
 			this.download(peer, this.torrent, this.pieces, this.torrent && !this.torrent.info)
 		}

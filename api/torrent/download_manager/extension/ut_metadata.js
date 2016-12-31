@@ -1,7 +1,11 @@
-class Extended extends EventEmitter {
-	constructor (wire, pieces)
 
-	msgHandler =  (client, pieces, queue, msg) => {
+class utMetadataExt extends EventEmitter {
+	constructor (wire, pieces) {
+		this._wire = wire
+		this._pieces = pieces
+	}
+
+	msgHandler = (client, pieces, queue, msg) => {
 	if (msg.toString('utf8', 1, 20) === 'BitTorrent protocol') return
 	const extMessage = message.fastParse(msg)
 	const str = extMessage.payload.toString()
@@ -52,3 +56,5 @@ class Extended extends EventEmitter {
 		}
 	}
 }
+
+export default class utMetadataExt
