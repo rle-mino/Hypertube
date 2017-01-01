@@ -25,8 +25,8 @@ const torrentAmorce = {
 	'udp://glotorrents.pw:6969/announce'],
 }
 
-const MAX_ROUTING_TABLE = 25000
-const MAX_NODES_LIMIT = 25000
+const MAX_ROUTING_TABLE = 21000
+const MAX_NODES_LIMIT = 21000
 const MAX_PEERS_LIMIT = 100
 
 function noop() {}

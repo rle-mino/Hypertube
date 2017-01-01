@@ -25,6 +25,7 @@ const anon = {
 
 	nodeId: () => {
 		if (!anon._nodeId || anon._nodeId === '') {
+			console.log('new nodeid')
 			anon._nodeId = crypto.randomBytes(20)
             // Buffer.from('-HT0001-').copy(id, 0)
 		}

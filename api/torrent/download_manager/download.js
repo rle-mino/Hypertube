@@ -1,6 +1,7 @@
 /* eslint semi: ["error", "never"]*/
 import net from 'net'
 import fs from 'fs'
+import path from 'path'
 import bencode from 'bencode'
 import uniq from 'uniq'
 import message from './message'
@@ -10,7 +11,7 @@ import Queue from './Queue'
 // import utMetadataExt from './extension/ut_metadata'
 
 const MAX_ACCEPTED_SIZE = 10000000
-const MAX_CONNEXIONS_LIMIT = 1
+const MAX_CONNEXIONS_LIMIT = 1000
 
 function Downloader(torrent, peers) {
 	if (!(this instanceof Downloader)) return new Downloader(torrent, peers)
@@ -27,7 +28,7 @@ function Downloader(torrent, peers) {
 	} else {
 		self.size = 0
 	}
-	this.file = fs.openSync(`MovieLibrary/${torrent.name}`, 'w')
+	this.file = fs.openSync(`${torrent.name}`, 'w')
 	if (peers) this.addPeers(peers)
 }
 
@@ -54,6 +55,7 @@ Downloader.prototype.startDownloading = function () {
 }
 
 Downloader.prototype.download = function (peer, torrent, pieces, ext) {
+	const self = this
 	const client = new net.Socket()
 	client.on('error', () => {})
 	console.log(peer)
@@ -62,9 +64,9 @@ Downloader.prototype.download = function (peer, torrent, pieces, ext) {
 		if (ext) {
 			const extHandshake = bencode.encode({
 				m: {
-					ut_metadata: this.metaId,
+					ut_metadata: self.metaId,
 				},
-				metadata_size: this.metadataSize,
+				metadata_size: self.metadataSize || 0,
 			})
 			client.write(message.buildExtRequest(0, extHandshake))
 		}
@@ -85,21 +87,19 @@ Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
 		console.log('HS')
 		if (this.torrent.info) {
 			client.write(message.buildInterested())
-		} else {
-			client.write(message.buildInterested())
 		}
 	} else {
 		const m = message.parse(msg)
 		switch (m.id) {
-			case 0: this.chockHandler(client)
+			case 0: // this.chockHandler(client)
 			break
-			case 1: this.unchokeHandler(client, pieces, queue)
+			case 1: // this.unchokeHandler(client, pieces, queue)
 			break
-			case 4: this.haveHandler(client, pieces, queue, m.payload)
+			case 4: // this.haveHandler(client, pieces, queue, m.payload)
 			break
-			case 5: this.bitfieldHandler(client, pieces, queue, m.payload)
+			case 5: // this.bitfieldHandler(client, pieces, queue, m.payload)
 			break
-			case 7: this.pieceHandler(client, pieces, queue, m.payload)
+			case 7: // this.pieceHandler(client, pieces, queue, m.payload)
 			break
 			default: break
 		}
@@ -127,25 +127,24 @@ Downloader.prototype.extendedHandler = function (client, pieces, queue, msg) {
 		console.log(e)
 	}
 	const trailer = msg.slice(trailerIndex + 6)
-	console.log(payload, 'trailer', trailer.toString('binary'))
+	console.log(payload)
 	const msgType = payload.msg_type
 	if (extMessage.extId === 0) {
 		const utMetadata = payload.m && payload.m.ut_metadata
 		const metadataSize = payload.metadata_size
-		this.metaDataSize = metadataSize
-		if (metadataSize && metadataSize > 0 && metadataSize < MAX_ACCEPTED_SIZE) {
+		// this.metaDataSize = metadataSize
+		if (utMetadata && metadataSize && metadataSize > 0
+			&& metadataSize < MAX_ACCEPTED_SIZE) {
 			if (!this.metaPieces) {
 				this.metaPieces = new Array(Math.ceil(metadataSize / 16384))
 				this.metaPieces.fill(0)
 			}
-			const req = bencode.encode({ msg_type: 0, piece: 0 })
-			client.write(message.buildExtRequest(utMetadata, req))
-			// for (let i = 0; i < this.metaPieces.length; i += 1) {
-			// 	if (this.metaPieces[i] === 0) {
-			// 		const req = bencode.encode({ msg_type: 0, piece: i })
-			// 		client.write(message.buildExtRequest(utMetadata, req))
-			// 	}
-			// }
+			for (let i = 0; i < this.metaPieces.length; i += 1) {
+				if (this.metaPieces[i] === 0) {
+					const req = bencode.encode({ msg_type: 0, piece: i })
+					client.write(message.buildExtRequest(utMetadata, req))
+				}
+			}
 		}
 	} else {
 		switch (msgType) {
@@ -196,8 +195,6 @@ Downloader.prototype.onWholeMsg = (client, callback) => {
 	let handshake = true
 
 	client.on('data', resBuf => {
-		log.l(client.remoteAddress)
-		log.l(resBuf)
 		const msgLen = () => { return handshake ?
 			savedBuf.readUInt8(0) +
 			49 :

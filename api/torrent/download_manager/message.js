@@ -21,9 +21,10 @@ module.exports.buildHandshake = (torrent, ext) => {
 }
 
 module.exports.buildExtRequest = (id, msg) => {
-	const size = msg.length + 1
+	const size = Buffer.byteLength(msg) + 1
+	console.log('extded msg len:', size)
 	const buf = Buffer.alloc(size + 5)
-	buf.writeUInt32BE(size, 0)
+	buf.writeUInt32BE(size + 1, 0)
 	buf.writeUInt8(20, 4)
 	buf.writeUInt8(id, 5)
 	msg.copy(buf, 6)
@@ -40,6 +41,7 @@ module.exports.buildChoke = () => {
 }
 
 module.exports.buildUnchoke = () => {
+	console.log('UNCHOKE MESSAGE SENT')
 	const buf = Buffer.alloc(5)
 	buf.writeUInt32BE(1, 0)
 	buf.writeUInt8(1, 4)
