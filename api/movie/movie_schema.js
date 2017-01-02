@@ -9,7 +9,7 @@ const movieSchema = new Schema({
   poster: String,
   genres: [String],
   plot: String,
-  code: String,
+  code: { type: String, unique: true },
   rating: Number,
   torrents: Array,
   episodes: Array,
