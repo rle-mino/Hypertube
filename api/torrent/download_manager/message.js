@@ -1,8 +1,8 @@
 /* eslint semi: ["error", "never"]*/
 import bencode from 'bencode'
 import { Uint64BE } from 'int64-buffer'
+import crypto from 'crypto'
 import anon from '../lib/anonymizer'
-
 
 module.exports.buildHandshake = (torrent, ext) => {
 	const buf = Buffer.alloc(68)
@@ -21,10 +21,9 @@ module.exports.buildHandshake = (torrent, ext) => {
 }
 
 module.exports.buildExtRequest = (id, msg) => {
-	const size = Buffer.byteLength(msg) + 1
-	console.log('extded msg len:', size)
-	const buf = Buffer.alloc(size + 5)
-	buf.writeUInt32BE(size + 1, 0)
+	const size = Buffer.byteLength(msg) + 2
+	const buf = Buffer.alloc(size + 4)
+	buf.writeUInt32BE(size, 0)
 	buf.writeUInt8(20, 4)
 	buf.writeUInt8(id, 5)
 	msg.copy(buf, 6)
@@ -41,7 +40,6 @@ module.exports.buildChoke = () => {
 }
 
 module.exports.buildUnchoke = () => {
-	console.log('UNCHOKE MESSAGE SENT')
 	const buf = Buffer.alloc(5)
 	buf.writeUInt32BE(1, 0)
 	buf.writeUInt8(1, 4)
@@ -99,11 +97,7 @@ module.exports.buildPiece = payload => {
 }
 
 module.exports.verify = (torrent, info) => {
-	return true
-}
-
-module.exports.torrentInfoParser = info => {
-	console.log(info)
+	return (crypto.createHash('sha1').update(info).digest('hex') === torrent.infoHash)
 }
 
 module.exports.buildCancel = payload => {
@@ -145,7 +139,7 @@ module.exports.parse = msg => {
 
 module.exports.fastParse = (msg) => {
 	const ret = {}
-	if (msg.length > 4) {
+	if (msg.length > 6) {
 		ret.size = msg.readUInt32BE(0)
 		ret.Id = msg.readUInt8(4)
 		ret.extId = msg.readUInt8(5)

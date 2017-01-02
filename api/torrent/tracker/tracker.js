@@ -33,10 +33,9 @@ function tryoutCall(tryout, client, message, announce) {
 
 	log.y(`Connection to tracker ${__URL} tryout (${4 - tryout}/3)`)
 	udpSend(client, message, __URL)
-	tryout -= 1
 	__TO = setTimeout(tryoutCall,
-		(20000 ** (__tryout - 2)) - tryout,
-		tryout,
+		5000,
+		tryout - 1,
 		client,
 		message,
 		announce,

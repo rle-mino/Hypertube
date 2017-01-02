@@ -40,6 +40,7 @@ const torrentAmorce = {
 }
 
 let KRPC = null
+
 setTimeout(() => {
 	tracker.getPeers(torrentAmorce, peers => {
 		// console.log('Running in safe mode')
