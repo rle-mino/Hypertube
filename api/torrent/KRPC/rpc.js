@@ -246,7 +246,6 @@ RPC.prototype.find_node = function (contact, id) {
 }
 
 RPC.prototype.buildAddressBook = function (infoHashBuffer, inter) {
-	log.i('getting AddressBook')
 	this.torrents.push(infoHashBuffer)
 	this.peers[this.torrents.indexOf(infoHashBuffer)] = []
 	const contacts = this.getContactList(infoHashBuffer)
@@ -254,7 +253,6 @@ RPC.prototype.buildAddressBook = function (infoHashBuffer, inter) {
 		this.get_peers(e, infoHashBuffer, null)
 	})
 	if (!inter) {
-		log.i('getting AddressBook...')
 		const interVal = setInterval(() => this.buildAddressBook(infoHashBuffer, interVal), 5000)
 		this.on('get_peers', () => clearInterval(interVal))
 	}

@@ -37,7 +37,9 @@ module.exports.infoHash = torrent => {
 }
 
 module.exports.pieceLen = (torrent, pieceIndex) => {
-	const size = torrent.xl || torrent.size || 0
+	const size = torrent.info.files ?
+    torrent.info.files.map(file => file.length).reduce((a, b) => a + b) :
+    torrent.info.length
 	const pieceLength = torrent.info['piece length'] || 0
 	const lastPieceLength = size % pieceLength
 	const lastPieceIndex = Math.floor(size / pieceLength)

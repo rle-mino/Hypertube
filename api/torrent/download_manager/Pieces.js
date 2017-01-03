@@ -10,13 +10,13 @@ module.exports = class {
 			const arr = new Array(nPieces).fill(null)
 			return arr.map((_, i) => new Array(tp.blocksPerPiece(torrent, i)).fill(false))
 		}
+		this.torrent = torrent
 		this.received = buildPiecesArray()
 		this.requested = buildPiecesArray()
-		this._bitfield = new Bitfield(torrent.info.pieces.length / 20)
 	}
 
 	piecesBitfield() {
-		return this._bitfield
+		return this._bitfield && this._bitfield.buffer
 	}
 
 	addRequested(pieceBlock) {
@@ -25,6 +25,9 @@ module.exports = class {
 	}
 
 	addReceived(pieceBlock) {
+		if (!this._bitfield) {
+			this._bitfield = new Bitfield(this.torrent.info.pieces.length / 20)
+		}
 		this._bitfield.set(pieceBlock.index)
 		const blockIndex = pieceBlock.begin / tp.BLOCK_LEN
 		this.received[pieceBlock.index][blockIndex] = true

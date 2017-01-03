@@ -27,8 +27,8 @@ import Server from './download_manager/Server'
 
 const torrentAmorce = {
 	size: 1825361101,
-	infoHash: 'BKANZTHQPVKM65E66YCT3BNZUH7PL2FN',
-	infoHashBuffer: Buffer.from('BKANZTHQPVKM65E66YCT3BNZUH7PL2FN', 'hex'),
+	infoHash: '308D78F127E0F0ED2A38E3A87742C10FDBBA3648',
+	infoHashBuffer: Buffer.from('308D78F127E0F0ED2A38E3A87742C10FDBBA3648', 'hex'),
 	announce: [
 	'udp://p4p.arenabg.ch:1337',
 	'udp://tracker.leechers-paradise.org:6969',
@@ -65,7 +65,7 @@ const authorizeFileTransfer = (movie) => {
 		status: 'success',
 		message: 'torrent file should be downloaded',
 		data: {
-    "title" : "Life",
+    "title" : "2.Broke.Girls.S06E12.HDTV.x264-LOL",
     "year" : 2015,
     "runtime" : 111,
     "poster" : "https://images-na.ssl-images-amazon.com/images/M/MV5BMTA3Mzc5Nzk0ODReQTJeQWpwZ15BbWU4MDA2ODQxMTcx._V1_SX300.jpg",
@@ -88,7 +88,7 @@ const authorizeFileTransfer = (movie) => {
             "url" : "https://yts.ag/torrent/download/FCD0E4E2455203C7AD100A9BFCC9D4A52028ADD8"
         },
         {
-            "magnet" : "magnet:?xt=urn:btih:EC341BBC6F228AD669C9B5397DE7904E496A5EB9&dn=Life&xl=1825361101&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce",
+            "magnet" : "magnet:?xt=urn:btih:308D78F127E0F0ED2A38E3A87742C10FDBBA3648&dn=2.Broke.Girls.S06E12.HDTV.x264-LOL&xl=1825361101&tr=udp://tracker.internetwarriors.net:1337&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80&tr=udp://torrent.gresille.org:80/announce",
             "date_uploaded_unix" : 1452809070,
             "date_uploaded" : "2016-01-14 17:04:30",
             "size_bytes" : 1825361101,
@@ -96,7 +96,7 @@ const authorizeFileTransfer = (movie) => {
             "peers" : 1,
             "seeds" : 14,
             "quality" : "1080p",
-            "hash" : "EC341BBC6F228AD669C9B5397DE7904E496A5EB9",
+            "hash" : "308D78F127E0F0ED2A38E3A87742C10FDBBA3648",
             "url" : "https://yts.ag/torrent/download/EC341BBC6F228AD669C9B5397DE7904E496A5EB9"
         }
     ],

@@ -13,10 +13,16 @@ import Queue from './Queue'
 
 const MAX_ACCEPTED_SIZE = 10000000
 const MAX_CONNEXIONS_LIMIT = 2000
+const DEBUG = false
 
 function Downloader(torrent, peers) {
 	if (!(this instanceof Downloader)) return new Downloader(torrent, peers)
 	const self = this
+	console.log()
+	console.log('#############################################################')
+	console.log('#####    PLEASE DONT UPLOAD DOWNLOADED MOVIES TO GIT    #####')
+	console.log('#############################################################')
+	console.log()
 	this.metaId = 2
 	this.torrent = torrent
 	this.metaDataSize = 0
@@ -42,18 +48,29 @@ Downloader.prototype.addPeers = function (peers) {
 	}
 }
 
+Downloader.prototype.showTorrent = function (pieces) {
+	let ret = ''
+	pieces.received.forEach(p => {
+		if (p.every(e => e)) {
+			ret = ret + '|'
+		} else {
+			ret = ret + '.'
+		}
+	})
+	log.i(ret)
+}
+
 Downloader.prototype.startDownloading = function () {
 	this.state = 'downloading'
 	this.callInterval = setInterval(() => {
 		if (this._connexions > MAX_CONNEXIONS_LIMIT) {
-			clearInterval(this.callInterval)
 			this.state = 'saturated'
-			console.log('Peers number limit reeched in current swarm')
 		} else if (this.peers.length > 0) {
 			this._connexions += 1
 			const peer = this.peers.pop()
 			this.download(peer, this.torrent, this.pieces, this.torrent && !this.torrent.info)
 		}
+		if (this.pieces) this.showTorrent(this.pieces)
 	}, 1000)
 }
 
@@ -73,8 +90,6 @@ Downloader.prototype.download = function (peer, torrent, pieces, ext) {
 				p: client.localPort,
 			})
 			client.write(message.buildExtRequest(0, extHandshake))
-		} else {
-			this.sendBitfield(client, this.pieces)
 		}
 		this.keepAlive(client)
 	})
@@ -93,6 +108,7 @@ Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
 		this.extendedHandler(client, pieces, queue, msg)
 	} else if (this.isHandshake(msg)) {
 		if (this.torrent.info) {
+			this.sendBitfield(client, pieces)
 			client.write(message.buildInterested())
 		}
 	} else if (this.torrent.info) {
@@ -101,6 +117,8 @@ Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
 			case 0: this.chokeHandler(client)
 			break
 			case 1: this.unchokeHandler(client, pieces, queue)
+			break
+			case 2: client.write(message.buildUnchoke())
 			break
 			case 4: this.haveHandler(client, pieces, queue, m.payload)
 			break
@@ -150,7 +168,7 @@ Downloader.prototype.extendedHandler = function (client, pieces, queue, msg) {
 }
 
 Downloader.prototype.handlePieceRequest = function(client, msg) {
-	console.log(client.remoteAddress, 'Piece request')
+	if (DEBUG) console.log(client.remoteAddress, 'Piece request')
 	const { index, begin, length }	= msg
 	const pLen						= index > 0
 		? (index - 1) * this.torrent.info['piece length']
@@ -163,11 +181,13 @@ Downloader.prototype.handlePieceRequest = function(client, msg) {
 }
 
 Downloader.prototype.sendBitfield = (client, pieces) => {
-	client.write(message.buildBitfield(pieces.piecesBitfield()))
+	const bitfield = pieces.piecesBitfield()
+	if (bitfield) client.write(message.buildBitfield(bitfield))
 }
 
-Downloader.prototype.keepAlive = vlient => {
-	setInterval(message.keepAlive, 119999, client)
+Downloader.prototype.keepAlive = client => {
+	const sendKA = () => client.write(message.buildKeepAlive())
+	setInterval(sendKA, 119999)
 }
 
 Downloader.prototype.doDownload = function () {
@@ -233,7 +253,7 @@ Downloader.prototype.handleExtPiece = function (payload, trailer) {
 			const buf = Buffer.concat(this.metaPieces)
 			info = bencode.decode(buf)
 			if (message.verify(this.torrent, bencode.encode(info))) {
-				console.log('metadata fetched, downloading...')
+				if (DEBUG) console.log('metadata fetched, downloading...')
 				this.torrent.info = info
 				this.size = info.pieces.length / 20
 				this.pieces = new Pieces(this.torrent)
@@ -247,7 +267,7 @@ Downloader.prototype.handleExtPiece = function (payload, trailer) {
 	}
 }
 Downloader.prototype.handleExtQuery = function (client, payload) {
-	console.log('unhandled metadata request')
+	if (DEBUG) console.log('unhandled metadata request')
 	// this should send piece dict concated with the requested piece
 	// const dict = message.fastParse(payload)
 	// const req = {msg_type: 1, piece: dict.piece}
@@ -273,42 +293,53 @@ Downloader.prototype.requestPiece = function (client, pieces, queue) {
 			pieces.addRequested(pieceBlock)
 			break
 		}
+	} this.requestAllMissing(client, pieces, queue)
+}
+
+Downloader.prototype.requestAllMissing = function (client, pieces, queue) {
+	pieces.received.forEach((p, i) => {
+		if (!p.every(b => b)) queue.queue(i)
+	})
+	while (queue.length()) {
+		const pieceBlock = queue.deque()
+		client.write(message.buildRequest(pieceBlock))
 	}
 }
 
 Downloader.prototype.chokeHandler = function (client) {
-	console.log(client.remoteAddress, 'Choked')
+	if (DEBUG) console.log(client.remoteAddress, 'Choked')
 	client.end()
 }
 
 Downloader.prototype.unchokeHandler = function (client, pieces, queue) {
-	console.log(client.remoteAddress, 'Unchoked')
+	if (DEBUG) console.log(client.remoteAddress, 'Unchoked')
 	queue.choked = false
 	this.requestPiece(client, pieces, queue)
 }
 
 Downloader.prototype.haveHandler = function (client, pieces, queue, payload) {
-	console.log(client.remoteAddress, 'Have')
+	if (DEBUG) console.log(client.remoteAddress, 'Have')
 	const pieceIndex = payload.readUInt32BE(0)
 	const queueEmpty = queue.length === 0
 	queue.queue(pieceIndex)
 	if (queueEmpty) this.requestPiece(client, pieces, queue)
 }
 Downloader.prototype.bitfieldHandler = function (client, pieces, queue, payload) {
-	console.log(client.remoteAddress, 'BF')
+	if (DEBUG) console.log(client.remoteAddress, 'BF')
 	const queueEmpty = queue.length === 0
-	this.fileLength = payload.length * 8
-	this.torrent.fileLength = this.fileLength
-	payload.forEach((byte, i) => {
-		for (let j = 0; j < 8; j += 1) {
+	const testByte = (byte, i, j) => {
+		if (byte) {
+			testByte(Math.floor(byte / 2), i, j + 1)
 			if (byte % 2) queue.queue(((i * 8) + 7) - j)
-				byte = Math.floor(byte / 2)
 		}
+	}
+	payload.forEach((byte, i) => {
+		testByte(byte, i, 0)
 		if (queueEmpty) this.requestPiece(client, pieces, queue)
 	})
 }
 Downloader.prototype.pieceHandler = function (client, pieces, queue, pieceResp) {
-	console.log(client.remoteAddress, 'Piece')
+	if (DEBUG) console.log(client.remoteAddress, 'Piece')
 	pieces.addReceived(pieceResp)
 	const offset = (pieceResp.index * this.torrent.info['piece length']) + pieceResp.begin
 	fs.write(this.file, pieceResp.block, 0, pieceResp.block.length, offset, () => {})
