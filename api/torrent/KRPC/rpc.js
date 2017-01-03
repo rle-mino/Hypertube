@@ -27,7 +27,7 @@ const torrentAmorce = {
 
 const MAX_ROUTING_TABLE = 21000
 const MAX_NODES_LIMIT = 21000
-const MAX_PEERS_LIMIT = 100
+const MAX_PEERS_LIMIT = 5000
 
 function noop() {}
 

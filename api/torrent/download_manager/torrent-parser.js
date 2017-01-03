@@ -27,8 +27,10 @@ module.exports.size = torrent => {
 }
 
 module.exports.infoHash = torrent => {
-	if (torrent.infoHash) {
+	if (torrent.infoHashBuffer) {
 		return torrent.infoHashBuffer
+	} else if (torrent.infoHash) {
+		return Buffer.from(torrent.infoHash)
 	}
     const info = bencode.encode(torrent.info)
     return Buffer.from(crypto.createHash('sha1').update(info).digest())
@@ -44,15 +46,15 @@ module.exports.pieceLen = (torrent, pieceIndex) => {
 }
 
 module.exports.blocksPerPiece = (torrent, pieceIndex) => {
-	const pieceLength = this.pieceLen(torrent, pieceIndex)
-	return Math.ceil(pieceLength / this.BLOCK_LEN)
+	const pieceLength = module.exports.pieceLen(torrent, pieceIndex)
+	return Math.ceil(pieceLength / module.exports.BLOCK_LEN)
 }
 
 module.exports.blockLen = (torrent, pieceIndex, blockIndex) => {
-	const pieceLength = this.pieceLen(torrent, pieceIndex)
+	const pieceLength = module.exports.pieceLen(torrent, pieceIndex)
 
-	const lastPieceLength = pieceLength % this.BLOCK_LEN
-	const lastPieceIndex = Math.floor(pieceLength / this.BLOCK_LEN)
+	const lastPieceLength = pieceLength % module.exports.BLOCK_LEN
+	const lastPieceIndex = Math.floor(pieceLength / module.exports.BLOCK_LEN)
 
-	return blockIndex === lastPieceIndex ? lastPieceLength : this.BLOCK_LEN
+	return blockIndex === lastPieceIndex ? lastPieceLength : module.exports.BLOCK_LEN
 }

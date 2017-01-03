@@ -20,6 +20,11 @@ module.exports.buildHandshake = (torrent, ext) => {
 	return buf
 }
 
+module.exports.keepAlive = client => {
+	const buf = Buffer.alloc(4)
+	client.write(buf)
+}
+
 module.exports.buildExtRequest = (id, msg) => {
 	const size = Buffer.byteLength(msg) + 2
 	const buf = Buffer.alloc(size + 4)
@@ -73,13 +78,14 @@ module.exports.buildBitfield = bitfield => {
 	buf.writeUInt32BE(bitfield.length + 1, 0)
 	buf.writeUInt8(5, 4)
 	bitfield.copy(buf, 5)
+	// buf.write(bitfield, 'binary')
 	return buf
 }
 
 module.exports.buildRequest = payload => {
 	const buf = Buffer.alloc(17)
 	buf.writeUInt32BE(13, 0)
-	buf.writeUInt(6, 4)
+	buf.writeUInt8(6, 4)
 	buf.writeUInt32BE(payload.index, 5)
 	buf.writeUInt32BE(payload.begin, 9)
 	buf.writeUInt32BE(payload.length, 13)
@@ -89,7 +95,7 @@ module.exports.buildRequest = payload => {
 module.exports.buildPiece = payload => {
 	const buf = Buffer.alloc(payload.block.length + 13)
 	buf.writeUInt32BE(payload.block.length + 9, 0)
-	buf.writeUInt(7, 4)
+	buf.writeUInt8(7, 4)
 	buf.writeUInt32BE(payload.index, 5)
 	buf.writeUInt32BE(payload.begin, 9)
 	payload.block.copy(buf, 13)
