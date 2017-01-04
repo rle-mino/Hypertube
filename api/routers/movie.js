@@ -7,7 +7,7 @@ export default (app) => {
 	app.get('/api/movie', (req, res) => {
 		res.send('MOVIE ROUTER: OK');
 	});
-	// app.post('/api/movie/moreinfo', functions.getFilmInfo);
+
 	app.get('/api/movie/fast_search', search.fastSearch);
 	app.get('/api/movie/top_search', search.topSearch);
 	app.get('/api/movie/search', search.search);
@@ -20,6 +20,7 @@ export default (app) => {
 	app.put('/api/movie/addpath/:id', scrap.addPath); // ?path=path&s=1&e=2&q=1
 
 	// scrap.yts(); //	UNCOMMENT THIS WHEN PROJECT IS FINISHED -- commented for compliance issues
+	// scrap.eztv(); //	UNCOMMENT THIS WHEN PROJECT IS  -- commented for compliance issues
 
 	const CronJob = cron.CronJob;
 	const job = new CronJob('0 0 * * * *', () => {
