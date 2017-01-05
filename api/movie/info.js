@@ -42,20 +42,19 @@ const getEpisode = (episodes, season, episode) =>
         ep.season === parseInt(season, 10) && ep.episode === parseInt(episode, 10),
 );
 
-const returnData = (req) => {
+const returnData = async (req) => {
     const id = req.params.id;
     const season = req.query.s;
     const episode = req.query.e;
-    Movie.findOne({ _id: id }, async (err, found) => {
-        if (err || !found) return ({ status: 'error', details: 'Movie not found' });
-        const type = found.episodes[0] ? 'serie' : 'movie';
-        if (type === 'serie') {
-            found = found.toObject();
-            found.episode = getEpisode(found.episodes, season, episode);
-            delete found.episodes;
-        }
-        return ({ result: found, status: 'success' });
-    });
+    let found = await Movie.findOne({ _id: id });
+    if (!found) return ({ status: 'error', details: 'Movie not found' });
+    const type = found.episodes[0] ? 'serie' : 'movie';
+    if (type === 'serie') {
+        found = found.toObject();
+        found.episode = getEpisode(found.episodes, season, episode);
+        delete found.episodes;
+    }
+    return ({ result: found, status: 'success' });
 };
 
 const getData = (req, res) => {
