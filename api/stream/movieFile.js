@@ -24,13 +24,13 @@ class MovieFile extends EventEmitter {
 		this._preferredResolution = '8k'
 		this._req = req
 		this.state = 'loading'
-		if (req.query.path && req.query.name) {
+		if (req.query.path) {
 			this._path = req.query.path
-			this.name = req.query.name
+			this.name = req.query.path
 		} else if (req.param.id) {
 			this._movie = info.returnData(req).result
-			this.name = this._movie.title
-			this._path = this._selectPath(this._movie)
+			this.name = this._movie.title || 'Hypertube'
+			this._path = this._movie.path
 		} else {
 			throw new Error('Invalid query')
 		}

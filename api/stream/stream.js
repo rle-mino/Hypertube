@@ -6,13 +6,7 @@
 import MovieFile from './movieFile'
 
 const streamRoute = (req, res) => {
-	res.writeHead(200, { 'Content-Type': 'video/mp4' })
-    const stream = new MovieFile({
-		query: {
-			path: './MovieLibrary/sample.mp4',
-			name: 'test',
-		},
-	}).stream()
+    const stream = new MovieFile(req).stream()
 	stream.on('data', data => {
 		res.write(data)
 	})

@@ -1,9 +1,9 @@
 /* eslint semi: ["error", "never"]*/
 import net from 'net'
-import fs from 'fs'
-import path from 'path'
 import bencode from 'bencode'
 import uniq from 'uniq'
+import { inherits } from 'util'
+import EventEmitter from 'events'
 import tp from './torrent-parser'
 import message from './message'
 import log from '../lib/log'
@@ -15,16 +15,12 @@ const MAX_ACCEPTED_SIZE = 10000000
 const MAX_CONNEXIONS_LIMIT = 2000
 const DEBUG = false
 
-function Downloader(torrent, peers) {
-	if (!(this instanceof Downloader)) return new Downloader(torrent, peers)
+function Downloader(torrent, peers, file) {
+	if (!(this instanceof Downloader)) return new Downloader(torrent, peers, file)
 	const self = this
-	console.log()
-	console.log('#############################################################')
-	console.log('#####    PLEASE DONT UPLOAD DOWNLOADED MOVIES TO GIT    #####')
-	console.log('#############################################################')
-	console.log()
-	this.metaId = 2
 	this.torrent = torrent
+	this.file = file
+	this.metaId = 2
 	this.metaDataSize = 0
 	this._connexions = 0
 	this._handshakes = []
@@ -34,11 +30,14 @@ function Downloader(torrent, peers) {
 		self.size = torrent.info.pieces.length / 20
 		self.pieces = new Pieces(torrent)
 	} else {
+		this.state = 'fetching metadata'
+		log.i('fetching metadata')
 		self.size = 0
 	}
-	this.file = fs.openSync(`${torrent.name}`, 'w')
 	if (peers) this.addPeers(peers)
 }
+
+// inherits(Downloader, EventEmitter)
 
 Downloader.prototype.addPeers = function (peers) {
 	this.peers = [...peers, ...this.peers]
@@ -49,15 +48,16 @@ Downloader.prototype.addPeers = function (peers) {
 }
 
 Downloader.prototype.showTorrent = function (pieces) {
-	let ret = ''
+	let rec = 0
+	let missing = 0
 	pieces.received.forEach(p => {
-		if (p.every(e => e)) {
-			ret = ret + '|'
-		} else {
-			ret = ret + '.'
-		}
+		p.forEach(b => {
+			if (b) rec += 1
+			else missing += 1
+		})
 	})
-	log.i(ret)
+	if (missing === 0) log.i('download complete')
+	else log.i(`downloaded: ${Math.floor((rec / (rec + missing)) * 10000) / 100}%`)
 }
 
 Downloader.prototype.startDownloading = function () {
@@ -127,6 +127,7 @@ Downloader.prototype.msgHandler = function (msg, client, pieces, queue) {
 			case 7: this.pieceHandler(client, pieces, queue, m.payload)
 			break
 			case 9: this.handlePieceRequest(client, m.payload)
+			break
 			default: break
 		}
 	} else {
@@ -176,11 +177,11 @@ Downloader.prototype.handlePieceRequest = function(client, msg) {
 	const block						= Buffer.alloc(length)
 
 	if (!this.pieces.received[index][Math.floor(begin / tp.BLOCK_LEN)]) return
-	fs.read(this.file, block, 0, length, pLen + begin, () => {})
+	this.file.read(block, length, pLen + begin)
 	client.write(message.buildPiece({ index, begin, block }))
 }
 
-Downloader.prototype.sendBitfield = (client, pieces) => {
+Downloader.prototype.sendBitfield = function (client, pieces) {
 	const bitfield = pieces.piecesBitfield()
 	if (bitfield) client.write(message.buildBitfield(bitfield))
 }
@@ -244,20 +245,31 @@ Downloader.prototype.handleExtHandshake = function (client, pieces, queue, paylo
 		}
 	}
 }
+
+Downloader.prototype.onMetadata = function (info) {
+	if (DEBUG) console.log('info:', info)
+	this.torrent.info = info
+	this.file.setInfo(info)
+	this.size = info.pieces.length / 20
+	this.pieces = new Pieces(this.torrent)
+	this.file.open('tmp')
+	this.doDownload()
+}
+
 Downloader.prototype.handleExtPiece = function (payload, trailer) {
 	const piece = trailer
 	this.metaPieces[payload.piece] = piece
 	if (!this.torrent.info && this.metaPieces.every(e => e !== 0)) {
-		let info = null
+		let info = Buffer.concat(this.metaPieces)
 		try {
-			const buf = Buffer.concat(this.metaPieces)
-			info = bencode.decode(buf)
+			const buf = bencode.decode(info).info
+			if (buf) {
+				info = buf
+			} else {
+				info = bencode.decode(info)
+			}
 			if (message.verify(this.torrent, bencode.encode(info))) {
-				if (DEBUG) console.log('metadata fetched, downloading...')
-				this.torrent.info = info
-				this.size = info.pieces.length / 20
-				this.pieces = new Pieces(this.torrent)
-				this.doDownload()
+				this.onMetadata(info)
 			} else {
 				console.log('hash error')
 			}
@@ -266,6 +278,7 @@ Downloader.prototype.handleExtPiece = function (payload, trailer) {
 		}
 	}
 }
+
 Downloader.prototype.handleExtQuery = function (client, payload) {
 	if (DEBUG) console.log('unhandled metadata request')
 	// this should send piece dict concated with the requested piece
@@ -279,6 +292,7 @@ Downloader.prototype.handleExtQuery = function (client, payload) {
 	// }
 	// client.write(message.buildExtRequest(2, Buffer.concat([message, this.metaPieces[dict.piece]])))
 }
+
 Downloader.prototype.handleExtReject = function (client) {
 	client.end()
 }
@@ -293,7 +307,7 @@ Downloader.prototype.requestPiece = function (client, pieces, queue) {
 			pieces.addRequested(pieceBlock)
 			break
 		}
-	} this.requestAllMissing(client, pieces, queue)
+	} // this.requestAllMissing(client, pieces, queue)
 }
 
 Downloader.prototype.requestAllMissing = function (client, pieces, queue) {
@@ -324,6 +338,7 @@ Downloader.prototype.haveHandler = function (client, pieces, queue, payload) {
 	queue.queue(pieceIndex)
 	if (queueEmpty) this.requestPiece(client, pieces, queue)
 }
+
 Downloader.prototype.bitfieldHandler = function (client, pieces, queue, payload) {
 	if (DEBUG) console.log(client.remoteAddress, 'BF')
 	const queueEmpty = queue.length === 0
@@ -338,16 +353,17 @@ Downloader.prototype.bitfieldHandler = function (client, pieces, queue, payload)
 		if (queueEmpty) this.requestPiece(client, pieces, queue)
 	})
 }
+
 Downloader.prototype.pieceHandler = function (client, pieces, queue, pieceResp) {
 	if (DEBUG) console.log(client.remoteAddress, 'Piece')
 	pieces.addReceived(pieceResp)
 	const offset = (pieceResp.index * this.torrent.info['piece length']) + pieceResp.begin
-	fs.write(this.file, pieceResp.block, 0, pieceResp.block.length, offset, () => {})
+	this.file.write(pieceResp.block, pieceResp.block.length, offset)
 
 	if (pieces.isDone()) {
 		console.log('DONE!')
 		client.end()
-		try { fs.closeSync(this.file) } catch (e) { console.log(e) }
+		this.file.close()
 	} else {
 		this.requestPiece(client, pieces, queue)
 	}
