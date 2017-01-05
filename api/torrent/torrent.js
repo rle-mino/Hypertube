@@ -1,27 +1,28 @@
 /* eslint semi: ["error", "never"]*/
-// torrent.js validates a movie identified in the request and downloads it if
-// its status is not downloaded. If
-// downloaded or when enough downloaded for being played, outputed
-// video+audio+cc files are encrypted into HTML 5
-// compliant video format:
-// <video>: VP8 and Vorbis in WebM
-// <video>: VP9 and Opus in WebM
-// <video>: Streaming WebM via MSE
-// <video>: Theora and Vorbis in Ogg
-// <video>: H.264 and MP3 in MP4
-// <video>: H.264 and AAC in MP4 <============ PREFERABLY
-// <video>: FLAC in MP4
+/* torrent.js validates a movie identified in the request and downloads it if
+*  its status is not downloaded. If
+*  downloaded or when enough downloaded for being played, outputed
+*  video+audio+cc files are encrypted into HTML 5
+*  compliant video format:
+*  <video>: VP8 and Vorbis in WebM
+*  <video>: VP9 and Opus in WebM
+*  <video>: Streaming WebM via MSE
+*  <video>: Theora and Vorbis in Ogg
+*  <video>: H.264 and MP3 in MP4
+*  <video>: H.264 and AAC in MP4 <============ PREFERABLY
+*  <video>: FLAC in MP4
+*/
+import bencode			from 'bencode'
+import https			from 'https'
 
-import bencode from 'bencode'
-import https from 'https'
-import stream from '../stream/stream'
-import TorrentFile from './Torrentfile'
-import magnetURIDecode from './magnet-parser'
-import RPC from './KRPC/rpc'
-import * as tracker from './tracker/tracker'
-import log from './lib/log'
-import Server from './download_manager/Server'
-import { returnData } from '../movie/info'
+import stream			from '../stream/stream'
+import TorrentFile		from './Torrentfile'
+import magnetURIDecode	from './magnet-parser'
+import RPC				from './KRPC/rpc'
+import * as tracker		from './tracker/tracker'
+import log				from './lib/log'
+// import Server			from './download_manager/Server'
+import { returnData }	from '../movie/info'
 
 // inherits(torrent, EventEmitter)
 

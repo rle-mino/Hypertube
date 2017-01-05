@@ -1,18 +1,16 @@
 /* eslint semi: ["error", "never"]*/
-import EventEmitter from 'events'
-import fs from 'fs'
-import Transcoder from 'stream-transcoder'
-import readChunk from 'read-chunk'
-import fileType from 'file-type'
-import * as info from '../movie/info'
+import EventEmitter		from 'events'
+import fs				from 'fs'
+import Transcoder		from 'stream-transcoder'
+import readChunk		from 'read-chunk'
+import fileType			from 'file-type'
 
-// result.torrent[0].path
-
+import * as info		from '../movie/info'
 
 class MovieFile extends EventEmitter {
 	constructor(req) {
 		super()
-		const _validResolution = [
+		this._validResolution = [
 			'8k',
 			'2160p',
 			'4k',
@@ -24,12 +22,14 @@ class MovieFile extends EventEmitter {
 		this._preferredResolution = '8k'
 		this._req = req
 		this.state = 'loading'
+		this.emit('loading')
+
 		if (req.query.path) {
 			this._path = req.query.path
 			this.name = req.query.path
 		} else if (req.param.id) {
 			this._movie = info.returnData(req).result
-			this.name = this._movie.title || 'Hypertube'
+			this.name = this._movie.path
 			this._path = this._movie.path
 		} else {
 			throw new Error('Invalid query')
@@ -37,7 +37,6 @@ class MovieFile extends EventEmitter {
 
 		this._fileType = fileType(readChunk.sync(this._path, 0, 4100))
 		this._fileType = this._fileType.mime
-		console.log(this.name, this._fileType)
 		this.state = 'loaded'
 		this.emit('loaded', this.name)
 
@@ -59,6 +58,7 @@ class MovieFile extends EventEmitter {
 				flags: 'r',
 				start: 0,
 			})
+			this.emit('streaming', this.name)
 			if (this._fileType === 'video/mp4') {
 				console.log('streaming mp4')
 				return stream

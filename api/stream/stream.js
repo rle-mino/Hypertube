@@ -3,7 +3,7 @@
  */
  /* eslint semi: ["error", "never"]*/
 
-import MovieFile from './movieFile'
+import MovieFile	from './movieFile'
 
 const streamRoute = (req, res) => {
     const stream = new MovieFile(req).stream()

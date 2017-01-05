@@ -2,16 +2,18 @@
  * Created by opichou on 11/21/16.
  */
  /* eslint semi: ["error", "never"]*/
-import { EventEmitter } from 'events'
-import inherits from 'inherits'
-import fs from 'fs'
-import path from 'path'
-import Downloader from './download_manager/download'
-import log from './lib/log'
+import { EventEmitter }		from 'events'
+import inherits				from 'inherits'
+import fs					from 'fs'
+import path					from 'path'
+
+import Downloader			from './download_manager/download'
+import log					from './lib/log'
 
 function TorrentFile(torrent, rpc) {
     if (!(this instanceof TorrentFile)) return new TorrentFile(torrent, rpc)
 	if (!rpc) throw new Error('Cannot initialize torrent without routing table')
+
 	const self = this
 	this.info = null
 	this.files = null
@@ -29,6 +31,12 @@ function TorrentFile(torrent, rpc) {
 
 inherits(TorrentFile, EventEmitter)
 
+/*
+* Torrent info are not available right away when using an infoHash alone to
+* start downloading. As it will be provided by the swarm, it will be updated
+* here.
+*/
+
 TorrentFile.prototype.setInfo = function (info) {
 	if (info) {
 		this.info = info
@@ -38,12 +46,21 @@ TorrentFile.prototype.setInfo = function (info) {
 	}
 }
 
+/*
+* In the eventuality the file we download is a folder, we need to identify the
+* movie file from the torrent.info.files array.
+*/
+
 TorrentFile.prototype.findMovie = function (files) {
 	if (!this.files) return
 	files.forEach(f => {
 		console.log(f)
 	})
 }
+
+/*
+* The following functions are exposing a simplified FS library to the downloader
+*/
 
 TorrentFile.prototype.create = () => {
 	if (!this.files) return
@@ -76,6 +93,12 @@ TorrentFile.prototype.play = function () {
 	this._ready = true
 }
 
+/*
+* Upon specifying a torrent (on creating -if using hash- or once torrent file
+* fetched when using .torrent files), the addTorrent function initializes the
+* search for peers within the distributed hash table (DHT)
+*/
+
 TorrentFile.prototype.addTorrent = function (torrent) {
 	const self = this
 	if (this.kademlia.state !== 'ready') {
@@ -92,8 +115,13 @@ TorrentFile.prototype.addTorrent = function (torrent) {
 	this.kademlia.on('get_peers', (p) => self.addPeer(p))
 }
 
+/*
+* Triggered by the DHT, feeds the downloader with peers, expending the swarm up
+* to the limit specified in the node component
+*/
+
 TorrentFile.prototype.addPeer = function (peers) {
-	// this.kademlia.abortAll() // use to force close the udp rcp
+	// this.kademlia.abortAll() // use to force close the UDP RCP
 	const self = this
 	self.feedbacks += 1
 	if (!self.downloader) {
@@ -104,16 +132,6 @@ TorrentFile.prototype.addPeer = function (peers) {
 	} else {
 		this.downloader.addPeers(peers)
 	}
-}
-
-TorrentFile.prototype.init = () => {
-    this.info()
-}
-
-TorrentFile.prototype.info = () => {
-    this.movie.forEach(e => {
-        if (!e) { log.e('|') } else { log.i('|') }
-    })
 }
 
 export default TorrentFile
