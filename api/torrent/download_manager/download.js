@@ -37,7 +37,7 @@ function Downloader(torrent, peers, file) {
 	if (peers) this.addPeers(peers)
 }
 
-// inherits(Downloader, EventEmitter)
+inherits(Downloader, EventEmitter)
 
 Downloader.prototype.addPeers = function (peers) {
 	this.peers = [...peers, ...this.peers]
@@ -58,6 +58,7 @@ Downloader.prototype.showTorrent = function (pieces) {
 	})
 	if (missing === 0) log.i('download complete')
 	else log.i(`downloaded: ${Math.floor((rec / (rec + missing)) * 10000) / 100}%`)
+	this.emit('dlStatus', rec / (rec + missing))
 }
 
 Downloader.prototype.startDownloading = function () {

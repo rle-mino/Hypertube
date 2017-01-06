@@ -13,6 +13,7 @@ let __TO = ''
 let __URL = ''
 
 function tryoutCall(tryout, client, message, announce) {
+	clearTimeout(__TO)
 	if (Array.isArray(announce) && (tryout === 0)) {
 		tryout = __tryout
 		announce.shift()
@@ -31,15 +32,11 @@ function tryoutCall(tryout, client, message, announce) {
 		client.send(message, 0, message.length, url.port, url.hostname, callback)
 	}
 
-	log.y(`Connection to tracker ${__URL} tryout (${4 - tryout}/3)`)
+	log.log(`Connection to tracker ${__URL} tryout (${4 - tryout}/3)`)
 	udpSend(client, message, __URL)
-	__TO = setTimeout(tryoutCall,
-		5000,
-		tryout - 1,
-		client,
-		message,
-		announce,
-	)
+	__TO = setTimeout(() => { tryoutCall(tryout - 1, client, message, announce)
+	},
+		5000)
 }
 
 function respType(res) {
@@ -113,6 +110,7 @@ function parseAnnounceResp(resp) {
 log.i('Starting bitTorrent client')
 
 export const getPeers = function (torrent, callback) {
+	console.log('getPeers')
 	const client = dgram.createSocket('udp4')
 	__URL = torrent.announce[0]
     tryoutCall(__tryout, client, buildConnReq(), torrent.announce)

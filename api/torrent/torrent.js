@@ -41,8 +41,8 @@ const torrentAmorce = {
 }
 
 let KRPC = null
-
 setTimeout(() => {
+	console.log('should happen once')
 	tracker.getPeers(torrentAmorce, peers => {
 		// console.log('Running in safe mode')
 		KRPC = new RPC({ peers, port: 6881 })
@@ -178,7 +178,13 @@ const _preferredResolution = '8k'
 //     }
 // }
 
-const torrent = (req, res, next) => {
+const torrent = async (req, res, next) => {
+	req = {
+		params: {
+			id: '586d7064b1ff932722aa35bb'
+		},
+		query: {},
+	}
 	console.log(req.params.id, req.query.s, req.query.e)
 	// server = new Server({ IP: '127.0.0.1', TCPPort: 6881 })
 	if (!KRPC) {
@@ -187,15 +193,22 @@ const torrent = (req, res, next) => {
 			message: 'Torrent client not loaded yet',
 		})
 	} else {
-		const torrent = selectTorrent(req)
+		let torrent = null
+		try {
+			torrent = await selectTorrent(req)
+		} catch (e) {
+			console.log(e)
+		}
 		if (torrent.status && torrent.status === 'error') {
 			res.send({
 				status: 'error',
-				message: 'Torrent not found in database for selected resolution',
+				message: 'Torrent not found in database for selected'
+				+ ' resolution',
 			})
 			res.end()
 			return
 		}
+		console.log(torrent)
 		res.writeHead(200, { 'Content-Type': 'video/mp4' })
 		if (torrent.path) {
 			req.query.path = torrent.path
@@ -210,9 +223,16 @@ const torrent = (req, res, next) => {
 	}
 }
 
-const selectTorrent = (req) => {
-	const torrents = returnData(req).result
-	console.log('Torrents', torrents)
+const selectTorrent = async (req) => {
+	let ret = null
+	try {
+		ret = await returnData(req)
+		console.log('Torrents', ret.result.torrents)
+	} catch (e) {
+		console.log(e)
+	}
+	if (ret.status === 'error') return { status: 'error' }
+	const torrents = ret.result.torrents
     let selected = []
     for (let i = _validResolution.indexOf(_preferredResolution);
 	(selected.length === 0 && i < _validResolution.length);
@@ -222,6 +242,7 @@ const selectTorrent = (req) => {
     if (selected.length > 0) {
 		const torrent = selected[0]
 		torrent.infoHash = torrent.hash
+		torrent.infoHashBuffer = Buffer.from(torrent.infoHash, 'hex')
 		return torrent
 	}
 	log.e('error')
