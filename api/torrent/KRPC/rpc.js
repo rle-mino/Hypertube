@@ -31,25 +31,27 @@ const MAX_PEERS_LIMIT = 5000
 
 function noop() {}
 
-// RPC (Remote Procedure Call) is a Kademlia Standard based RPC scheme to build
-// a DHT (Distributed Hash Table). This aims at gethering quality peers and
-// complete hash table prior to starting Bittorrent-protocol download (see
-// download).
-//
-// Steps :
-//   - RPC Object is created and initialized with a short collection of peers
-// (here, gethered from a request to a tracker). Upon initialization, peers are
-// queried using a "ping" method
-//   - Ping responses are parsed and active peers are considered as Nodes
-// (trackers offered peers with Kademlia enabled capability ), those are added
-// to the KBuckets system (see Bucket and Contact)
-//   - Nodes are queried for more Nodes, those are added to the KBuckets
-//   - On reaching limit (timeout or density maximum), best located peers
-// (see nodes-distance) are requested for the torrent file.
-//   - Peers are fetched and emitted as event
-//   -TO DO as bonus- - infoHash are announced and seeded as long as decided
-//
-// STUB : see KRPC folder for queries, responses and error marshalling
+/*
+*  RPC (Remote Procedure Call) is a Kademlia Standard based RPC scheme to build
+*  a DHT (Distributed Hash Table). This aims at gethering quality peers and
+*  complete hash table prior to starting Bittorrent-protocol download (see
+*  download).
+*
+*  Steps :
+*    - RPC Object is created and initialized with a short collection of peers
+*  (here, gethered from a request to a tracker). Upon initialization, peers are
+*  queried using a "ping" method
+*    - Ping responses are parsed and active peers are considered as Nodes
+*  (trackers offered peers with Kademlia enabled capability ), those are added
+*  to the KBuckets system (see Bucket and Contact)
+*    - Nodes are queried for more Nodes, those are added to the KBuckets
+*    - On reaching limit (timeout or density maximum), best located peers
+*  (see nodes-distance) are requested for the torrent file.
+*    - Peers are fetched and emitted as event
+*    -TO DO as bonus- - infoHash are announced and seeded as long as decided
+*
+*  STUB : see KRPC folder for queries, responses and error marshalling
+*/
 
 function RPC(opts) {
 	if (!(this instanceof RPC)) return new RPC(opts)
@@ -160,6 +162,8 @@ function RPC(opts) {
 						ids.forEach(p => {
 							self.get_peers(p, response.req.infoHash, null)
 						})
+					} else if (self._peers >= MAX_PEERS_LIMIT) {
+						self.emit('ready', response.req.infoHash)
 					}
 				}
 			}
