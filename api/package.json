@@ -49,6 +49,7 @@
     "nodemailer": "^2.6.4",
     "npm": "^4.0.2",
     "omdb": "^0.7.0",
+    "opensubtitles-api": "^3.4.1",
     "parse-torrent-name": "^0.5.4",
     "passport": "^0.3.2",
     "passport-42": "^1.1.0",
