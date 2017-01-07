@@ -6,6 +6,7 @@ const getMovieSubs = (req, movie) => {
     const OpenSubtitles = new OS('OSTestUserAgentTemp');
     const lang = req.query.lg === 'en' ? 'eng' : 'fre';
     const { lg } = req.query;
+    const subtitlePath = `MovieLibrary/subtitles/${movie.code}.${lg}.srt`;
     OpenSubtitles.search({
         sublanguageid: lang,
         imdbid: movie.code,
@@ -13,11 +14,9 @@ const getMovieSubs = (req, movie) => {
         if (!Object.keys(subtitles).length) {
             console.log(`No subtitles for ${movie.title} found in ${lang}`);
         } else if (req.query.lg === 'fr') {
-            request(subtitles.fr.url, (error, response, body) => {
-                console.log(body.length);
-            });
+            request(subtitles.fr.url).pipe(fs.createWriteStream(subtitlePath));
         } else {
-            request(subtitles.en.url).pipe(fs.createWriteStream('doodle.txt'));
+            request(subtitles.en.url).pipe(fs.createWriteStream(subtitlePath));
         }
     }).catch(err => {
         getMovieSubs(req, movie);
@@ -28,6 +27,7 @@ const getSerieSubs = (req, movie, episode) => {
     const OpenSubtitles = new OS('OSTestUserAgentTemp');
     const lang = req.query.lg === 'en' ? 'eng' : 'fre';
     const { lg } = req.query;
+    const subtitlePath = `MovieLibrary/subtitles/${movie.code}S${episode.season}E${episode.episode}.${lg}.srt`;
     OpenSubtitles.search({
         sublanguageid: lang,
         imdbid: movie.code,
@@ -38,9 +38,9 @@ const getSerieSubs = (req, movie, episode) => {
         if (!Object.keys(subtitles).length) {
             console.log(`No subtitles for ${movie.title} S${episode.season}E${episode.episode} found in ${lang}`);
         } else if (req.query.lg === 'fr') {
-                console.log(subtitles.fr.url);
+            request(subtitles.fr.url).pipe(fs.createWriteStream(subtitlePath));
         } else {
-                console.log(subtitles.en.url);
+            request(subtitles.en.url).pipe(fs.createWriteStream(subtitlePath));
         }
     }).catch(err => {
         getSerieSubs(req, movie, episode);
