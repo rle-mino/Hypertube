@@ -1,12 +1,12 @@
-import React				from 'react'
-import mouseTrap			from 'mousetrap'
+import React						from 'react'
+import mouseTrap				from 'mousetrap'
 import * as pending			from '../../action/pending'
 
-import PlayPause			from './PlayPause'
-import SeekBar				from './SeekBar'
-import FullScreenButton		from './FullScreenButton'
-import Timer				from './Timer'
-import VolumeCTRL			from './VolumeCTRL'
+import PlayPause				from './PlayPause'
+import SeekBar					from './SeekBar'
+import FullScreenButton	from './FullScreenButton'
+import Timer						from './Timer'
+import VolumeCTRL				from './VolumeCTRL'
 
 import './sass/player.sass'
 
@@ -343,7 +343,7 @@ export default class VideoPlayer extends React.Component {
 			volume,
 			visible,
 		} = this.state
-		const { mainColor, src } = this.props
+		const { mainColor, src, trackSrc, srcLang, label } = this.props
 		return (
 			<div className="playerContainer"
 				style={fullscreen ? { width: '100%', height: '100%', background: 'black' } : {}}
@@ -407,10 +407,8 @@ export default class VideoPlayer extends React.Component {
 					onCanPlayThrough={this.canPlayThrough}
 					onVolumeChange={this.volumeChange}
 				>
-					<source
-						src={src}
-						type="video/ogg"
-					/>
+					<source src={src} type="video/ogg" />
+					<track src="http://localhost:8080/public/subtitles/tt0295297.en.srt" kind="subtitle" srcLang={srcLang} label={label} default/>
 				</video>
 			</div>
 		)

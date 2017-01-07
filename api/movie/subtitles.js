@@ -27,7 +27,7 @@ const getSerieSubs = (req, movie, episode) => {
     const OpenSubtitles = new OS('OSTestUserAgentTemp');
     const lang = req.query.lg === 'en' ? 'eng' : 'fre';
     const { lg } = req.query;
-    const subtitlePath = `MovieLibrary/subtitles/${movie.code}S${episode.season}E${episode.episode}.${lg}.srt`;
+    const subtitlePath = `public/subtitles/${movie.code}S${episode.season}E${episode.episode}.${lg}.srt`;
     OpenSubtitles.search({
         sublanguageid: lang,
         imdbid: movie.code,

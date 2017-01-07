@@ -30,7 +30,11 @@ class Movie extends React.Component {
 		selectedEpisode: {
 			season: 0,
 			episode: 0,
-		}
+		},
+		src: null,
+		srcTrack: null,
+		label: null,
+		srcLang: null,
 	}
 
 	/*
@@ -71,8 +75,14 @@ class Movie extends React.Component {
 						season: this.state.selectedEpisode.season,
 					}
 				}
-				const stream = await api.getStream(data.result._id, serieInfo)
-				console.log(stream);
+				api.getStream(data.result._id, serieInfo)
+					.then((stream) => console.log(stream))
+				this.setState({
+					src: 'http://www.supportduweb.com/page/media/videoTag/BigBuckBunny.ogg',
+					srcTrack: '',
+					label: 'English',
+					srcLang: 'en-US',
+				})
 			})
 		} else browserHistory.push('/')
 	}
@@ -197,26 +207,36 @@ class Movie extends React.Component {
 	}
 
 	render() {
-		const { data, selectedEpisode, serie, src } = this.state
+		const { data, selectedEpisode, serie, src, srcTrack, label, srcLang } = this.state
 		const { l, mainColor, dispatch } = this.props
 		if (!data) return (<div className="comp movie"/>)
 		return (
 			<div className="comp movie">
-				<VideoPlayer src={src} mainColor={mainColor} l={l} dispatch={dispatch}/>
+				<VideoPlayer
+					mainColor={mainColor}
+					l={l}
+					src={src}
+					dispatch={dispatch}
+					srcTrack={srcTrack}
+					label={label}
+					srcLang={srcLang}
+				/>
 				<div className="filmData">
 					<div
 						className="poster"
 						style={{ backgroundImage: `url('${data.poster}'), url('${noImage}')` }}
 					/>
 					<div className="afterPoster">
-						{serie && <EpisodeSelector
-							selectedEpisode={selectedEpisode}
-							episodesList={data.seasons}
-							onEpisodeSelect={this.updateSelected}
-							onClickNext={() => this.eachEp(this.next)}
-							onClickPrev={() => this.eachEp(this.prev)}
-							l={l}
-						/>}
+						{serie &&
+							<EpisodeSelector
+								selectedEpisode={selectedEpisode}
+								episodesList={data.seasons}
+								onEpisodeSelect={this.updateSelected}
+								onClickNext={() => this.eachEp(this.next)}
+								onClickPrev={() => this.eachEp(this.prev)}
+								l={l}
+							/>
+						}
 						<h1>{data.title}</h1>
 						<div className="rate">
 							<i className="material-icons">stars</i>
