@@ -3,18 +3,31 @@ import React				from 'react'
 const play = "M11,10 L17,10 17,26 11,26 M20,10 L26,10 26,26 20,26"
 const pause = "M11,10 L18,13.74 18,22.28 11,26 M18,13.74 L26,18 26,18 18,22.28"
 
+/* FROM http://stackoverflow.com/a/9851769 */
+const isChrome = !!window.chrome && !!window.chrome.webstore;
+
 export default class PlayPause extends React.Component {
-	componentWillReceiveProps = (newProps) => {
+  state = {
+    path: play,
+  }
+
+  _playPauseAn = false
+
+  componentWillReceiveProps = (newProps) => {
 		const { _playPauseAn } = this
-		if (newProps.playing !== this.props.playing) {
-			if (_playPauseAn) _playPauseAn.beginElement()
+		if (newProps.playing !== this.props.playing && _playPauseAn) {
+      if (!isChrome) this.setState({ path: this.props.playing ? pause : play })
+      else _playPauseAn.beginElement()
 		}
 	}
 
-	_playPauseAn = false
+  componentDidMount() {
+    this.setState({ path: this.props.playing ? pause : play })
+  }
 
 	render() {
 		const { onClick, playing, mainColor } = this.props
+    const { path } = this.state
 		return (
 			<button
 				className="ytp-play-button ytp-button"
@@ -33,7 +46,7 @@ export default class PlayPause extends React.Component {
 				   xmlnsXlink="http://www.w3.org/1999/xlink"
 				>
 			      <defs>
-			         <path id="ytp-12" d={play}>
+			         <path id="ytp-12" d={path}>
 			            <animate
 							id="animation"
 							ref={(playPlauseAn) => this._playPauseAn = playPlauseAn}

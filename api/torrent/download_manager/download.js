@@ -82,7 +82,7 @@ Downloader.prototype.download = function (peer, torrent, pieces, ext) {
 	const self = this
 	const client = new net.Socket()
 	client.setKeepAlive(true, 120000)
-	client.on('error', () => {}))
+	client.on('error', () => {})
 	client.connect(peer.port, peer.ip, () => {
 		client.write(message.buildHandshake(torrent, ext))
 		if (ext) {
