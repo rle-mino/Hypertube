@@ -12,7 +12,7 @@ import crypto from 'crypto'
 import _ from 'lodash'
 import XOR from '../lib/nodes_distance'
 
-const K = 40
+const K = 8
 
 function Bucket() {
 	if (!(this instanceof Bucket)) return new Bucket()

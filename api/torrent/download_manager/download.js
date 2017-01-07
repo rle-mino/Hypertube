@@ -75,14 +75,14 @@ Downloader.prototype.startDownloading = function () {
 			this.download(peer, this.torrent, this.pieces, this.torrent && !this.torrent.info)
 		}
 		if (this.pieces) this.showTorrent(this.pieces)
-	}, 1000)
+	}, 50)
 }
 
 Downloader.prototype.download = function (peer, torrent, pieces, ext) {
 	const self = this
 	const client = new net.Socket()
 	client.setKeepAlive(true, 120000)
-	client.on('error', () => {})
+	client.on('error', () => {}))
 	client.connect(peer.port, peer.ip, () => {
 		client.write(message.buildHandshake(torrent, ext))
 		if (ext) {
@@ -170,29 +170,6 @@ Downloader.prototype.extendedHandler = function (client, pieces, queue, msg) {
 			break
 		}
 	}
-}
-
-Downloader.prototype.handlePieceRequest = function(client, msg) {
-	if (DEBUG) console.log(client.remoteAddress, 'Piece request')
-	const { index, begin, length }	= msg
-	const pLen						= index > 0
-		? (index - 1) * this.torrent.info['piece length']
-		: 0
-	const block						= Buffer.alloc(length)
-
-	if (!this.pieces.received[index][Math.floor(begin / tp.BLOCK_LEN)]) return
-	this.file.read(block, length, pLen + begin)
-	client.write(message.buildPiece({ index, begin, block }))
-}
-
-Downloader.prototype.sendBitfield = function (client, pieces) {
-	const bitfield = pieces.piecesBitfield()
-	if (bitfield) client.write(message.buildBitfield(bitfield))
-}
-
-Downloader.prototype.keepAlive = client => {
-	const sendKA = () => client.write(message.buildKeepAlive())
-	setInterval(sendKA, 119999)
 }
 
 Downloader.prototype.doDownload = function () {
@@ -301,9 +278,33 @@ Downloader.prototype.handleExtReject = function (client) {
 	client.end()
 }
 
+Downloader.prototype.handlePieceRequest = function (client, msg) {
+	if (DEBUG) console.log(client.remoteAddress, 'Piece request')
+	const { index, begin, length }	= msg
+	const pLen						= index > 0
+		? (index - 1) * this.torrent.info['piece length']
+		: 0
+	const block						= Buffer.alloc(length)
+
+	if (!this.pieces.received[index][Math.floor(begin / tp.BLOCK_LEN)]) return
+	this.file.read(block, length, pLen + begin)
+	client.write(message.buildPiece({ index, begin, block }))
+}
+
+Downloader.prototype.sendBitfield = function (client, pieces) {
+	const bitfield = pieces.piecesBitfield()
+	if (bitfield) client.write(message.buildBitfield(bitfield))
+}
+
+Downloader.prototype.keepAlive = client => {
+	const sendKA = () => client.write(message.buildKeepAlive())
+	setInterval(sendKA, 119999)
+}
+
 Downloader.prototype.requestPiece = function (client, pieces, queue) {
 	if (queue.choked) return null
 
+	if (DEBUG) console.log(client.remoteAddress, 'request piece')
 	while (queue.length()) {
 		const pieceBlock = queue.deque()
 		if (pieces.needed(pieceBlock)) {

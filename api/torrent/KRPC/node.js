@@ -9,7 +9,7 @@ import NodeTree from '../lib/nodes_tree'
 import anon from '../lib/anonymizer'
 import log from '../lib/log'
 
-const __limit = 2000
+const __limit = 5000
 const __maxNodes = 250000
 
 function Nodes() {

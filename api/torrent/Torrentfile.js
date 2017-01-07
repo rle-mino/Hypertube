@@ -10,7 +10,7 @@ import path					from 'path'
 import Downloader			from './download_manager/download'
 import log					from './lib/log'
 
-const DEBUG = false
+const DEBUG = true
 
 function TorrentFile(torrent, rpc) {
     if (!(this instanceof TorrentFile)) return new TorrentFile(torrent, rpc)

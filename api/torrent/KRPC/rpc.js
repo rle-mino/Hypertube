@@ -27,7 +27,7 @@ const torrentAmorce = {
 
 const MAX_ROUTING_TABLE = 21000
 const MAX_NODES_LIMIT = 21000
-const MAX_PEERS_LIMIT = 5000
+const MAX_PEERS_LIMIT = 8000
 
 function noop() {}
 
@@ -158,12 +158,16 @@ function RPC(opts) {
 				}
 				if (response.nodes) {
 					const ids = self.parseNodes(response.nodes)
-					if (ids && self.torrents.indexOf(response.req.infoHash) !== -1 && self._peers < MAX_PEERS_LIMIT) {
+					if (ids
+						&& self.torrents.indexOf(response.req.infoHash) !== -1
+						&& self._peers < MAX_PEERS_LIMIT) {
 						ids.forEach(p => {
 							self.get_peers(p, response.req.infoHash, null)
 						})
 					} else if (self._peers >= MAX_PEERS_LIMIT) {
 						self.emit('ready', response.req.infoHash)
+					} else {
+						console.log('Get peers error')
 					}
 				}
 			}
