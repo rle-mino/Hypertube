@@ -34,7 +34,8 @@ function tryoutCall(tryout, client, message, announce) {
 
 	log.log(`Connection to tracker ${__URL} tryout (${4 - tryout}/3)`)
 	udpSend(client, message, __URL)
-	__TO = setTimeout(() => { tryoutCall(tryout - 1, client, message, announce)
+	__TO = setTimeout(() => {
+		tryoutCall(tryout - 1, client, message, announce)
 	},
 		5000)
 }
@@ -56,7 +57,7 @@ function buildConnReq() {
     return buf
 }
 
-function buildAnnounceReq(connId, torrent, port=6881){
+function buildAnnounceReq(connId, torrent, port = 6881) {
     const buf = Buffer.allocUnsafe(98)
     connId.copy(buf, 0)
 	buf.writeUInt32BE(1, 8)
@@ -66,8 +67,8 @@ function buildAnnounceReq(connId, torrent, port=6881){
     Buffer.alloc(8).copy(buf, 56)
     torrentParser.size(torrent).copy(buf, 64)
     Buffer.alloc(8).copy(buf, 72)
-    buf.writeUInt32BE(0,80)
-    buf.writeUInt32BE(0,84)
+    buf.writeUInt32BE(0, 80)
+    buf.writeUInt32BE(0, 84)
     crypto.randomBytes(4).copy(buf, 88)
     buf.writeInt32BE(-1, 92)
     buf.writeUInt16BE(port, 96)
@@ -110,7 +111,6 @@ function parseAnnounceResp(resp) {
 log.i('Starting bitTorrent client')
 
 export const getPeers = function (torrent, callback) {
-	console.log('getPeers')
 	const client = dgram.createSocket('udp4')
 	__URL = torrent.announce[0]
     tryoutCall(__tryout, client, buildConnReq(), torrent.announce)
@@ -123,7 +123,7 @@ export const getPeers = function (torrent, callback) {
 			tryoutCall(__tryout, client, announceReq, __URL)
         } else if (respType(response) === 'announce') {
 			const announceResp = parseAnnounceResp(response)
-			if (announceResp.peers.length > 5) {
+			if (announceResp.peers.length > 0) {
 				callback(announceResp.peers)
 			} else {
 				getPeers(torrent, callback)

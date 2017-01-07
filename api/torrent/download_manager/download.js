@@ -56,9 +56,12 @@ Downloader.prototype.showTorrent = function (pieces) {
 			else missing += 1
 		})
 	})
+	const ttLength = rec + missing
 	if (missing === 0) log.i('download complete')
-	else log.i(`downloaded: ${Math.floor((rec / (rec + missing)) * 10000) / 100}%`)
-	this.emit('dlStatus', rec / (rec + missing))
+	else {
+		log.i(`downloaded: ${Math.floor((rec / ttLength) * 10000) / 100}%`)
+	}
+	this.emit('dlStatus', rec / ttLength)
 }
 
 Downloader.prototype.startDownloading = function () {
