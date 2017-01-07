@@ -35,7 +35,6 @@ class HyperHeader extends React.Component {
 	componentWillMount() {
 		api.checkAuth()
 		.then(({ data }) => {
-			console.log(data)
 			if (data.status.includes('error')) browserHistory.push('/')
 		})
 	}

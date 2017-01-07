@@ -13,7 +13,7 @@ import Queue from './Queue'
 
 const MAX_ACCEPTED_SIZE = 10000000
 const MAX_CONNEXIONS_LIMIT = 2000
-const DEBUG = false
+const DEBUG = true
 
 function Downloader(torrent, peers, file) {
 	if (!(this instanceof Downloader)) return new Downloader(torrent, peers, file)

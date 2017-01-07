@@ -87,7 +87,9 @@ const updatePass = async (data) =>
 		...getToken(),
 	})
 
-const checkAuth = () => axios.get(`${apiConnect}/api/user/check_auth`, getToken())
+const getStream = async (id, serieInfo) => await axios.get(`${apiConnect}/api/stream/${id}`, getToken())
+
+const checkAuth = async () => await axios.get(`${apiConnect}/api/user/check_auth`, getToken())
 
 module.exports = {
 	search,
@@ -104,4 +106,5 @@ module.exports = {
 	resetPass,
 	updatePass,
 	checkAuth,
+	getStream,
 }

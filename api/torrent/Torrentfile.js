@@ -103,7 +103,7 @@ TorrentFile.prototype.read = function (block, length, begin) {
 		const read = new Array(file.length)
 		file.forEach((f, i) => {
 			read[i] = Buffer.alloc(f.len)
-			return fs.read(f.fd, read[i], 0, f.len, f.begin, () => {})
+			fs.read(f.fd, read[i], 0, f.len, f.begin, () => {})
 		})
 		return Buffer.concat(read)
 }

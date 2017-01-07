@@ -343,7 +343,7 @@ export default class VideoPlayer extends React.Component {
 			volume,
 			visible,
 		} = this.state
-		const { mainColor } = this.props
+		const { mainColor, src } = this.props
 		return (
 			<div className="playerContainer"
 				style={fullscreen ? { width: '100%', height: '100%', background: 'black' } : {}}
@@ -408,7 +408,7 @@ export default class VideoPlayer extends React.Component {
 					onVolumeChange={this.volumeChange}
 				>
 					<source
-						src="http://www.supportduweb.com/page/media/videoTag/BigBuckBunny.ogg"
+						src={src}
 						type="video/ogg"
 					/>
 				</video>

@@ -63,6 +63,16 @@ class Movie extends React.Component {
 				suggestions: data.suggestions,
 				serie: !!data.result.seasons && !!data.result.seasons.length,
 				selectedEpisode: this.getFirstAvailable(data.result.seasons)
+			}, async () => {
+				let serieInfo = null;
+				if (this.state.serie) {
+					serieInfo = {
+						ep: this.state.selectedEpisode.episosode,
+						season: this.state.selectedEpisode.season,
+					}
+				}
+				const stream = await api.getStream(data.result._id, serieInfo)
+				console.log(stream);
 			})
 		} else browserHistory.push('/')
 	}
@@ -187,12 +197,12 @@ class Movie extends React.Component {
 	}
 
 	render() {
-		const { data, selectedEpisode, serie } = this.state
+		const { data, selectedEpisode, serie, src } = this.state
 		const { l, mainColor, dispatch } = this.props
 		if (!data) return (<div className="comp movie"/>)
 		return (
 			<div className="comp movie">
-				<VideoPlayer mainColor={mainColor} l={l} dispatch={dispatch}/>
+				<VideoPlayer src={src} mainColor={mainColor} l={l} dispatch={dispatch}/>
 				<div className="filmData">
 					<div
 						className="poster"
