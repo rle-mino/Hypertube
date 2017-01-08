@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/public', express.static(`${__dirname}/public`));
 
-user(app);
+// user(app);
 movie(app);
 stream(app);
 

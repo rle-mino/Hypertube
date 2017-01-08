@@ -11,8 +11,8 @@ import Downloader			from './download_manager/download'
 import log					from './lib/log'
 
 const DEBUG = false
-const __preloadRatio = 1 / 100
-const __superfast = true
+const __preloadRatio = 5 / 100
+const __superfast = false
 
 function TorrentFile(torrent, rpc) {
     if (!(this instanceof TorrentFile)) return new TorrentFile(torrent, rpc)
@@ -116,7 +116,7 @@ TorrentFile.prototype.read = function (block, length, begin) {
 }
 
 TorrentFile.prototype.write = function (block, length, offset) {
-	if (DEBUG) console.log('length to be written:', length)
+	if (DEBUG) console.log('length written:', length)
 	if (__superfast) {
 		block.copy(this.file, offset, 0, length)
 	} else if (!this.files) {

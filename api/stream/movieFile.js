@@ -39,7 +39,7 @@ class MovieFile extends EventEmitter {
 		}
 
 		this._fileType = fileType(readChunk.sync(this._path, 0, 4100))
-		this._fileType = this._fileType.mime
+		this._fileType = this._fileType.mime || 'video/mkv'
 		this.state = 'loaded'
 		this.emit('loaded', this.name)
 
@@ -63,10 +63,8 @@ class MovieFile extends EventEmitter {
 			})
 			this.emit('streaming', this.name)
 			if (this._fileType === 'video/mp4') {
-				console.log('streaming mp4')
 				return stream
 			} else if (/^video\//.test(this._fileType)) {
-				console.log('transcoding mkv while streaming')
 				return new Transcoder(stream)
 					.videoCodec('h264')
 					.audioCodec('aac')
