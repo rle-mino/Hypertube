@@ -11,11 +11,7 @@ import Downloader						from './download_manager/download'
 import log									from './lib/log'
 
 const DEBUG = false
-<<<<<<< HEAD
 const __preloadRatio = 5 / 100
-=======
-const __preloadRatio = 1 / 100
->>>>>>> 0044537aea9840fb8a16c99943df32c32fb0dc0c
 const __superfast = false
 
 function TorrentFile(torrent, rpc) {

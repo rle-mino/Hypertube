@@ -14,9 +14,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/public', express.static(`${__dirname}/public`));
 app.use(express.static(path.resolve(__dirname, 'build')));
 
-// user(app);
+user(app);
 movie(app);
 stream(app);
 
 app.get('*', (req, res) => res.sendFile(path.resolve(__dirname, 'build', 'index.html')));
-app.listen(8080, () => console.log('SERVER STARTED'));
+app.listen(8080, () => console.log('SERVER STARTED ON PORT 8080'));
