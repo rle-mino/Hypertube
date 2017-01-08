@@ -35,6 +35,7 @@ class Movie extends React.Component {
 		srcTrack: null,
 		label: null,
 		srcLang: null,
+		streamRequested: false,
 	}
 
 	/*
@@ -67,22 +68,6 @@ class Movie extends React.Component {
 				suggestions: data.suggestions,
 				serie: !!data.result.seasons && !!data.result.seasons.length,
 				selectedEpisode: this.getFirstAvailable(data.result.seasons)
-			}, async () => {
-				let serieInfo = null;
-				if (this.state.serie) {
-					serieInfo = {
-						ep: this.state.selectedEpisode.episosode,
-						season: this.state.selectedEpisode.season,
-					}
-				}
-				api.getStream(data.result._id, serieInfo)
-					.then((stream) => console.log(stream))
-				this.setState({
-					src: 'http://www.supportduweb.com/page/media/videoTag/BigBuckBunny.ogg',
-					srcTrack: '',
-					label: 'English',
-					srcLang: 'en-US',
-				})
 			})
 		} else browserHistory.push('/')
 	}
@@ -102,7 +87,7 @@ class Movie extends React.Component {
 	componentWillReceiveProps = (newProps) => {
 		if (newProps.params.id !== this.props.params.id) {
 			this.props.dispatch(bIn())
-			this.setState({ data: null })
+			this.setState({ data: null, streamRequested: false });
 			this.getData(newProps)
 		}
 	}
@@ -189,6 +174,28 @@ class Movie extends React.Component {
 		return false
 	}
 
+	requestMovie = () => {
+		let serieInfo = null;
+		const { selectedEpisode, data, streamRequested } = this.state;
+
+		if (streamRequested) return false;
+		if (this.state.serie) {
+			serieInfo = {
+				ep: selectedEpisode.episosode,
+				season: selectedEpisode.season,
+			}
+		}
+		console.log('movie requested')
+		api.getStream(data._id, serieInfo)
+			.then((stream) => console.log(stream))
+		this.setState({
+			src: 'http://www.supportduweb.com/page/media/videoTag/BigBuckBunny.ogg',
+			srcTrack: 'http://localhost:8080/public/subtitles/tt1520211S7E8.fr.vtt',
+			label: 'English',
+			srcLang: 'en-US',
+		})
+	}
+
 	/*
 	*	iterates through all the episodes and call cb when we reach
 	*	the actual selected episode
@@ -220,6 +227,7 @@ class Movie extends React.Component {
 					srcTrack={srcTrack}
 					label={label}
 					srcLang={srcLang}
+					requestMovie={this.requestMovie}
 				/>
 				<div className="filmData">
 					<div

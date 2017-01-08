@@ -4,3 +4,5 @@ npm-debug*
 .idea
 api/public
 api/MovieLibrary
+app/build
+api/build

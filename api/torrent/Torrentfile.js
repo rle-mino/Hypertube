@@ -2,17 +2,17 @@
  * Created by opichou on 11/21/16.
  */
  /* eslint semi: ["error", "never"]*/
-import { EventEmitter }		from 'events'
-import inherits				from 'inherits'
-import fs					from 'fs'
-import path					from 'path'
+import { EventEmitter }			from 'events'
+import inherits							from 'inherits'
+import fs										from 'fs'
+import path									from 'path'
 
-import Downloader			from './download_manager/download'
-import log					from './lib/log'
+import Downloader						from './download_manager/download'
+import log									from './lib/log'
 
 const DEBUG = false
 const __preloadRatio = 1 / 100
-const __superfast = true
+const __superfast = false
 
 function TorrentFile(torrent, rpc) {
     if (!(this instanceof TorrentFile)) return new TorrentFile(torrent, rpc)
