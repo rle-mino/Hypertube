@@ -69,7 +69,8 @@ const addSerie = (serie) => {
         }
         if (!found) {
             omdb.get({ imdb: serie.imdb_id }, false, (error, movie) => {
-                if (error) return (console.log('err: ', error));
+                // if (error) return (console.log('err: ', error));
+                if (error) return (console.log('...'));
                 if (!movie) return (console.log('movie error'));
                 console.log(title);
                 const episodes = [];
@@ -122,7 +123,8 @@ const addMovie = (movie) => {
         });
         if (!found) {
             omdb.get({ imdb: movie.imdb_code }, false, (error, data) => {
-                if (error) return (console.log('err: ', error));
+                // if (error) return (console.log('err: ', error));
+                if (error) return (console.log('...'));
                 if (!data) return (console.log('movie error'));
                 let pop = 0;
                 console.log(title);
@@ -157,7 +159,7 @@ const yts = () => {
             client.get(`list_movies.json?limit=50&page=${i}`, (err, res, data) => {
                 if (typeof data === 'object') data.data.movies.forEach((movie) => addMovie(movie));
             });
-            if (i === max - 1) console.log('Success! Database filled from YTS');
+            // if (i === max - 1) console.log('Success! Database filled from YTS');
         }
     });
 };

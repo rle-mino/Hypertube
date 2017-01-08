@@ -1,6 +1,3 @@
-// ssh 188.166.169.93 -l root : LeChatBleu
-// sudo mongod --bind_ip 188.166.169.93
-
 import mongoose from 'mongoose';
 
 let myMongoose = null;
