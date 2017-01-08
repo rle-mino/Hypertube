@@ -13,7 +13,7 @@ import Queue from './Queue'
 
 const MAX_ACCEPTED_SIZE = 10000000
 const MAX_CONNEXIONS_LIMIT = 2000
-const DEBUG = true
+const DEBUG = false
 
 function Downloader(torrent, peers, file) {
 	if (!(this instanceof Downloader)) return new Downloader(torrent, peers, file)
@@ -363,14 +363,15 @@ Downloader.prototype.pieceHandler = function (client, pieces, queue, pieceResp) 
 	if (DEBUG) console.log(client.remoteAddress, 'Piece')
 	pieces.addReceived(pieceResp)
 	const offset = (pieceResp.index * this.torrent.info['piece length']) + pieceResp.begin
-	this.file.write(pieceResp.block, pieceResp.block.length, offset)
 
 	if (pieces.isDone()) {
 		console.log('DONE!')
 		client.end()
+		this.file.write(pieceResp.block, pieceResp.block.length, offset)
 		this.file.close()
 	} else {
 		this.requestPiece(client, pieces, queue)
+		this.file.write(pieceResp.block, pieceResp.block.length, offset)
 	}
 }
 

@@ -10,7 +10,9 @@ import path					from 'path'
 import Downloader			from './download_manager/download'
 import log					from './lib/log'
 
-const DEBUG = true
+const DEBUG = false
+const __preloadRatio = 1 / 100
+const __superfast = true
 
 function TorrentFile(torrent, rpc) {
     if (!(this instanceof TorrentFile)) return new TorrentFile(torrent, rpc)
@@ -44,6 +46,7 @@ TorrentFile.prototype.setInfo = function (info) {
 	if (info) {
 		this.info = info
 		this._name = this.info.name.toString('ascii')
+		this._length = info['length'] || info.files.reduce((a, b) => a + b['length'], 0)
 		log.i(`Downloading ${this._name}`)
 		console.log()
 		this.findMovie()
@@ -79,7 +82,9 @@ TorrentFile.prototype.findMovie = function () {
 */
 
 TorrentFile.prototype.open = function () {
-	if (!this.files) {
+	if (__superfast) {
+		this.file = Buffer.alloc(this._length)
+	} else if (!this.files) {
 		this.file = fs.openSync(`MovieLibrary${path.sep}${this._path}`, 'w')
 	} else {
 		const folderPath = `MovieLibrary${path.sep + this._name}`
@@ -96,7 +101,9 @@ TorrentFile.prototype.open = function () {
 }
 
 TorrentFile.prototype.read = function (block, length, begin) {
-	if (!this.files) {
+	if (__superfast) {
+		this.file.slice(begin, begin + length)
+	} else if (!this.files) {
 		return fs.read(this.file, block, 0, length, begin, () => {})
 	}
 		const file = this.findFile(begin, begin + length)
@@ -110,7 +117,9 @@ TorrentFile.prototype.read = function (block, length, begin) {
 
 TorrentFile.prototype.write = function (block, length, offset) {
 	if (DEBUG) console.log('length to be written:', length)
-	if (!this.files) {
+	if (__superfast) {
+		block.copy(this.file, offset, 0, length)
+	} else if (!this.files) {
 		fs.write(this.file, block, 0, length, offset, () => {})
 	} else {
 		const file = this.findFiles(offset, offset + length)
@@ -144,8 +153,10 @@ TorrentFile.prototype.close = function () {
 }
 
 TorrentFile.prototype.play = function () {
-	this.emit('ready', this._path)
-	this._ready = true
+	if (!this._ready) {
+		this.emit('ready', this._path)
+		this._ready = true
+	}
 }
 
 /*
@@ -210,7 +221,7 @@ TorrentFile.prototype.addPeer = function (peers) {
 		try {
 			self.downloader = new Downloader(self.torrent, peers, this)
 			self.downloader.on('dlStatus', ratio => {
-				if (ratio > 5 / 100) this.play()
+				if (ratio > __preloadRatio) this.play()
 			})
 		} catch (e) { console.log(e) }
 		if (!self.downloader) throw new Error('Downloader was not created')

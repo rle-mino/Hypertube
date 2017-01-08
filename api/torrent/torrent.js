@@ -89,8 +89,8 @@ const torrent = async (req, res, next) => {
 			next()
 		} else {
 			const file = new TorrentFile(_torrent, KRPC)
-			file.on('ready', path => {
-				console.log("Lecture en cours", path)
+			file.once('ready', path => {
+				console.log('Now playing', path)
 				req.query.path = path
 				next()
 			})
