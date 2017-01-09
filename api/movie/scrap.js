@@ -41,6 +41,7 @@ const updateEpisodes = (episodes, oldepisodes) => {
     const newEpisodes = [];
     episodes.forEach((episode) => {
         const torrent = Object.values(episode.torrents).pop();
+        const quality = Object.keys(episode.torrents).pop();
         if (torrent) {
             let path = null;
             if (getPath(oldepisodes, episode.season, episode.episode).length) {
@@ -48,6 +49,7 @@ const updateEpisodes = (episodes, oldepisodes) => {
             }
             newEpisodes.push({
                 path,
+                quality,
                 magnet: torrent.url,
                 season: episode.season,
                 episode: episode.episode,
@@ -76,8 +78,10 @@ const addSerie = (serie) => {
                 const episodes = [];
                 serie.episodes.forEach((episode) => {
                     const torrent = Object.values(episode.torrents).pop();
+                    const quality = Object.keys(episode.torrents).pop();
                     if (torrent) {
                         episodes.push({
+                            quality,
                             magnet: torrent.url,
                             season: episode.season,
                             episode: episode.episode,

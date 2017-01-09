@@ -54,6 +54,9 @@ const returnData = async (req) => {
         found = found.toObject();
         found.episode = getEpisode(found.episodes, season, episode);
         delete found.episodes;
+        subs.getSerieSubs(found, found.episode);
+    } else {
+        subs.getMovieSubs(found);
     }
     return ({ result: found, status: 'success' });
 };
@@ -68,14 +71,7 @@ const getData = (req, res) => {
         if (type === 'serie') {
             found = found.toObject();
             found.seasons = await getSerieInfo(found.episodes);
-            found.seasons.forEach((season) => {
-                season.episodes.forEach(async (episode) => {
-                    await subs.getSerieSubs(req, found, episode);
-                });
-            });
             delete found.episodes;
-        } else {
-            await subs.getMovieSubs(req, found);
         }
         if (req.query.lg !== 'en') {
             found.plot = await translate(found.plot, { from: 'en', to: req.query.lg }).then((result) => result.text);

@@ -87,7 +87,14 @@ const updatePass = async (data) =>
 		...getToken(),
 	})
 
-const getStream = async (id, serieInfo) => await axios.get(`${apiConnect}/api/stream/${id}`, getToken())
+const getStream = async (id, serieInfo) => {
+	const { e, s } = serieInfo || {};
+	if (!serieInfo) {
+		return await axios.get(`${apiConnect}/api/stream/${id}`, getToken())
+	}
+	return await axios.get(`${apiConnect}/api/stream/${id}?s=${s}&e=${e}`, getToken())
+
+}
 
 const checkAuth = async () => await axios.get(`${apiConnect}/api/user/check_auth`, getToken())
 
