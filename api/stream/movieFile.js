@@ -20,6 +20,7 @@ class MovieFile extends EventEmitter {
 			'1440p',
 			'1080p',
 			'720p',
+			'480p',
 			'420p',
 		]
 		this._preferredResolution = '8k'

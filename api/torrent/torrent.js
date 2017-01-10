@@ -55,6 +55,7 @@ const _validResolution = [
     '1440p',
     '1080p',
     '720p',
+	'480p',
     '420p',
 ]
 

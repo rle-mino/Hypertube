@@ -52,12 +52,14 @@ const returnData = async (req) => {
     const type = found.episodes[0] ? 'serie' : 'movie';
     if (type === 'serie') {
         found = found.toObject();
-        found.episode = getEpisode(found.episodes, season, episode);
+        found.torrents = getEpisode(found.episodes, season, episode);
         delete found.episodes;
-        subs.getSerieSubs(found, found.episode);
+        // subs.getSerieSubs(found, found.episode);
+        subs.getSerieSubs(found, found.torrents);
     } else {
         subs.getMovieSubs(found);
     }
+    console.log(found.torrents);
     return ({ result: found, status: 'success' });
 };
 
