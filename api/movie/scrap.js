@@ -114,6 +114,9 @@ const addSerie = (serie) => {
                     episodes,
                     rating: movie.imdb.rating,
                     pop: serie.rating.votes, // les seeds sont tous à 0
+                    actors: movie.actors,
+                    director: movie.director,
+                    writer: movie.writer,
                 });
                 newMovie.save();
             });
@@ -153,6 +156,9 @@ const addMovie = (movie) => {
                     rating: movie.rating,
                     torrents: movie.torrents,
                     pop,
+                    actors: movie.actors,
+                    director: movie.director,
+                    writer: movie.writer,
                 });
                 newMovie.save();
             });

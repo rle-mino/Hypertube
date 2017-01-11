@@ -21,6 +21,7 @@ const UserSchema = new mongoose.Schema({
 		type: String,
 	},
 	image: [String],
+	history: Array,
 	provider: {
 		type: String,
 	},
