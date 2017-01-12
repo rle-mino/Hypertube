@@ -6,7 +6,6 @@
 import MovieFile	from './movieFile'
 
 const streamRoute = (req, res) => {
-	console.log('Stream API reached')
     const stream = new MovieFile(req).stream()
 	stream.on('data', data => {
 		res.write(data)

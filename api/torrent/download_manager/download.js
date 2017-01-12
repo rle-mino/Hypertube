@@ -12,7 +12,7 @@ import Queue from './Queue'
 // import utMetadataExt from './extension/ut_metadata'
 
 const MAX_ACCEPTED_SIZE = 10000000
-const MAX_CONNEXIONS_LIMIT = 2000
+const MAX_CONNEXIONS_LIMIT = 200
 const DEBUG = false
 
 function Downloader(torrent, peers, file) {

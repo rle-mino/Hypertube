@@ -14,10 +14,12 @@ const movieSchema = new Schema({
   torrents: Array,
   episodes: Array,
   pop: Number,
+  comments: Array,
   // rated: String,
   // countries: [String],
-  // director: String,
-  // actors: [String],
+  director: String,
+  writer: String,
+  actors: [String],
   // extended: { type: Boolean, default: false },
 });
 

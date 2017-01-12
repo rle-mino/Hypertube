@@ -181,10 +181,10 @@ class Movie extends React.Component {
 		if (streamRequested) return false;
 		if (this.state.serie) {
 			serieInfo = {
-				ep: selectedEpisode.episosode,
-				season: selectedEpisode.season,
+				e: selectedEpisode.episode,
+				s: selectedEpisode.season,
 			}
-		}
+		} else serieInfo = null;
 		console.log('movie requested')
 		api.getStream(data._id, serieInfo)
 			.then((stream) => console.log(stream))

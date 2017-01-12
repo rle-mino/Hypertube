@@ -66,6 +66,7 @@
     "read-chunk": "^2.0.0",
     "request": "^2.78.0",
     "request-json": "^0.6.1",
+    "srt-to-vtt": "^1.1.1",
     "stream-transcoder": "0.0.5",
     "uniq": "^1.0.1"
   },
