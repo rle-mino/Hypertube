@@ -19,4 +19,4 @@ movie(app);
 stream(app);
 
 app.get('*', (req, res) => res.sendFile(path.resolve(__dirname, 'build', 'index.html')));
-app.listen(8080, () => console.log('SERVER STARTED'));
+app.listen(8080, () => console.log('SERVER STARTED')); // eslint-disable-line no-console
