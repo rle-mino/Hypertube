@@ -1,10 +1,16 @@
 import _ from 'lodash';
+import Joi from 'joi';
 import Movie from './movie_schema';
 
 const create = async (req, res) => {
-
-    // add Joi validation
-
+    const commentSchema = Joi.object().keys({
+        comment: Joi.string().max(200).required(),
+    });
+    const { error } = Joi.validate(req.body, commentSchema, {
+        abortEarly: false,
+        stripUnknown: true,
+    });
+    if (error) return res.send({ status: 'error', details: 'invalid request', error: error.details });
     const id = Math.random().toString(36).substring(7);
     const comment = {
         id,
@@ -12,6 +18,7 @@ const create = async (req, res) => {
         authorName: req.loggedUser.username,
         text: req.body.comment,
     };
+    if (!req.body.id) return res.send({ status: 'error', details: 'invalid request' });
     const found = await Movie.findOne({ _id: req.body.id });
     found.comments.push(comment);
     found.save();
@@ -20,6 +27,7 @@ const create = async (req, res) => {
 };
 
 const remove = async (req, res) => {
+    if (!req.body.id) return res.send({ status: 'error', details: 'invalid request' });
     const found = await Movie.findOne({ _id: req.body.id });
     const newComments = [];
     const isUnauthorized = found.comments.find((comment) => {
