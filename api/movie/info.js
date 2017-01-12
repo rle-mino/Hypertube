@@ -105,6 +105,7 @@ const getData = (req, res) => {
         if (req.query.lg !== 'en') {
             found.plot = await translate(found.plot, { from: 'en', to: req.query.lg }).then((result) => result.text);
         }
+        const comments = found.comments.reverse().slice(0, 20);
         Movie.find({
             _id: { $ne: id },
             genres,
@@ -120,7 +121,7 @@ const getData = (req, res) => {
                     }).sort({ pop: -1 }).limit(5);
                     suggestions = suggs.map(suggests => _.pick(suggests, ['id', 'title', 'poster', 'year', 'rating', 'code']));
                 }
-                return (res.send({ result: found, suggestions, status: 'success' }));
+                return (res.send({ result: found, comments, suggestions, status: 'success' }));
         });
         return (false);
     });

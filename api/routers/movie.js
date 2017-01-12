@@ -21,6 +21,7 @@ export default (app) => {
 	app.put('/api/movie/addpath/:id', scrap.addPath); // ?path=path&s=1&e=2&q=1
 
 	app.post('/api/movie/addcomment', comment.create);
+	app.delete('/api/movie/deletecomment', comment.remove);
 
 	// scrap.yts(); //	UNCOMMENT THIS WHEN PROJECT IS FINISHED -- commented for compliance issues
 	// scrap.eztv(); //	UNCOMMENT THIS WHEN PROJECT IS  -- commented for compliance issues
