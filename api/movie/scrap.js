@@ -156,9 +156,9 @@ const addMovie = (movie) => {
                     rating: movie.rating,
                     torrents: movie.torrents,
                     pop,
-                    actors: movie.actors,
-                    director: movie.director,
-                    writer: movie.writer,
+                    actors: data.actors,
+                    director: data.director,
+                    writer: data.writer,
                 });
                 newMovie.save();
             });
