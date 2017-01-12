@@ -1,6 +1,7 @@
-import express					from 'express';
+import 'dotenv/config';
+import express						from 'express';
 import path							from 'path';
-import bodyParser				from 'body-parser';
+import bodyParser					from 'body-parser';
 import cors							from 'cors';
 import user							from './routers/user';
 import movie						from './routers/movie';
@@ -19,4 +20,4 @@ movie(app);
 stream(app);
 
 app.get('*', (req, res) => res.sendFile(path.resolve(__dirname, 'build', 'index.html')));
-app.listen(8080, () => console.log('SERVER STARTED')); // eslint-disable-line no-console
+app.listen(process.env.SERVER_PORT, () => console.log('SERVER STARTED')); // eslint-disable-line no-console
