@@ -85,9 +85,9 @@ TorrentFile.prototype.open = function () {
 	if (__superfast) {
 		this.file = Buffer.alloc(this._length)
 	} else if (!this.files) {
-		this.file = fs.openSync(`MovieLibrary${path.sep}${this._path}`, 'w')
+		this.file = fs.openSync(`public${path.sep}${this._path}`, 'w')
 	} else {
-		const folderPath = `MovieLibrary${path.sep + this._name}`
+		const folderPath = `public${path.sep + this._name}`
 		if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath)
 		const addFd = (f) => {
 			return {

@@ -10,10 +10,10 @@ import User			from './schema';
 import * as schema 	from './joiSchema';
 import * as cfg		from './jwt/config';
 
-const apiURL = 'http://localhost:8080/api';
+const apiURL = `http://localhost:${process.env.SERVER_PORT}/api`;
 
 const safePath = [
-	'/api/stream',
+	'/api/stream/5876461cd3015a016cc26718',
 	'/api/user/reset',
 	'/api/user/login',
 	'/api/user/forgot',

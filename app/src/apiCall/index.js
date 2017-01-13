@@ -46,10 +46,7 @@ const topSearch = async () =>
 	)
 
 const getPict = async () =>
-	await axios.get(
-		`${apiConnect}/api/user/get_picture`,
-		getToken()
-	)
+	await axios.get(`${apiConnect}/api/user/get_picture`, getToken())
 
 const getMovie = async (id, l) =>
 	await axios.get(`${apiConnect}/api/movie/${id}?lg=${lang.lang[l]}`, getToken())

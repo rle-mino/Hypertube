@@ -35,7 +35,6 @@ class Movie extends React.Component {
 		srcTrack: null,
 		label: null,
 		srcLang: null,
-		streamRequested: false,
 	}
 
 	/*
@@ -186,11 +185,10 @@ class Movie extends React.Component {
 			}
 		} else serieInfo = null;
 		console.log('movie requested')
-		api.getStream(data._id, serieInfo)
-			.then((stream) => console.log(stream))
+		const apiConnect = 'http://localhost:6789';
 		this.setState({
-			src: 'http://www.supportduweb.com/page/media/videoTag/BigBuckBunny.ogg',
-			srcTrack: 'http://localhost:8080/public/subtitles/tt1520211S7E8.fr.vtt',
+			src: `${apiConnect}/api/stream/${this.state.data._id}`,
+			srcTrack: 'http://localhost:6789/public/subtitles/tt1520211S7E8.fr.vtt',
 			label: 'English',
 			srcLang: 'en-US',
 		})

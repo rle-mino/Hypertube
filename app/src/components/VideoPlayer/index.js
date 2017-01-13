@@ -7,15 +7,16 @@ export default class VideoPlayer extends React.Component {
 		const { src, srcTrack, srcLang, label, requestMovie } = this.props
 		return (
 			<div className="playerContainer" onClick={requestMovie}>
-				<video
+				{src && <video
 					className="player"
 					width="100%"
 					height="100%"
 					controls
+					autoPlay
 				>
 					<source src={src} type="video/ogg" />
 					<track src={srcTrack} kind="subtitles" srcLang={srcLang} label={label} default />
-				</video>
+				</video>}
 			</div>
 		)
 	}

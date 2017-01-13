@@ -70,7 +70,7 @@ const addHistory = (user, title, id, season, episode) => {
 
 const returnData = async (req) => {
     const id = req.params.id;
-    const userId = req.loggedUser._id;
+    // const userId = req.loggedUser._id;
     const season = req.query.s;
     const episode = req.query.e;
     let found = await Movie.findOne({ _id: id });
@@ -84,8 +84,8 @@ const returnData = async (req) => {
     } else {
         subs.getMovieSubs(found);
     }
-    const user = await (User.findOne({ _id: userId }));
-    addHistory(user, found.title, id, season, episode);
+    // const user = await (User.findOne({ _id: userId }));
+    // addHistory(user, found.title, id, season, episode);
     // console.log(found.torrents);
     return ({ result: found, status: 'success' });
 };

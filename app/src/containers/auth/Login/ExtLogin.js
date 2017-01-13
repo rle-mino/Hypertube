@@ -1,10 +1,11 @@
 import React				from 'react'
 import { connect }			from 'react-redux'
 import lang					from '../../../lang'
+import apiConnect from '../../../apiConnect';
 
 import IconButton			from 'material-ui/IconButton'
 
-const apiAuth = 'http://localhost:8080/api/user/auth'
+const apiAuth = `${apiConnect}/api/user/auth`
 
 const iconSet = {
 	touch: false,

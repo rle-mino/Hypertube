@@ -8,7 +8,7 @@ import fileType			from 'file-type'
 
 import * as info		from '../movie/info'
 
-const movieFolder = `MovieLibrary${path.sep}`
+const movieFolder = `public${path.sep}`
 
 class MovieFile extends EventEmitter {
 	constructor(req) {
