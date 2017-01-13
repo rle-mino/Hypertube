@@ -7,6 +7,7 @@ import api												from '../../apiCall'
 import { goMoviePage, bIn, bOut }	from '../../action/body'
 import lang												from '../../lang'
 import * as pending								from '../../action/pending'
+import apiConnect									from '../../apiConnect';
 
 import Chip												from 'material-ui/Chip'
 import VideoPlayer								from '../../components/VideoPlayer'
@@ -185,10 +186,10 @@ class Movie extends React.Component {
 			}
 		} else serieInfo = null;
 		console.log('movie requested')
-		const apiConnect = 'http://localhost:6789';
 		this.setState({
-			src: `${apiConnect}/api/stream/${this.state.data._id}`,
-			srcTrack: 'http://localhost:6789/public/subtitles/tt1520211S7E8.fr.vtt',
+			src: `${apiConnect}/api/stream/${this.state.data._id}${
+				serieInfo ? `?s=${serieInfo.s}&e=${serieInfo.e}` : ''}`,
+			srcTrack: `${apiConnect}/public/subtitles/tt1520211S7E8.fr.vtt`,
 			label: 'English',
 			srcLang: 'en-US',
 		})
