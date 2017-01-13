@@ -14,6 +14,7 @@ const apiURL = `http://localhost:${process.env.SERVER_PORT}/api`;
 
 const safePath = [
 	'/api/stream/587648828de08ea139eb5adc',
+	'/api/stream/5876461cd3015a016cc26718',
 	'/api/user/reset',
 	'/api/user/login',
 	'/api/user/forgot',
