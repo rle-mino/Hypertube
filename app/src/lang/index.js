@@ -72,6 +72,8 @@ module.exports = {
 		'Wrong login or password',
 		'Mauvais mot de login ou mot de passe',
 	],
+	actors: [ 'actors', 'acteurs' ],
+	director: [ 'director', 'réalisateur' ],
 	userDoesntExistAl: [ 'User doesnt exist', 'l\'utilisateur n\'existe pas' ],
 	mailDoesntExist: [ 'Mail doesnt exist', 'Adresse mail inexistante' ],
 	wrongCode: [ 'Wrong code', 'Code invalid' ],

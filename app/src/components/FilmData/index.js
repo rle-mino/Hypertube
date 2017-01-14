@@ -86,6 +86,10 @@ const FilmData = ({ data, serie, selectedEpisode, updateSelected, l, dispatch })
 		)
 	})
 
+	const drawActors = () => data.actors.map((actor, id) =>
+		<Chip style={chipStyle} key={id} className="chip">{actor}</Chip>
+	)
+
 	return (
 		<div className="filmData">
 			<div
@@ -107,6 +111,14 @@ const FilmData = ({ data, serie, selectedEpisode, updateSelected, l, dispatch })
 				<div className="rate">
 					<i className="material-icons">stars</i>
 					<h4>{data.rating}</h4>
+				</div>
+				<div className="director">
+					<p>{lang.director[l]}:</p>
+					<Chip style={chipStyle} className="chip">{data.director}</Chip>
+				</div>
+				<div className="actorsContainer">
+					<p>{lang.actors[l]}:</p>
+					<ul className="actors">{drawActors()}</ul>
 				</div>
 				<h3>{lang.year[l]} {data.year}</h3>
 				<p className="plot">{data.plot}</p>
