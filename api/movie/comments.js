@@ -31,12 +31,8 @@ const remove = async (req, res) => {
   if (!id) return res.send({ status: 'error', details: 'invalid request' });
   const found = await Movie.findOne({ _id: id });
   const isUnauthorized = found.comments.find((comment) => {
-    if (comment.id === commentId) {
-      if (!_.isEqual(comment.authorId, req.loggedUser._id)) {
-        res.send({ status: 'error', details: 'unauthorized' });
-        return true;
-      }
-      return false;
+    if (comment.id === commentId && !_.isEqual(comment.authorId, req.loggedUser._id)) {
+      return true;
     }
     return false;
   });
@@ -46,7 +42,7 @@ const remove = async (req, res) => {
     found.save();
     return (res.send({ status: 'success', comments: newComments }));
   }
-  return false;
+	return (res.send({ status: 'error', details: 'unauthorized' }));
 };
 
 
