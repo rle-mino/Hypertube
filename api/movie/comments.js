@@ -30,12 +30,8 @@ const remove = async (req, res) => {
 	const { id, commentId } = req.body;
   if (!id) return res.send({ status: 'error', details: 'invalid request' });
   const found = await Movie.findOne({ _id: id });
-  const isUnauthorized = found.comments.find((comment) => {
-    if (comment.id === commentId && !_.isEqual(comment.authorId, req.loggedUser._id)) {
-      return true;
-    }
-    return false;
-  });
+  const isUnauthorized = found.comments.find((comment) =>
+		comment.id === commentId && !_.isEqual(comment.authorId, req.loggedUser._id));
   if (!isUnauthorized) {
 		const newComments = found.comments.filter(comment => comment.id !== commentId);
     found.comments = newComments;
