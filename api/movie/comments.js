@@ -27,26 +27,26 @@ const create = async (req, res) => {
 };
 
 const remove = async (req, res) => {
-    if (!req.body.id) return res.send({ status: 'error', details: 'invalid request' });
-    const found = await Movie.findOne({ _id: req.body.id });
-    const newComments = [];
-    const isUnauthorized = found.comments.find((comment) => {
-        if (comment.id === req.body.commentId) {
-            if (!_.isEqual(comment.authorId, req.loggedUser._id)) {
-                res.send({ status: 'error', details: 'unauthorized' });
-                return true;
-            }
-            return false;
-        }
-        newComments.push(comment);
-        return false;
-    });
-    if (!isUnauthorized) {
-        found.comments = newComments;
-        found.save();
-        return (res.send({ status: 'success', comments: newComments }));
+	const { id, commentId } = req.body;
+  if (!id) return res.send({ status: 'error', details: 'invalid request' });
+  const found = await Movie.findOne({ _id: id });
+  const isUnauthorized = found.comments.find((comment) => {
+    if (comment.id === commentId) {
+      if (!_.isEqual(comment.authorId, req.loggedUser._id)) {
+        res.send({ status: 'error', details: 'unauthorized' });
+        return true;
+      }
+      return false;
     }
     return false;
+  });
+  if (!isUnauthorized) {
+		const newComments = found.comments.filter(comment => comment.id !== commentId);
+    found.comments = newComments;
+    found.save();
+    return (res.send({ status: 'success', comments: newComments }));
+  }
+  return false;
 };
 
 

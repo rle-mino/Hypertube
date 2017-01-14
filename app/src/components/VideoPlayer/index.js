@@ -4,10 +4,10 @@ import './sass/player.sass'
 
 export default class VideoPlayer extends React.Component {
 	render() {
-		const { src, srcTrack, srcLang, label, requestMovie } = this.props
+		const { src, srcTrack, srcLang, label, requestMovie, isMovieRequested } = this.props
 		return (
 			<div className="playerContainer" onClick={requestMovie}>
-				{src && <video
+				{isMovieRequested && <video
 					className="player"
 					width="100%"
 					height="100%"

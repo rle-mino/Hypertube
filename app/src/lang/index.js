@@ -95,6 +95,8 @@ module.exports = {
 		'Votre mot de passe a été mis a jour',
 	],
 	changeYourImage: [ 'Change your image', 'Mettez à jour votre image' ],
+	remove: [ 'remove', 'supprimer' ],
+	commentThisVideo: [ 'Comment this video', 'Commenter cette video' ],
 	empty: [ 'empty', 'vide' ],
 	settings: [ 'settings', 'paramètres' ],
 	episode: [ 'episode', 'épisode' ],
@@ -102,5 +104,7 @@ module.exports = {
 	next: [ 'next', 'suivant' ],
 	prev: [ 'previous', 'précédent' ],
 	logout: [ 'logout', 'déconnexion' ],
+	label: [ 'English', 'Français' ],
+	labelSRC: [ 'en-US', 'fr-FR' ],
 	lang: [ 'en', 'fr' ],
 }

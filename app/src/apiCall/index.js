@@ -4,22 +4,22 @@ import lang				from '../lang'
 
 const getToken = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('logToken')}` } })
 
-const login = async (data) =>
-	await axios({
+const login = (data) =>
+ axios({
 		url: `${apiConnect}/api/user/login`,
 		method: 'put',
 		data,
 	})
 
-const register = async (data) =>
-	await axios({
+const register = (data) =>
+ axios({
 		url: `${apiConnect}/api/user/register`,
 		method: 'post',
 		data,
 	})
 
-const upPhoto = async (data) =>
-	await axios({
+const upPhoto = (data) =>
+ axios({
 		url: `${apiConnect}/api/user/upload_pic`,
 		method: 'post',
 		data,
@@ -29,71 +29,85 @@ const upPhoto = async (data) =>
 		}
 	})
 
-const search = async (data) =>
-	await axios.get(`${apiConnect}/api/movie/search`,
+const search = (data) =>
+ axios.get(`${apiConnect}/api/movie/search`,
 		{ ...data, ...getToken() }
 	)
 
-const fastSearch = async (data) =>
-	await axios.get(`${apiConnect}/api/movie/fast_search`,
+const fastSearch = (data) =>
+ axios.get(`${apiConnect}/api/movie/fast_search`,
 		{ ...data, ...getToken() }
 	)
 
-const topSearch = async () =>
-	await axios.get(
+const topSearch = () =>
+ axios.get(
 		`${apiConnect}/api/movie/top_search`,
 		getToken()
 	)
 
-const getPict = async () =>
-	await axios.get(`${apiConnect}/api/user/get_picture`, getToken())
+const getPict = () =>
+ axios.get(`${apiConnect}/api/user/get_picture`, getToken())
 
-const getMovie = async (id, l) =>
-	await axios.get(`${apiConnect}/api/movie/${id}?lg=${lang.lang[l]}`, getToken())
+const getMovie = (id, l) =>
+ axios.get(`${apiConnect}/api/movie/${id}?lg=${lang.lang[l]}`, getToken())
 
-const getProfile = async () =>
-	await axios.get(`${apiConnect}/api/user/profile`, getToken())
+const getProfile = () =>
+ axios.get(`${apiConnect}/api/user/profile`, getToken())
 
-const updateProfile = async (data) =>
-	await axios({
+const updateProfile = (data) =>
+ axios({
 		url: `${apiConnect}/api/user/edit`,
 		method: 'put',
 		data,
 		...getToken(),
 	})
 
-const forgotPass = async (data) =>
-	await axios({
+const forgotPass = (data) =>
+ axios({
 		url: `${apiConnect}/api/user/forgot`,
 		method: 'put',
 		data,
 	})
 
-const resetPass = async (data) =>
-	await axios({
+const resetPass = (data) =>
+ axios({
 		url: `${apiConnect}/api/user/reset`,
 		method: 'put',
 		data,
 	})
 
-const updatePass = async (data) =>
-	await axios({
+const updatePass = (data) =>
+ axios({
 		url: `${apiConnect}/api/user/change_pass`,
 		method: 'put',
 		data,
 		...getToken(),
 	})
 
-const getStream = async (id, serieInfo) => {
+const getStream = (id, serieInfo) => {
 	const { e, s } = serieInfo || {};
 	if (!serieInfo) {
-		return await axios.get(`${apiConnect}/api/stream/${id}`, getToken())
+		return axios.get(`${apiConnect}/api/stream/${id}`, getToken())
 	}
-	return await axios.get(`${apiConnect}/api/stream/${id}?s=${s}&e=${e}`, getToken())
+	return axios.get(`${apiConnect}/api/stream/${id}?s=${s}&e=${e}`, getToken())
 
 }
 
-const checkAuth = async () => await axios.get(`${apiConnect}/api/user/check_auth`, getToken())
+const checkAuth = () => axios.get(`${apiConnect}/api/user/check_auth`, getToken())
+
+const addComment = (data) => axios({
+	url: `${apiConnect}/api/movie/addcomment`,
+	method: 'post',
+	data,
+	...getToken(),
+})
+
+const removeComment = (data) => axios({
+	url: `${apiConnect}/api/movie/deletecomment`,
+	method: 'delete',
+	data,
+	...getToken(),
+})
 
 module.exports = {
 	search,
@@ -111,4 +125,6 @@ module.exports = {
 	updatePass,
 	checkAuth,
 	getStream,
+	addComment,
+	removeComment,
 }
