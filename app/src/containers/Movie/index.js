@@ -152,6 +152,7 @@ class Movie extends React.Component {
 		
 		let src = apiConnect
 		src += '/api/stream/'
+		src += data._id
 		src += '?r='
 		src += localStorage.getItem('selectedQuality')
 		src += serie ? `&s=${season}&e=${episode}` : ''
