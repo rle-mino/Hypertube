@@ -23,6 +23,7 @@ import * as tracker		from './tracker/tracker'
 import log				from './lib/log'
 // import Server			from './download_manager/Server'
 import { returnData }	from '../movie/info'
+import { addPath }		from '../movie/scrap'
 
 // inherits(torrent, EventEmitter)
 
@@ -55,6 +56,7 @@ const _validResolution = [
     '1440p',
     '1080p',
     '720p',
+	'480p',
     '420p',
 ]
 
@@ -83,15 +85,18 @@ const torrent = async (req, res, next) => {
 			res.end()
 			return
 		}
+		req.query.q = torrent.quality
 		res.writeHead(200, { 'Content-Type': 'video/mp4' })
 		if (_torrent.path) {
 			req.query.path = _torrent.path
+			addPath(req)
 			next()
 		} else {
 			const file = new TorrentFile(_torrent, KRPC)
 			file.once('ready', path => {
 				console.log('Now playing', path)
 				req.query.path = path
+
 				next()
 			})
 		}
@@ -108,7 +113,8 @@ const selectTorrent = async (req) => {
 	if (ret.status === 'error') return { status: 'error' }
 	const torrents = ret.result.torrents
     let selected = []
-    for (let i = _validResolution.indexOf(_preferredResolution);
+	const q = req.query.r
+    for (let i = _validResolution.indexOf(q);
 	(selected.length === 0 && i < _validResolution.length);
 	i += 1) {
         selected = torrents.filter(e => (e.quality === _validResolution[i]))
