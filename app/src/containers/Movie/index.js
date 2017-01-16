@@ -59,7 +59,7 @@ class Movie extends React.Component {
 		this.setState({ username: data.profile.username })
 		return api.getMovie(props.params.id, props.l)
 	}
-	
+
 	/*
 	*		Saves the movie data into the state
 	*/
@@ -142,21 +142,23 @@ class Movie extends React.Component {
 		const { l } = this.props
 
 		if (isMovieRequested) return false;
-		
+
 		let srcTrack = apiConnect
 		srcTrack += '/public/subtitles/'
 		srcTrack += data.code
 		srcTrack += serie ? `S${season}E${episode}` : ''
 		srcTrack += lang.lang[l]
 		srcTrack += '.vtt'
-		
-		let src = apiConnect
-		src += '/api/stream/'
-		src += data._id
-		src += '?r='
-		src += localStorage.getItem('selectedQuality')
-		src += serie ? `&s=${season}&e=${episode}` : ''
-		
+
+		// let src = apiConnect
+		// src += '/api/stream/'
+		// src += data._id
+		// src += '?r='
+		// src += localStorage.getItem('selectedQuality')
+		// src += serie ? `&s=${season}&e=${episode}` : ''
+
+		const src = 'http://localhost:8080/test';
+
 		this.setState({
 			src,
 			srcTrack,
