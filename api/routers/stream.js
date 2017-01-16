@@ -1,3 +1,5 @@
+/* eslint semi: ["error", "never"]*/
+
 import torrent                  from '../torrent/torrent'
 import stream                   from '../stream/stream'
 

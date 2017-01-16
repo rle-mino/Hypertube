@@ -27,7 +27,7 @@ const torrentAmorce = {
 
 const MAX_ROUTING_TABLE = 21000
 const MAX_NODES_LIMIT = 21000
-const MAX_PEERS_LIMIT = 8000
+const MAX_PEERS_LIMIT = 500
 
 function noop() {}
 
@@ -120,7 +120,7 @@ function RPC(opts) {
 				response.nodes		= message.r.nodes && message.r.nodes
 				response.token		= message.r.token && message.r.token.toString()
 				response.values		= message.r.values && message.r.values
-				response.client			= !!message.v && message.v.toString('binary')
+				response.client		= !!message.v && message.v.toString('binary')
 			} else if (response.type === 'e') {
 				if (!Buffer.isBuffer(message.e)) return
 				self.emit('error', message.e[1].toString())
@@ -165,7 +165,11 @@ function RPC(opts) {
 							self.get_peers(p, response.req.infoHash, null)
 						})
 					} else if (self._peers >= MAX_PEERS_LIMIT) {
-						self.emit('ready', response.req.infoHash)
+						setTimeout(() => {
+							self.emit('ready', response.req.infoHash)
+							if (this.torrent.length > 0) this.fetchPeers()
+							else this.ready = true
+						}, 10000)
 					} else {
 						console.log('Get peers error')
 					}
@@ -253,15 +257,19 @@ RPC.prototype.find_node = function (contact, id) {
 	}
 }
 
-RPC.prototype.buildAddressBook = function (infoHashBuffer, inter) {
+RPC.prototype.buildAddressBook = function (infoHashBuffer) {
 	this.torrents.push(infoHashBuffer)
-	this.peers[this.torrents.indexOf(infoHashBuffer)] = []
-	const contacts = this.getContactList(infoHashBuffer)
+	if (this.ready) this.fetchPeers()
+}
+
+RPC.prototype.fetchePeers = function (inter) {
+	const hash = this.torrents.pop()
+	const contacts = this.getContactList(hash)
 	contacts.forEach(e => {
-		this.get_peers(e, infoHashBuffer, null)
+		this.get_peers(e, hash, null)
 	})
 	if (!inter) {
-		const interVal = setInterval(() => this.buildAddressBook(infoHashBuffer, interVal), 5000)
+		const interVal = setInterval(() => this.buildAddressBook(hash, interVal), 5000)
 		this.on('get_peers', () => clearInterval(interVal))
 	}
 }
@@ -283,7 +291,6 @@ RPC.prototype.getContactList = function (hash) {
 }
 
 RPC.prototype.get_peers = function (contact, infoHash, id) {
-	// if (this._stat && this._stat > MAX_ROUTING_TABLE) return
 	try {
 		if (!id) {
 			id = anon.newKrpcId()

@@ -31,7 +31,10 @@ function TorrentFile(torrent, rpc) {
 
 	this.kademlia.on('error', console.log)
 
-	if (torrent) self.addTorrent(torrent)
+	if (torrent) {
+		this.torrent = torrent
+		self.addTorrent()
+	}
 }
 
 inherits(TorrentFile, EventEmitter)
@@ -192,17 +195,14 @@ TorrentFile.prototype.findFiles = function (begin, end) {
 * search for peers within the distributed hash table (DHT)
 */
 
-TorrentFile.prototype.addTorrent = function (torrent) {
+TorrentFile.prototype.addTorrent = function () {
 	const self = this
 	if (this.kademlia.state !== 'ready') {
-		this.queue = [torrent, ...this.queue]
 		this.kademlia.once('ready', () => {
-			this.torrent = this.queue[0]
 			this.setInfo(this.torrent.info)
 			this.kademlia.buildAddressBook(this.torrent.infoHashBuffer)
 		})
 	} else {
-		this.torrent = torrent
 		this.kademlia.buildAddressBook(torrent.infoHashBuffer)
 	}
 	this.kademlia.on('get_peers', (p) => self.addPeer(p))
