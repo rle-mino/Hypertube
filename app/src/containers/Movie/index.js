@@ -150,14 +150,14 @@ class Movie extends React.Component {
 		srcTrack += lang.lang[l]
 		srcTrack += '.vtt'
 
-		// let src = apiConnect
-		// src += '/api/stream/'
-		// src += data._id
-		// src += '?r='
-		// src += localStorage.getItem('selectedQuality')
-		// src += serie ? `&s=${season}&e=${episode}` : ''
+		let src = apiConnect
+		src += '/api/test/'
+		src += data._id
+		src += '?r='
+		src += localStorage.getItem('selectedQuality')
+		src += serie ? `&s=${season}&e=${episode}` : ''
 
-		const src = 'http://localhost:8080/test';
+		// const src = 'http://localhost:8080/api/stream/${data._id}';
 
 		this.setState({
 			src,

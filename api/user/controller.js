@@ -13,7 +13,6 @@ import * as cfg		from './jwt/config';
 const apiURL = `http://localhost:${process.env.SERVER_PORT}/api`;
 
 const safePath = [
-	'/api/test',
 	'/api/user/reset',
 	'/api/user/login',
 	'/api/user/forgot',
@@ -65,7 +64,8 @@ const getToken = (req) => {
 };
 
 const checkTokenMid = async (req, res, next) => {
-	if (safePath.indexOf(req.path) !== -1 || /\/api\/stream.*/.test(req.path) === true) return next();
+	if (safePath.indexOf(req.path) !== -1 || /\/api\/stream.*/.test(req.path) === true
+			|| /\/api\/test.*/.test(req.path) === true) return next();
 	const token = getToken(req);
 	if (!token) return res.send({ status: 'error', details: 'user not authorized' });
 	jwt.verify(token, cfg.jwtSecret, async (err, decoded) => {
