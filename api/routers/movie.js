@@ -2,6 +2,7 @@ import cron from 'cron';
 import * as search from '../movie/search';
 import * as scrap from '../movie/scrap';
 import * as info from '../movie/info';
+import * as comment from '../movie/comments';
 
 export default (app) => {
 	app.get('/api/movie', (req, res) => {
@@ -18,6 +19,9 @@ export default (app) => {
 	app.get('/api/movie/:id', info.getData);
 
 	app.put('/api/movie/addpath/:id', scrap.addPath); // ?path=path&s=1&e=2&q=1
+
+	app.post('/api/movie/addcomment', comment.create);
+	app.delete('/api/movie/deletecomment', comment.remove);
 
 	// scrap.yts(); //	UNCOMMENT THIS WHEN PROJECT IS FINISHED -- commented for compliance issues
 	// scrap.eztv(); //	UNCOMMENT THIS WHEN PROJECT IS  -- commented for compliance issues

@@ -6,3 +6,4 @@ api/public
 api/MovieLibrary
 app/build
 api/build
+.env

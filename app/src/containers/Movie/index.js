@@ -4,21 +4,17 @@ import browserHistory							from 'react-router/lib/browserHistory'
 import _													from 'lodash'
 import { animateScroll }					from 'react-scroll'
 import api												from '../../apiCall'
-import { goMoviePage, bIn, bOut }	from '../../action/body'
+import { goMoviePage, bIn }				from '../../action/body'
 import lang												from '../../lang'
 import * as pending								from '../../action/pending'
+import apiConnect									from '../../apiConnect'
 
-import Chip												from 'material-ui/Chip'
 import VideoPlayer								from '../../components/VideoPlayer'
-import EpisodeSelector						from '../../components/EpisodeSelector'
+import CommentSection							from '../../components/CommentSection'
 import MiniMovie									from '../../components/MiniMovie'
-import noImage										from '../../../public/No-image-found.jpg'
+import FilmData										from '../../components/FilmData'
 
 import './sass/movie.sass'
-
-const chipStyle = {
-	backgroundColor: '#D0D0D0',
-}
 
 class Movie extends React.Component {
 	_mounted = false
@@ -35,7 +31,8 @@ class Movie extends React.Component {
 		srcTrack: null,
 		label: null,
 		srcLang: null,
-		streamRequested: false,
+		isMovieRequested: false,
+		username: null,
 	}
 
 	/*
@@ -51,13 +48,22 @@ class Movie extends React.Component {
 	}
 
 	/*
-	*	fetch data from api using id in props.params
+	*		Saves the username into the state to know which
+	*		user can remove which comment
 	*/
-	getData = async (props) => {
-		const { dispatch } = this.props
-
-		dispatch(pending.set())
-		const { data } = await api.getMovie(props.params.id, props.l)
+	handleProfile = (props) => ({ data }) => {
+		if (data.status && data.status.includes('error')) {
+			browserHistory.push('/')
+			return false
+		}
+		this.setState({ username: data.profile.username })
+		return api.getMovie(props.params.id, props.l)
+	}
+	
+	/*
+	*		Saves the movie data into the state
+	*/
+	handleMovie = dispatch => ({ data }) => {
 		dispatch(pending.unset())
 
 		if (!this._mounted) return false
@@ -70,6 +76,18 @@ class Movie extends React.Component {
 				selectedEpisode: this.getFirstAvailable(data.result.seasons)
 			})
 		} else browserHistory.push('/')
+	}
+
+	/*
+	*	fetch data from api using id in props.params
+	*/
+	getData = async (props) => {
+		const { dispatch } = this.props
+
+		dispatch(pending.set())
+		api.getProfile()
+			.then(this.handleProfile(props))
+			.then(this.handleMovie(dispatch))
 	}
 
 	componentDidMount() {
@@ -87,21 +105,12 @@ class Movie extends React.Component {
 	componentWillReceiveProps = (newProps) => {
 		if (newProps.params.id !== this.props.params.id) {
 			this.props.dispatch(bIn())
-			this.setState({ data: null, streamRequested: false });
+			this.setState({ data: null, isMovieRequested: false });
 			this.getData(newProps)
 		}
 	}
 
 	componentWillUnmount() { this._mounted = false }
-
-	/*
-	*	If the client clicks on a category
-	*/
-	searchCat = (cat) => {
-		const { dispatch } = this.props
-		dispatch(bOut())
-		setTimeout(() => browserHistory.push(`/ht/search?category=${cat}`), 500)
-	}
 
 	/*
 	*	We force a scroll to the top before redirecting
@@ -122,101 +131,64 @@ class Movie extends React.Component {
 		<MiniMovie key={el.id} data={el} click={() => this.goMovie(el.id)} />
 	)
 
-	drawGenre = () => this.state.data.genres.map((el, key) => {
-		const translation = _.find(lang.categories, (cat) => cat[0] === el)
-		return (
-			<li key={key}>
-				<Chip
-					className="chip"
-					onTouchTap={() => this.searchCat(el)}
-					style={chipStyle}
-				>
-					{translation ? translation[this.props.l] : el}
-				</Chip>
-			</li>
-		)
+	updateSelected = (selected) => this.setState({
+		selectedEpisode: selected,
+		isMovieRequested: false,
 	})
 
-	updateSelected = (selected) => this.setState({ selectedEpisode: selected })
-
-	/*
-	*	These methods gets the next or prev episode
-	*	using the episodes list and the actual selected episode
-	*/
-	next = (i, j) => {
-		const episodesList = this.state.data.seasons
-		if (episodesList[i].episodes[j + 1]) {
-			this.updateSelected({
-				season: episodesList[i].episodes[j + 1].season,
-				episode: episodesList[i].episodes[j + 1].episode,
-			})
-		} else if (episodesList[i + 1] && episodesList[i + 1].episodes[0]) {
-			this.updateSelected({
-				season: episodesList[i + 1].episodes[0].season,
-				episode: episodesList[i + 1].episodes[0].episode,
-			})
-		}
-	}
-	prev = (i, j) => {
-		const episodesList = this.state.data.seasons
-		if (j - 1 > -1) {
-			this.updateSelected({
-				season: episodesList[i].episodes[j - 1].season,
-				episode: episodesList[i].episodes[j - 1].episode,
-			})
-		} else if (i - 1 > -1) {
-			const {
-				episode,
-				season
-			} = episodesList[i - 1].episodes[episodesList[i - 1].episodes.length - 1]
-			this.updateSelected({ episode, season })
-		}
-		return false
-	}
-
 	requestMovie = () => {
-		let serieInfo = null;
-		const { selectedEpisode, data, streamRequested } = this.state;
+		const { selectedEpisode, data, isMovieRequested, serie } = this.state;
+		const { episode, season } = selectedEpisode;
+		const { l } = this.props
 
-		if (streamRequested) return false;
-		if (this.state.serie) {
-			serieInfo = {
-				e: selectedEpisode.episode,
-				s: selectedEpisode.season,
-			}
-		} else serieInfo = null;
-		console.log('movie requested')
-		api.getStream(data._id, serieInfo)
-			.then((stream) => console.log(stream))
+		if (isMovieRequested) return false;
+		
+		let srcTrack = apiConnect
+		srcTrack += '/public/subtitles/'
+		srcTrack += data.code
+		srcTrack += serie ? `S${season}E${episode}` : ''
+		srcTrack += lang.lang[l]
+		srcTrack += '.vtt'
+		
+		let src = apiConnect
+		src += '/api/stream/'
+		src += data._id
+		src += '?r='
+		src += localStorage.getItem('selectedQuality')
+		src += serie ? `&s=${season}&e=${episode}` : ''
+		
 		this.setState({
-			src: 'http://www.supportduweb.com/page/media/videoTag/BigBuckBunny.ogg',
-			srcTrack: 'http://localhost:8080/public/subtitles/tt1520211S7E8.fr.vtt',
-			label: 'English',
-			srcLang: 'en-US',
+			src,
+			srcTrack,
+			label: lang.label[l],
+			srcLang: lang.labelSRC[l],
+			isMovieRequested: true,
 		})
 	}
 
-	/*
-	*	iterates through all the episodes and call cb when we reach
-	*	the actual selected episode
-	*/
-	eachEp = (cb) => {
-		const { selectedEpisode } = this.state
-		const episodesList = this.state.data.seasons
-		const { episode: sEp, season: sSeas } = selectedEpisode
-		episodesList.forEach((season, i) =>
-			season.episodes.forEach((episode, j) => {
-				if (episode.episode === sEp && episode.season === sSeas) {
-					cb(i, j)
-				}
+	onCommentsUpdate = (newComments) => {
+		if (!newComments || !newComments.length) return false;
+		this.setState({ data: {
+				...this.state.data,
+				comments: newComments,
 			}
-		))
+		})
 	}
 
 	render() {
-		const { data, selectedEpisode, serie, src, srcTrack, label, srcLang } = this.state
+		const {
+			data,
+			selectedEpisode,
+			serie,
+			src,
+			srcTrack,
+			label,
+			srcLang,
+			isMovieRequested,
+			username
+		} = this.state
 		const { l, mainColor, dispatch } = this.props
-		if (!data) return (<div className="comp movie"/>)
+		if (!data) return (<div className="comp movie" />)
 		return (
 			<div className="comp movie">
 				<VideoPlayer
@@ -228,35 +200,24 @@ class Movie extends React.Component {
 					label={label}
 					srcLang={srcLang}
 					requestMovie={this.requestMovie}
+					isMovieRequested={isMovieRequested}
 				/>
-				<div className="filmData">
-					<div
-						className="poster"
-						style={{ backgroundImage: `url('${data.poster}'), url('${noImage}')` }}
-					/>
-					<div className="afterPoster">
-						{serie &&
-							<EpisodeSelector
-								selectedEpisode={selectedEpisode}
-								episodesList={data.seasons}
-								onEpisodeSelect={this.updateSelected}
-								onClickNext={() => this.eachEp(this.next)}
-								onClickPrev={() => this.eachEp(this.prev)}
-								l={l}
-							/>
-						}
-						<h1>{data.title}</h1>
-						<div className="rate">
-							<i className="material-icons">stars</i>
-							<h4>{data.rating}</h4>
-						</div>
-						<h3>{lang.year[l]} {data.year}</h3>
-						<p className="plot">{data.plot}</p>
-						<ul className="genres">
-							{this.drawGenre()}
-						</ul>
-					</div>
-				</div>
+				<FilmData
+					data={data}
+					serie={serie}
+					selectedEpisode={selectedEpisode}
+					updateSelected={this.updateSelected}
+					l={l}
+					dispatch={dispatch}
+				/>
+				<CommentSection
+					comments={data.comments}
+					l={l}
+					movieID={data._id}
+					mainColor={mainColor}
+					onCommentsUpdate={this.onCommentsUpdate}
+					username={username}
+				/>
 				<h3 className="ymal">{lang.youMayAlsoLike[l]}</h3>
 				<ul className="suggestions">
 					{this.drawSuggest()}

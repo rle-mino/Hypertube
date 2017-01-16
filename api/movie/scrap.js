@@ -43,6 +43,8 @@ const updateEpisodes = (episodes, oldepisodes) => {
         const torrent = Object.values(episode.torrents).pop();
         const quality = Object.keys(episode.torrents).pop();
         if (torrent) {
+            if (torrent.url.substring(0, 7) !== 'magnet:') return;
+            const hash = torrent.url.match(/btih:(.*?)&/i)[1];
             let path = null;
             if (getPath(oldepisodes, episode.season, episode.episode).length) {
                 path = getPath(oldepisodes, episode.season, episode.episode)[0].path;
@@ -50,6 +52,7 @@ const updateEpisodes = (episodes, oldepisodes) => {
             newEpisodes.push({
                 path,
                 quality,
+                hash,
                 magnet: torrent.url,
                 season: episode.season,
                 episode: episode.episode,
@@ -65,7 +68,7 @@ const addSerie = (serie) => {
     Movie.findOne({ code: serie.imdb_id }, (err, found) => {
         if (!serie.episodes || !serie.episodes.length) return;
         if (found && found.episodes.length !== serie.episodes.length) {
-            console.log(title);
+            console.log(`${title} updated`);
             found.episodes = updateEpisodes(serie.episodes, found.episodes);
             found.save();
         }
@@ -80,8 +83,11 @@ const addSerie = (serie) => {
                     const torrent = Object.values(episode.torrents).pop();
                     const quality = Object.keys(episode.torrents).pop();
                     if (torrent) {
+                        if (torrent.url.substring(0, 7) !== 'magnet:') return;
+                        const hash = torrent.url.match(/btih:(.*?)&/i)[1];
                         episodes.push({
                             quality,
+                            hash,
                             magnet: torrent.url,
                             season: episode.season,
                             episode: episode.episode,
@@ -108,6 +114,9 @@ const addSerie = (serie) => {
                     episodes,
                     rating: movie.imdb.rating,
                     pop: serie.rating.votes, // les seeds sont tous à 0
+                    actors: movie.actors,
+                    director: movie.director,
+                    writer: movie.writer,
                 });
                 newMovie.save();
             });
@@ -147,6 +156,9 @@ const addMovie = (movie) => {
                     rating: movie.rating,
                     torrents: movie.torrents,
                     pop,
+                    actors: data.actors,
+                    director: data.director,
+                    writer: data.writer,
                 });
                 newMovie.save();
             });

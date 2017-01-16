@@ -110,7 +110,7 @@ const selectTorrent = async (req) => {
 	} catch (e) {
 		console.log(e)
 	}
-	if (ret.status === 'error') return { status: 'error' }
+	if (!ret || ret.status === 'error') return { status: 'error' }
 	const torrents = ret.result.torrents
     let selected = []
 	const q = req.query.r

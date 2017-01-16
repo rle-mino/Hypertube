@@ -8,7 +8,7 @@ import fileType			from 'file-type'
 
 import * as info		from '../movie/info'
 
-const movieFolder = `MovieLibrary${path.sep}`
+const movieFolder = `public${path.sep}`
 
 class MovieFile extends EventEmitter {
 	constructor(req) {
@@ -20,6 +20,7 @@ class MovieFile extends EventEmitter {
 			'1440p',
 			'1080p',
 			'720p',
+			'480p',
 			'420p',
 		]
 		this._preferredResolution = '8k'
