@@ -13,7 +13,7 @@ import * as cfg		from './jwt/config';
 const apiURL = `http://localhost:${process.env.SERVER_PORT}/api`;
 
 const safePath = [
-	'/api/movie/history',
+	// '/api/movie/history',
 	'/api/user/reset',
 	'/api/user/login',
 	'/api/user/forgot',

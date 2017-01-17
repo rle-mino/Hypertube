@@ -46,7 +46,6 @@ const getEpisode = (episodes, season, episode) =>
 
 const addHistory = (req) => {
 	const user = req.loggedUser;
-	console.log(user);
 	const season = req.body.season;
 	const episode = req.body.episode;
 	const title = req.body.title;

@@ -109,6 +109,13 @@ const removeComment = (data) => axios({
 	...getToken(),
 })
 
+const addHistory = (data) => axios({
+	url: `${apiConnect}/api/movie/history`,
+	method: 'put',
+	data,
+	...getToken(),
+});
+
 module.exports = {
 	search,
 	fastSearch,
@@ -127,4 +134,5 @@ module.exports = {
 	getStream,
 	addComment,
 	removeComment,
+	addHistory,
 }

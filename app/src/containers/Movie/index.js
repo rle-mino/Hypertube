@@ -151,14 +151,22 @@ class Movie extends React.Component {
 		srcTrack += '.vtt'
 
 		let src = apiConnect
-		src += '/api/test/'
+		src += '/api/stream/'
 		src += data._id
 		src += '?r='
-		src += localStorage.getItem('selectedQuality')
+		src += localStorage.getItem('selectedQuality') || '720p'
 		src += serie ? `&s=${season}&e=${episode}` : ''
 
-		// const src = 'http://localhost:8080/api/stream/${data._id}';
-
+		const reqOBJ = {
+			title: data.title,
+			id: data._id,
+		}
+		if (serie) {
+			reqOBJ.episode = episode;
+			reqOBJ.season = season;
+		}
+		api.addHistory(reqOBJ);
+		console.log('abc');
 		this.setState({
 			src,
 			srcTrack,
