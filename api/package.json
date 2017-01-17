@@ -69,6 +69,7 @@
     "request-json": "^0.6.1",
     "srt-to-vtt": "^1.1.1",
     "stream-transcoder": "0.0.5",
+    "torrent-stream": "^1.0.3",
     "uniq": "^1.0.1"
   },
   "devDependencies": {

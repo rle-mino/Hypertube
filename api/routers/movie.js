@@ -23,6 +23,8 @@ export default (app) => {
 	app.post('/api/movie/addcomment', comment.create);
 	app.delete('/api/movie/deletecomment', comment.remove);
 
+	app.put('/api/movie/history', info.addHistory);
+
 	// scrap.yts(); //	UNCOMMENT THIS WHEN PROJECT IS FINISHED -- commented for compliance issues
 	// scrap.eztv(); //	UNCOMMENT THIS WHEN PROJECT IS  -- commented for compliance issues
 

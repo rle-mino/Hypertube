@@ -44,7 +44,13 @@ const getEpisode = (episodes, season, episode) =>
         ep.season === parseInt(season, 10) && ep.episode === parseInt(episode, 10),
 );
 
-const addHistory = (user, title, id, season, episode) => {
+const addHistory = (req) => {
+	const user = req.loggedUser;
+	console.log(user);
+	const season = req.body.season;
+	const episode = req.body.episode;
+	const title = req.body.title;
+	const id = req.body.id;
     if (season && episode) {
         const video = {
             title,
@@ -127,4 +133,4 @@ const getData = (req, res) => {
     });
 };
 
-export { getData, returnData };
+export { getData, returnData, addHistory };
