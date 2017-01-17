@@ -6,7 +6,8 @@
 import MovieFile	from './movieFile'
 
 const streamRoute = (req, res) => {
-    const stream = new MovieFile(req).stream()
+	console.log(req.query.path)
+	const stream = new MovieFile(req, res).stream()
 	stream.on('data', data => {
 		res.write(data)
 	})

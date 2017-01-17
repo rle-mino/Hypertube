@@ -12,7 +12,7 @@ import Queue from './Queue'
 // import utMetadataExt from './extension/ut_metadata'
 
 const MAX_ACCEPTED_SIZE = 10000000
-const MAX_CONNEXIONS_LIMIT = 200
+const MAX_CONNEXIONS_LIMIT = 5000
 const DEBUG = false
 
 function Downloader(torrent, peers, file) {
@@ -59,7 +59,7 @@ Downloader.prototype.showTorrent = function (pieces) {
 	const ttLength = rec + missing
 	if (missing === 0) log.i('download complete')
 	else {
-		log.i(`downloaded: ${Math.floor((rec / ttLength) * 10000) / 100}%`)
+		log.i(`downloaded: ${Math.floor((rec / ttLength) * 10000) / 100}% from ${this._connexions}/${this.peers.length} Peers`)
 	}
 	this.emit('dlStatus', rec / ttLength)
 }
@@ -76,6 +76,13 @@ Downloader.prototype.startDownloading = function () {
 		}
 		if (this.pieces) this.showTorrent(this.pieces)
 	}, 50)
+}
+
+Downloader.prototype.incomngConnection = function (socket) {
+	this._connexions += 1
+	socket.write(message.buildHandshake(this.torrent, false))
+	this.sendBitfield(socket, this.pieces)
+	this.onWholeMsg(socket, msg => this.msgHandler(msg, socket, this.pieces, new Queue(this.torrent)))
 }
 
 Downloader.prototype.download = function (peer, torrent, pieces, ext) {
@@ -327,12 +334,16 @@ Downloader.prototype.requestAllMissing = function (client, pieces, queue) {
 
 Downloader.prototype.chokeHandler = function (client) {
 	if (DEBUG) console.log(client.remoteAddress, 'Choked')
+	this._connexions -= 1
 	client.end()
 }
 
 Downloader.prototype.unchokeHandler = function (client, pieces, queue) {
 	if (DEBUG) console.log(client.remoteAddress, 'Unchoked')
 	queue.choked = false
+	this.requestPiece(client, pieces, queue)
+	this.requestPiece(client, pieces, queue)
+	this.requestPiece(client, pieces, queue)
 	this.requestPiece(client, pieces, queue)
 }
 
@@ -341,7 +352,12 @@ Downloader.prototype.haveHandler = function (client, pieces, queue, payload) {
 	const pieceIndex = payload.readUInt32BE(0)
 	const queueEmpty = queue.length === 0
 	queue.queue(pieceIndex)
-	if (queueEmpty) this.requestPiece(client, pieces, queue)
+	if (queueEmpty) {
+		this.requestPiece(client, pieces, queue)
+		this.requestPiece(client, pieces, queue)
+		this.requestPiece(client, pieces, queue)
+		this.requestPiece(client, pieces, queue)
+	}
 }
 
 Downloader.prototype.bitfieldHandler = function (client, pieces, queue, payload) {
@@ -355,7 +371,12 @@ Downloader.prototype.bitfieldHandler = function (client, pieces, queue, payload)
 	}
 	payload.forEach((byte, i) => {
 		testByte(byte, i, 0)
-		if (queueEmpty) this.requestPiece(client, pieces, queue)
+		if (queueEmpty) {
+			this.requestPiece(client, pieces, queue)
+			this.requestPiece(client, pieces, queue)
+			this.requestPiece(client, pieces, queue)
+			this.requestPiece(client, pieces, queue)
+		}
 	})
 }
 
@@ -370,6 +391,9 @@ Downloader.prototype.pieceHandler = function (client, pieces, queue, pieceResp) 
 		this.file.write(pieceResp.block, pieceResp.block.length, offset)
 		this.file.close()
 	} else {
+		this.requestPiece(client, pieces, queue)
+		this.requestPiece(client, pieces, queue)
+		this.requestPiece(client, pieces, queue)
 		this.requestPiece(client, pieces, queue)
 		this.file.write(pieceResp.block, pieceResp.block.length, offset)
 	}

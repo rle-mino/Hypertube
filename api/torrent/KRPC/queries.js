@@ -33,6 +33,7 @@ export function BuildFindNodeQuery(t, target, _port) {
 }
 
 export function BuildGetPeersQuery(t, infoHash, noseed, scrape) {
+	if (!Buffer.isBuffer(infoHash)) infoHash = Buffer.from(infoHash, 'hex')
 	const message = {
 		t,
 		y,

@@ -3,19 +3,19 @@
  */
  /* eslint semi: ["error", "never"]*/
 import { EventEmitter }			from 'events'
-import inherits							from 'inherits'
-import fs										from 'fs'
-import path									from 'path'
+import inherits					from 'inherits'
+import fs						from 'fs'
+import path						from 'path'
 
-import Downloader						from './download_manager/download'
-import log									from './lib/log'
+import Downloader				from './download_manager/download'
+import log						from './lib/log'
 
 const DEBUG = false
-const __preloadRatio = 5 / 100
+const __preloadRatio = 25 / 1000
 const __superfast = false
 
-function TorrentFile(torrent, rpc) {
-    if (!(this instanceof TorrentFile)) return new TorrentFile(torrent, rpc)
+function TorrentFile(torrent, rpc, server) {
+    if (!(this instanceof TorrentFile)) return new TorrentFile(torrent, rpc, server)
 	if (!rpc) throw new Error('Cannot initialize torrent without routing table')
 
 	const self = this
@@ -25,6 +25,8 @@ function TorrentFile(torrent, rpc) {
 	this.file = null
 	this._decay = 0
 	this._ready = false
+	this.blocks = 0
+	server.addWire(this)
 	this.kademlia = rpc
 	this.queue = [] // this is a queue for torrent files
 	this.feedbacks = 0
@@ -86,6 +88,7 @@ TorrentFile.prototype.findMovie = function () {
 
 TorrentFile.prototype.open = function () {
 	if (__superfast) {
+		console.log('superfast downloading - file not saved to FS')
 		this.file = Buffer.alloc(this._length)
 	} else if (!this.files) {
 		this.file = fs.openSync(`public${path.sep}${this._path}`, 'w')
@@ -121,7 +124,12 @@ TorrentFile.prototype.read = function (block, length, begin) {
 TorrentFile.prototype.write = function (block, length, offset) {
 	if (DEBUG) console.log('length written:', length)
 	if (__superfast) {
+		this.blocks += 1
 		block.copy(this.file, offset, 0, length)
+		if (this.blocks > 1000) {
+			this.blocks = 0
+
+		}
 	} else if (!this.files) {
 		fs.write(this.file, block, 0, length, offset, () => {})
 	} else {
@@ -200,10 +208,10 @@ TorrentFile.prototype.addTorrent = function () {
 	if (this.kademlia.state !== 'ready') {
 		this.kademlia.once('ready', () => {
 			this.setInfo(this.torrent.info)
-			this.kademlia.buildAddressBook(this.torrent.infoHashBuffer)
+			this.kademlia.buildAddressBook(this.torrent.infoHash)
 		})
 	} else {
-		this.kademlia.buildAddressBook(torrent.infoHashBuffer)
+		this.kademlia.buildAddressBook(this.torrent.infoHash)
 	}
 	this.kademlia.on('get_peers', (p) => self.addPeer(p))
 }

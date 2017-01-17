@@ -6,28 +6,26 @@ import dgram from 'dgram'
 import Contact from './contact'
 import Nodes from './node'
 import * as queries from './queries'
-import * as responses from './responses'
-import * as errors from './errors'
 import anon from '../lib/anonymizer'
 import log from '../lib/log'
 import tracker from '../tracker/tracker'
 
 const torrentAmorce = {
 	size: 1825361101,
-	infoHash: '7306674e857c3561715a9beb3510e13db25348ff',
-	infoHashBuffer: Buffer.from('7306674e857c3561715a9beb3510e13db25348ff', 'hex'),
-	announce: ['udp://tracker.internetwarriors.net:1337',
+	infoHash: '1581F09B4A26C3615F72B3B932627F5B8D6DD9F0'.toLowerCase(),
+	infoHashBuffer: Buffer.from('1581F09B4A26C3615F72B3B932627F5B8D6DD9F0', 'hex'),
+	announce: [
 	'udp://p4p.arenabg.ch:1337',
 	'udp://tracker.leechers-paradise.org:6969',
 	'udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.openbittorrent.com:80',
 	'udp://torrent.gresille.org:80/announce',
 	'udp://tracker.opentrackr.org:1337/announce',
-	'udp://glotorrents.pw:6969/announce'],
+],
 }
 
 const MAX_ROUTING_TABLE = 21000
 const MAX_NODES_LIMIT = 21000
-const MAX_PEERS_LIMIT = 500
+const MAX_PEERS_LIMIT = 5000
 
 function noop() {}
 
@@ -95,14 +93,14 @@ function RPC(opts) {
 	function onMessage(buf, rinfo) {
 		const response = {}
 		try {
-			const message		= bencode.decode(buf)
+			const message			= bencode.decode(buf)
 			if (!message) { return }
 
 			response.tid			= message.t && message.t.toString()
 			response.type			= message.y && message.y.toString()
 
 			if (response.tid) {
-				response.req			= self.reqs[response.tid]
+				response.req		= self.reqs[response.tid]
 				response.index		= self._ids.indexOf(response.tid)
 				self._ids.splice(response.index, 1)
 				self.reqs.splice(response.tid, 1)
@@ -127,7 +125,7 @@ function RPC(opts) {
 			}
 			if (response.index === -1 || response.tid === 0) {
 				self.emit('response', message, rinfo)
-				self.emit('warning', new Error('Response identification failiure'))
+				self.emit('warning', new Error('Response identification failure'))
 				return
 			}
 			// opts = {node, ip, port, id}
@@ -149,7 +147,7 @@ function RPC(opts) {
 				}
 			} else if (response.req.r === 'get_peers') {
 			// GET_PEERS
-				if (response.values) {
+				if (response.values && response.values.length > 0) {
 					self.announce_peer(response)
 					const values = self.parseValues(response.values)
 					self._peers += values.length
@@ -159,7 +157,7 @@ function RPC(opts) {
 				if (response.nodes) {
 					const ids = self.parseNodes(response.nodes)
 					if (ids
-						&& self.torrents.indexOf(response.req.infoHash) !== -1
+						// && self.torrents.indexOf(response.req.infoHash) !== -1
 						&& self._peers < MAX_PEERS_LIMIT) {
 						ids.forEach(p => {
 							self.get_peers(p, response.req.infoHash, null)
@@ -167,11 +165,9 @@ function RPC(opts) {
 					} else if (self._peers >= MAX_PEERS_LIMIT) {
 						setTimeout(() => {
 							self.emit('ready', response.req.infoHash)
-							if (this.torrent.length > 0) this.fetchPeers()
-							else this.ready = true
+							if (self.torrents.length > 0) this.fetchPeers()
+							else self.status = 'ready'
 						}, 10000)
-					} else {
-						console.log('Get peers error')
 					}
 				}
 			}
@@ -259,19 +255,27 @@ RPC.prototype.find_node = function (contact, id) {
 
 RPC.prototype.buildAddressBook = function (infoHashBuffer) {
 	this.torrents.push(infoHashBuffer)
-	if (this.ready) this.fetchPeers()
+	if (this.state === 'ready') this.fetchPeers()
 }
 
-RPC.prototype.fetchePeers = function (inter) {
+RPC.prototype.fetchPeers = function (inter) {
+	this.state = 'working'
 	const hash = this.torrents.pop()
 	const contacts = this.getContactList(hash)
 	contacts.forEach(e => {
 		this.get_peers(e, hash, null)
 	})
 	if (!inter) {
-		const interVal = setInterval(() => this.buildAddressBook(hash, interVal), 5000)
+		const interVal = setInterval(() => this.morePeers(hash), 5000)
 		this.on('get_peers', () => clearInterval(interVal))
 	}
+}
+
+RPC.prototype.morePeers = function (hash) {
+	const contacts = this.getContactList(hash)
+	contacts.forEach(e => {
+		this.get_peers(e, hash)
+	})
 }
 
 RPC.prototype.unBlock = function (stat) {

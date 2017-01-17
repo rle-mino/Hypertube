@@ -43,7 +43,8 @@ Nodes.prototype.halveBucket = function (bits) {
 }
 
 Nodes.prototype.getContactList = function (opts) {
-	const hash = Buffer.from(opts)
+	let hash = Buffer.from(opts)
+	if (Buffer.isBuffer(opts)) hash = opts
 	const bits = []
 	for (let i = 0; i < hash.length; i += 1) {
 		for (let j = 7; j >= 0; j -= 1) {

@@ -11,8 +11,9 @@ import * as info		from '../movie/info'
 const movieFolder = `public${path.sep}`
 
 class MovieFile extends EventEmitter {
-	constructor(req) {
+	constructor(req, res) {
 		super()
+		const self = this
 		this._validResolution = [
 			'8k',
 			'2160p',
@@ -23,14 +24,16 @@ class MovieFile extends EventEmitter {
 			'480p',
 			'420p',
 		]
-		this._preferredResolution = '8k'
+		this._preferredResolution = req.query.r || '8k'
 		this._req = req
+		this._res = res
 		this.state = 'loading'
 		this.emit('loading')
 
 		if (req.query.path) {
 			this._path = movieFolder + req.query.path
 			this.name = req.query.path
+			console.log(this._path)
 		} else if (req.param.id) {
 			this._movie = info.returnData(req).result
 			this.name = this._movie.path
@@ -38,6 +41,32 @@ class MovieFile extends EventEmitter {
 		} else {
 			throw new Error('Invalid query')
 		}
+		/*const range = req.header.range
+		if (!range) {
+			this.emit('error')
+		}
+		fs.stat(this._path, (err, stats) => {
+			if (err) {
+				if (err.code === 'ENOENT') {
+					// 404 Error if file not found
+					return res.sendStatus(404)
+				}
+				return res.end(err)
+			}
+			this.stats = stats
+		})
+			this.positions = range.replce(/bytes=/, '').split('-')
+			this.start = parseInt(this.positions[0], 10)
+			this.total = this.stats.size
+			this.end = this.positions[1] ? parseInt(this.positions[1], 10) : this.total - 1
+			this.chunksize = (this.end - this.start) + 1
+
+			res.writeHead(206, {
+				'Content-Range': `bytes ${this.start}-${this.end}/${this.total}`,
+				'Accept-Ranges': 'bytes',
+				'Content-Length': this.chunksize,
+				'Content-Type': 'video/mp4',
+			}) */
 
 		this._fileType = fileType(readChunk.sync(this._path, 0, 4100))
 		this._fileType = this._fileType.mime || 'video/mkv'
@@ -61,6 +90,7 @@ class MovieFile extends EventEmitter {
 			const stream = fs.createReadStream(this._path, {
 				flags: 'r',
 				start: 0,
+				end: req.query.size
 			})
 			this.emit('streaming', this.name)
 			if (this._fileType === 'video/mp4') {
