@@ -1,6 +1,5 @@
 // import MovieFile	from './movieFile'
 import torrentStream from 'torrent-stream';
-import fs from 'fs';
 import * as movie from '../movie/info';
 
 // AJOUT PATH BDD
@@ -37,7 +36,6 @@ const streamRoute = async (req, res) => {
 		});
 	});
 	engine.on('download', () => {
-		// console.log(engine);
 		engine.files.forEach((file) => {
 			const ext = file.name.split('.').pop();
 			if (ext === 'mp4' || ext === 'mkv') {
@@ -47,9 +45,7 @@ const streamRoute = async (req, res) => {
 				process.stdout.clearLine();
 				process.stdout.cursorTo(0);
 				process.stdout.write(`dl: ${dl}, total: ${total}, pct: ${Math.floor(pct)}%`);
-				// const path = `${engine.path}/${file.name}`;
-				// console.log(file.length);
-				//  res.writeHead(200, { 'Content-Length': file.length, 'Content-Type': 'video/mp4' });
+				if (dl === total) console.log('finished downloading');
 			}
 		});
 	});
