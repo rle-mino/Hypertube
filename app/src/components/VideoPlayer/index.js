@@ -12,7 +12,7 @@ export default class VideoPlayer extends React.Component {
 					width="100%"
 					height="100%"
 					controls
-					autoPlay
+					// autoPlay
 				>
 					<source src={src} type="video/ogg" />
 					<track src={srcTrack} kind="subtitles" srcLang={srcLang} label={label} default />

@@ -19,27 +19,37 @@ const streamRoute = async (req, res) => {
 		if (!magnet) magnet = movieData.result.torrents[0].magnet;
 	}
 	const engine = torrentStream(magnet, { tmp: './MovieLibrary' });
+	console.log('starting download');
 	engine.on('ready', () => {
-		engine.files.forEach((file, i) => {
+		engine.files.forEach((file) => {
 			const ext = file.name.split('.').pop();
 			if (ext === 'mp4' || ext === 'mkv') {
-				const path = '/goinfre/hypertube-prod/api/MovieLibrary/torrent-stream/aeadc552a16950b1e1812089f0552a6dd74eb01a/Max Steel (2016) [1080p] [YTS.AG]/Max.Steel.2016.1080p.BluRay.x264-[YTS.AG].mp4';
-				const stat =  fs.statSync(path);
-				const total = stat.size;
-				const stream = engine.files[i].createReadStream();
-				res.writeHead(200, { 'Content-Length': total, 'Content-Type': 'video/mp4' });
-				fs.createReadStream(path).pipe(res);
-				// stream.on('data', (data) => {
+				res.writeHead(200, { 'Content-Length': file.length, 'Content-Type': `video/${ext}` });
+				console.log('starting streaming');
+				const stream = file.createReadStream().pipe(res);
+				// stream.on('data', data => {
 				// 	res.write(data);
-				// 	// console.log(data);
-				// });
-				// stream.on('end', () => {
-				// 	console.log('FINISHED DOWNLOADING');
-				// 	res.end();
 				// });
 				stream.on('error', e => {
 					console.log(e);
 				});
+			}
+		});
+	});
+	engine.on('download', () => {
+		// console.log(engine);
+		engine.files.forEach((file) => {
+			const ext = file.name.split('.').pop();
+			if (ext === 'mp4' || ext === 'mkv') {
+				const dl = engine.swarm.downloaded;
+				const total = engine.torrent.length;
+				const pct = (dl * 100) / total;
+				process.stdout.clearLine();
+				process.stdout.cursorTo(0);
+				process.stdout.write(`dl: ${dl}, total: ${total}, pct: ${Math.floor(pct)}%`);
+				// const path = `${engine.path}/${file.name}`;
+				// console.log(file.length);
+				//  res.writeHead(200, { 'Content-Length': file.length, 'Content-Type': 'video/mp4' });
 			}
 		});
 	});

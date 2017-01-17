@@ -181,16 +181,16 @@ const yts = () => {
 };
 
 const eztvPrepare = (id) => {
-    const client = request.createClient('http://eztvapi.ml/');
-    // const client = request.createClient('https://popcornwvnbg7jev.onion.to/');
+    // const client = request.createClient('http://eztvapi.ml/');
+    const client = request.createClient('https://popcornwvnbg7jev.onion.to/');
     client.get(`show/${id}`, (error, response, body) => {
         if (typeof body === 'object') addSerie(body);
     });
 };
 
 const eztv = () => {
-    const client = request.createClient('http://eztvapi.ml/');
-    // const client = request.createClient('https://popcornwvnbg7jev.onion.to/');
+    // const client = request.createClient('http://eztvapi.ml/');
+    const client = request.createClient('https://popcornwvnbg7jev.onion.to/');
     client.get('shows', (error, response, body) => {
         if (typeof body !== 'object') return (console.log('Could not get data from EZTV'));
         const max = body.pop().split('/')[1];

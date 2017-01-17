@@ -166,7 +166,6 @@ class Movie extends React.Component {
 			reqOBJ.season = season;
 		}
 		api.addHistory(reqOBJ);
-		console.log('abc');
 		this.setState({
 			src,
 			srcTrack,

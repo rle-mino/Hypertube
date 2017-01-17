@@ -44,7 +44,7 @@ const getEpisode = (episodes, season, episode) =>
         ep.season === parseInt(season, 10) && ep.episode === parseInt(episode, 10),
 );
 
-const addHistory = (req) => {
+const addHistory = (req, res) => {
 	const user = req.loggedUser;
 	const season = req.body.season;
 	const episode = req.body.episode;
@@ -71,6 +71,7 @@ const addHistory = (req) => {
             user.save();
         }
     }
+    res.send({ status: 'success' });
 };
 
 const returnData = async (req) => {
