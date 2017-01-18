@@ -44,7 +44,7 @@ const streamRoute = async (req, res) => {
 				const pct = (dl * 100) / total;
 				process.stdout.clearLine();
 				process.stdout.cursorTo(0);
-				process.stdout.write(`dl: ${dl}, total: ${total}, pct: ${Math.floor(pct)}%`);
+				process.stdout.write(`${engine.torrent.name} -> dl: ${dl}, total: ${total}, pct: ${Math.floor(pct)}%`);
 				if (dl === total) console.log('finished downloading');
 			}
 		});

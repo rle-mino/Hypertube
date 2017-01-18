@@ -6,12 +6,11 @@ import IconClickable		from '../IconClickable'
 
 const Comment = ({ comment, username, l, movieID, onCommentsUpdate }) => {
 	const handleRemove = ({ data }) => {
-		console.log(data.comments);
 		if (data.status && data.status.includes('success')) {
 			onCommentsUpdate(data.comments)
 		}
 	}
-	
+
 	const removeComment = () => {
 		api.removeComment({ id: movieID, commentId: comment.id })
 			.then(handleRemove)
@@ -19,9 +18,9 @@ const Comment = ({ comment, username, l, movieID, onCommentsUpdate }) => {
 
 	return (
 		<li className="comment">
-			<p>{comment.authorName}</p>
+			<p>{comment.author.username}</p>
 			<p className="commentText">{comment.text}</p>
-			{username === comment.authorName &&
+			{username === comment.author.username &&
 				<IconClickable
 					className="removeComment"
 					tooltip={lang.remove[l]}

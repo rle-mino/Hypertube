@@ -176,7 +176,7 @@ class Movie extends React.Component {
 	}
 
 	onCommentsUpdate = (newComments) => {
-		if (!newComments || !newComments.length) return false;
+		if (!newComments) return false;
 		this.setState({ data: {
 				...this.state.data,
 				comments: newComments,

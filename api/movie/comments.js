@@ -14,8 +14,7 @@ const create = async (req, res) => {
     const id = Math.random().toString(36).substring(7);
     const comment = {
         id,
-        authorId: req.loggedUser._id,
-        authorName: req.loggedUser.username,
+        author: _.omit(req.loggedUser, ['mail', 'provider', '_id']),
         text: req.body.comment,
     };
     if (!req.body.id) return res.send({ status: 'error', details: 'invalid request' });
@@ -31,7 +30,7 @@ const remove = async (req, res) => {
   if (!id) return res.send({ status: 'error', details: 'invalid request' });
   const found = await Movie.findOne({ _id: id });
   const isUnauthorized = found.comments.find((comment) =>
-		comment.id === commentId && !_.isEqual(comment.authorId, req.loggedUser._id));
+		comment.id === commentId && !_.isEqual(comment.author._id, req.loggedUser._id));
   if (!isUnauthorized) {
 		const newComments = found.comments.filter(comment => comment.id !== commentId);
     found.comments = newComments;
