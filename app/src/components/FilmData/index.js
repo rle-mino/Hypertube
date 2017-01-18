@@ -13,7 +13,7 @@ const chipStyle = {
 }
 
 const FilmData = ({ data, serie, selectedEpisode, updateSelected, l, dispatch }) => {
-	
+
 	/*
 	*	These methods gets the next or prev episode
 	*	using the episodes list and the actual selected episode
@@ -65,7 +65,7 @@ const FilmData = ({ data, serie, selectedEpisode, updateSelected, l, dispatch })
 			}
 		))
 	}
-	
+
 	const searchCat = (cat) => {
 		dispatch(bOut())
 		setTimeout(() => browserHistory.push(`/ht/search?category=${cat}`), 500)
@@ -92,6 +92,7 @@ const FilmData = ({ data, serie, selectedEpisode, updateSelected, l, dispatch })
 
 	return (
 		<div className="filmData">
+			{console.log(data) || (data.viewed && <span>already watched</span>)}
 			<div
 				className="poster"
 				style={{ backgroundImage: `url('${data.poster}'), url('${noImage}')` }}
@@ -129,5 +130,5 @@ const FilmData = ({ data, serie, selectedEpisode, updateSelected, l, dispatch })
 		</div>
 	)
 }
-	
+
 export default FilmData

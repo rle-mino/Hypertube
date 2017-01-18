@@ -137,7 +137,15 @@ const getData = (req, res) => {
                     }).sort({ pop: -1 }).limit(5);
                     suggestions = suggs.map(suggests => _.pick(suggests, ['id', 'title', 'poster', 'year', 'rating', 'code']));
                 }
-                return (res.send({ result: found, viewed, comments, suggestions, status: 'success' }));
+				// req.loggedUser.history.map((el) => {
+				// 	if (el.title === found.title) {
+				// 		found.viewed = true;
+				// 	} else {
+				// 		found.viewed = false;
+				// 	}
+				// });
+				const result = { ...found._doc, viewed };
+                return (res.send({ result, comments, suggestions, status: 'success' }));
         });
         return (false);
     });
