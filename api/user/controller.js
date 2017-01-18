@@ -65,7 +65,8 @@ const getToken = (req) => {
 };
 
 const checkTokenMid = async (req, res, next) => {
-	if (safePath.indexOf(req.path) !== -1 || /\/api\/stream.*/.test(req.path) === true) {
+	if (safePath.indexOf(req.path) !== -1 || /\/api\/stream.*/.test(req.path) === true ||
+		/\/ht.*/.test(req.path) === true) {
 		return next();
 	}
 	const token = getToken(req);
