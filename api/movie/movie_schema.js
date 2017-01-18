@@ -20,6 +20,7 @@ const movieSchema = new Schema({
   director: String,
   writer: String,
   actors: [String],
+  lastViewed: Number,
   // extended: { type: Boolean, default: false },
 });
 

@@ -14,9 +14,8 @@ const getIndex = (episodes, season, episode) => {
     }
 };
 
-const addPath = (req) => {
+const addPath = (req, path) => {
     const id = req.params.id;
-    const path = req.query.path || null;
     const season = req.query.s;
     const episode = req.query.e;
     const q = Number(req.query.q) || 0;
@@ -25,14 +24,17 @@ const addPath = (req) => {
         if (found.torrents.length) {
             const torrents = found.torrents;
             torrents[q].path = path;
+            torrents[q].lastViewed = Date.now();
             torrents.set(q, torrents[q]);
             found.save();
         } else if (season && episode) {
             const index = getIndex(found.episodes, Number(season), Number(episode));
             const serieEpisode = found.episodes[index];
             serieEpisode.path = path;
+            serieEpisode.lastViewed = Date.now();
             found.episodes.set(index, serieEpisode);
             found.save();
+            console.log(path);
         }
     });
 };
