@@ -96,9 +96,19 @@ const returnData = async (req) => {
     return ({ result: found, status: 'success' });
 };
 
+const inHistory = (history, id) => {
+  let inArray = false;
+  history.forEach((movie) => {
+    if (movie.id === id) {
+      inArray = true;
+    }
+  });
+  return inArray;
+};
 
 const getData = (req, res) => {
     const id = req.params.id;
+    const viewed = inHistory(req.loggedUser.history, req.params.id);
     Movie.findOne({ _id: id }, async (err, found) => {
         if (err || !found) return (res.send({ status: 'error', details: 'Movie not found' }));
         const genres = found.genres;
@@ -127,7 +137,7 @@ const getData = (req, res) => {
                     }).sort({ pop: -1 }).limit(5);
                     suggestions = suggs.map(suggests => _.pick(suggests, ['id', 'title', 'poster', 'year', 'rating', 'code']));
                 }
-                return (res.send({ result: found, comments, suggestions, status: 'success' }));
+                return (res.send({ result: found, viewed, comments, suggestions, status: 'success' }));
         });
         return (false);
     });
