@@ -92,7 +92,7 @@ const FilmData = ({ data, serie, selectedEpisode, updateSelected, l, dispatch })
 
 	return (
 		<div className="filmData">
-			{console.log(data) || (data.viewed && <span>already watched</span>)}
+			{(data.viewed && <span>already watched</span>)}
 			<div
 				className="poster"
 				style={{ backgroundImage: `url('${data.poster}'), url('${noImage}')` }}

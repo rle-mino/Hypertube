@@ -146,7 +146,7 @@ class Movie extends React.Component {
 		let srcTrack = apiConnect
 		srcTrack += '/public/subtitles/'
 		srcTrack += data.code
-		srcTrack += serie ? `S${season}E${episode}` : ''
+		srcTrack += serie ? `S${season}E${episode}.` : '.'
 		srcTrack += lang.lang[l]
 		srcTrack += '.vtt'
 

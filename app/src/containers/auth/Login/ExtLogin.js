@@ -24,7 +24,7 @@ class ExtLogin extends React.Component {
 		this._mounted = false
 	}
 
-	oauth = (url) => window.location.replace(`${url}?next=http://localhost:8080`)
+	oauth = (url) => window.location.replace(`${url}?next=http://localhost:3000`)
 
 	render() {
 		const { l } = this.props
