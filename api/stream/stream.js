@@ -1,8 +1,9 @@
 // import MovieFile	from './movieFile'
+import fs from 'fs';
 import torrentStream from 'torrent-stream';
 import Transcoder from 'stream-transcoder';
 import * as movie from '../movie/info';
-import { addPath } from '../movie/scrap';
+import { addPath, checkPath } from '../movie/scrap';
 
 // AJOUT PATH BDD
 
@@ -22,12 +23,10 @@ const getTorrent = async (req) => {
 	return magnet;
 };
 
-const streamRoute = async (req, res) => {
-	const magnet = await getTorrent(req);
-	// check path -> if exists reAddPath for date
+const torrentHandle = (req, res, magnet) => {
 	const engine = torrentStream(magnet, { tmp: './MovieLibrary' });
 	engine.on('ready', () => {
-		engine.files.forEach((file) => {
+		engine.files.forEach(async (file) => {
 			const ext = file.name.split('.').pop();
 			if (ext === 'mp4' || ext === 'mkv' || ext === 'avi') {
 				console.log(`starting download for ${file.name}`);
@@ -60,13 +59,37 @@ const streamRoute = async (req, res) => {
 				process.stdout.clearLine();
 				process.stdout.cursorTo(0);
 				process.stdout.write(`${engine.torrent.name} -> dl: ${dl}, total: ${total}, pct: ${Math.ceil(pct)}%`);
-				if (dl === total) {
-					console.log('\nfinished downloading');
+				if (dl >= total) {
 					addPath(req, path);
 				}
 			}
 		});
 	});
+};
+
+const streamRoute = async (req, res) => {
+	const magnet = await getTorrent(req);
+	const path = await checkPath(req);
+	if (path) {
+		addPath(req, path);
+		const ext = path.split('.').pop();
+		const stat = fs.statSync(path);
+		const total = stat.size;
+		const stream = fs.createReadStream(path);
+		res.writeHead(200, { 'Content-Length': total, 'Content-Type': `video/${ext}` });
+		console.log(`file already in DB, now streaming ${path.split('/').pop()}`);
+		if (ext !== 'mp4' && ext !== 'mkv') {
+			new Transcoder(stream).videoCodec('h264')
+			.audioCodec('aac')
+			.format('mp4').stream().pipe(res);
+		} else {
+			stream.pipe(res);
+		}
+		// const file =
+		// return;
+	} else {
+		torrentHandle(req, res, magnet);
+	}
 };
 
 export default streamRoute;
