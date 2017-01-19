@@ -144,7 +144,8 @@ const getData = (req, res) => {
 				// 		found.viewed = false;
 				// 	}
 				// });
-				const result = { ...found._doc, viewed };
+				let result = { ...found._doc, viewed };
+                if (type === 'serie') result = { ...found, viewed };
                 return (res.send({ result, comments, suggestions, status: 'success' }));
         });
         return (false);

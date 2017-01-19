@@ -36,9 +36,9 @@ const streamRoute = async (req, res) => {
 				if (ext !== 'mp4' && ext !== 'mkv') {
 					new Transcoder(stream).videoCodec('h264')
 					.audioCodec('aac')
-					.format('mp4').stream();
+					.format('mp4').stream().pipe(res);
 					// .pipe(res);
-					stream.pipe(res);
+					// stream.pipe(res);
 				} else {
 					stream.pipe(res);
 				}
