@@ -33,6 +33,7 @@
     "express-jwt": "^5.1.0",
     "express-session": "^1.14.2",
     "file-type": "^4.0.0",
+    "fluent-ffmpeg": "^2.1.0",
     "google-translate-api": "^2.2.2",
     "hat": "0.0.3",
     "inherits": "^2.0.3",

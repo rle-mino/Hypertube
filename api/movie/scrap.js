@@ -18,14 +18,14 @@ const addPath = (req, path) => {
     const id = req.params.id;
     const season = req.query.s;
     const episode = req.query.e;
-    const q = Number(req.query.q) || 0;
+    const r = Number(req.query.r) || 0;
     Movie.findOne({ _id: id }, async (err, found) => {
         if (err || !found) return;
         if (found.torrents.length) {
             const torrents = found.torrents;
-            torrents[q].path = path;
-            torrents[q].lastViewed = Date.now();
-            torrents.set(q, torrents[q]);
+            torrents[r].path = path;
+            torrents[r].lastViewed = Date.now();
+            torrents.set(r, torrents[r]);
             found.save();
         } else if (season && episode) {
             const index = getIndex(found.episodes, Number(season), Number(episode));
@@ -34,9 +34,29 @@ const addPath = (req, path) => {
             serieEpisode.lastViewed = Date.now();
             found.episodes.set(index, serieEpisode);
             found.save();
-            console.log(path);
         }
     });
+};
+
+const checkPath = async (req) => {
+  const r = Number(req.query.r) || 0;
+  const movie = await Movie.findOne({ _id: req.params.id });
+  if (req.query.s && req.query.e) {
+    const index = getIndex(movie.episodes, Number(req.query.s), Number(req.query.e));
+    if (movie.episodes[index].path) {
+      const path = movie.episodes[index].path;
+      return path;
+    } else {
+      return false;
+    }
+  } else {
+    if (movie.torrents[r].path) {
+      const path = movie.torrents[r].path;
+      return path;
+    } else {
+      return false;
+    }
+  }
 };
 
 const updateEpisodes = (episodes, oldepisodes) => {
@@ -204,4 +224,4 @@ const eztv = () => {
     });
  };
 
-export { yts, eztv, addPath };
+export { yts, eztv, addPath, checkPath };
