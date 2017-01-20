@@ -47,7 +47,7 @@ export default class SearchForm extends React.Component {
 	}
 
 	/*
-	*		disables mouseTrap when the component is unmounted 
+	*		disables mouseTrap when the component is unmounted
 	*/
 	componentWillUnmount() {
 		this._mounted = false
@@ -111,6 +111,9 @@ export default class SearchForm extends React.Component {
 	*		with the written title
 	*/
 	searchFilm = (e) => {
+		if (e.target.value.length > 200) {
+			e.target.value = '';
+		}
 		this.setState({ title: e.target.value })
 		e.persist()
 		this.debounceSearchFilm(e)

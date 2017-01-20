@@ -175,6 +175,12 @@ class registerForm extends React.Component {
 		if (e.keyCode === 13) this.signUp()
 	}
 
+	updateTextField = (e) => {
+		if (e.target.value.length > 200) {
+			e.target.value = '';
+		}
+	}
+
 	render() {
 		const { l } = this.props
 		const {
@@ -192,6 +198,7 @@ class registerForm extends React.Component {
 			    	floatingLabelText={lang.username[l]}
 						name="username"
 						type="text"
+						onChange={this.updateTextField}
 						errorText={usernameR}
 						autoFocus={true}
 						{ ...styles.textFieldSet }
@@ -200,6 +207,7 @@ class registerForm extends React.Component {
 					floatingLabelText={lang.lastname[l]}
 					name="lastname"
 					type="text"
+					onChange={this.updateTextField}
 					errorText={lastnameR}
 					{ ...styles.textFieldSet }
 				/>
@@ -207,6 +215,7 @@ class registerForm extends React.Component {
 			    	floatingLabelText={lang.firstname[l]}
 					name="firstname"
 					type="text"
+					onChange={this.updateTextField}
 					errorText={firstnameR}
 					{ ...styles.textFieldSet }
     			/>
@@ -214,6 +223,7 @@ class registerForm extends React.Component {
 			    	floatingLabelText={lang.mail[l]}
 					name="mail"
 					type="mail"
+					onChange={this.updateTextField}
 					errorText={mailR}
 					{ ...styles.textFieldSet }
     			/>
@@ -221,6 +231,7 @@ class registerForm extends React.Component {
 			    	floatingLabelText={lang.password[l]}
 					name="password"
 					type="password"
+					onChange={this.updateTextField}
 					errorText={passwordR}
 					{ ...styles.textFieldSet }
     			/>
@@ -228,6 +239,7 @@ class registerForm extends React.Component {
 			    	floatingLabelText={lang.passwordConfirm[l]}
 					name="passwordConfirm"
 					type="password"
+					onChange={this.updateTextField}
 					errorText={passwordConfirmR}
 					{ ...styles.textFieldSet }
     			/>

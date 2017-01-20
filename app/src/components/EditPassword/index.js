@@ -102,6 +102,12 @@ export default class EditPassword extends React.Component {
 		if (e.keyCode === 13) this.updatePass()
 	}
 
+	updateTextField = (e) => {
+		if (e.target.value.length > 200) {
+			e.target.value = '';
+		}
+	}
+	
 	render() {
 		const { l, mainColor } = this.props
 		const { open, serverResponse, passwordR, newPasswordR, checkPassR } = this.state
@@ -140,6 +146,7 @@ export default class EditPassword extends React.Component {
 							floatingLabelText={lang.oldPassword[l]}
 							name="password"
 							type="password"
+							onChange={this.updateTextField}
 							autoFocus={true}
 							errorText={passwordR}
 							{...this.getFieldProps()}
@@ -148,6 +155,7 @@ export default class EditPassword extends React.Component {
 							floatingLabelText={lang.newPassword[l]}
 							name="newPassword"
 							type="password"
+							onChange={this.updateTextField}
 							errorText={newPasswordR}
 							{...this.getFieldProps()}
 						/>
@@ -155,6 +163,7 @@ export default class EditPassword extends React.Component {
 							floatingLabelText={lang.passwordConfirm[l]}
 							name="checkPass"
 							type="password"
+							onChange={this.updateTextField}
 							errorText={checkPassR}
 							{...this.getFieldProps()}
 						/>
