@@ -5,7 +5,6 @@ import api					from '../../apiCall'
 import IconClickable		from '../IconClickable'
 
 const Comment = ({ comment, username, l, movieID, onCommentsUpdate }) => {
-	console.log(comment);
 	const handleRemove = ({ data }) => {
 		if (data.status && data.status.includes('success')) {
 			onCommentsUpdate(data.comments)

@@ -69,8 +69,6 @@ export default class VideoPlayer extends React.Component {
 		const dursecs = Math.floor(_player.duration - durmins * 60);
 		const completeDuration = `${durmins < 10 ? '0' : ''}${durmins}:${dursecs}`
 
-		console.log();
-
 		this.setState({ currentTime, completeCurrentTime, completeDuration })
 
 		/*
