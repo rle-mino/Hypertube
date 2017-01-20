@@ -56,9 +56,9 @@ const torrentHandle = (req, res, magnet) => {
 				const dl = engine.swarm.downloaded;
 				const total = engine.torrent.files[i].length;
 				const pct = (dl * 100) / total;
-				process.stdout.clearLine();
-				process.stdout.cursorTo(0);
-				process.stdout.write(`${engine.torrent.name} -> dl: ${dl}, total: ${total}, pct: ${Math.ceil(pct)}%`);
+			//	process.stdout.clearLine();
+			//	process.stdout.cursorTo(0);
+			//	process.stdout.write(`${engine.torrent.name} -> dl: ${dl}, total: ${total}, pct: ${Math.ceil(pct)}%`);
 				if (dl >= total) {
 					addPath(req, path);
 				}
@@ -92,4 +92,4 @@ const streamRoute = async (req, res) => {
 	}
 };
 
-export default streamRoute;
+export { streamRoute, getTorrent };

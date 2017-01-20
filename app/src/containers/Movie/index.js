@@ -177,14 +177,20 @@ class Movie extends React.Component {
 					srcLang: lang.labelSRC[l],
 					isMovieRequested: true,
 				})
-			} else if (data.status === 'error') {
+			} else if (data.status === 'error' && data.details === 'subtitles') {
 				this.setState({
 					src,
 					label: lang.label[l],
 					srcLang: lang.labelSRC[l],
 					isMovieRequested: true,
 				})
-			}
+			} else if (data.status === 'error' && data.details === 'src') {
+				this.setState({
+					label: lang.label[l],
+					srcLang: lang.labelSRC[l],
+					isMovieRequested: true,
+				})
+			};
 		});
 		api.addHistory(reqOBJ);
 	}

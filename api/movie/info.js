@@ -1,7 +1,9 @@
 import _ from 'lodash';
 import translate from 'google-translate-api';
+import health from 'torrent-tracker-health';
 import Movie from './movie_schema';
 import User from '../user/schema';
+import * as stream from '../stream/stream';
 
 const popGenres = async (data, genres, found, id, type) => {
     genres = _.initial(genres);
@@ -43,7 +45,30 @@ const getEpisode = (episodes, season, episode) =>
         ep.season === parseInt(season, 10) && ep.episode === parseInt(episode, 10),
 );
 
-const addHistory = (req, res) => {
+const returnData = async (req) => {
+    const id = req.params.id || req.body.id;
+    const season = req.query.s || req.body.season;
+    const episode = req.query.e || req.body.episode;
+    let found = await Movie.findOne({ _id: id });
+    if (!found) return ({ status: 'error', details: 'Movie not found' });
+    const type = found.episodes[0] ? 'serie' : 'movie';
+    if (type === 'serie') {
+        found = found.toObject();
+        found.torrents = getEpisode(found.episodes, season, episode);
+        delete found.episodes;
+    }
+    return ({ result: found, status: 'success' });
+};
+
+const addHistory = async (req, res) => {
+  const magnet = await stream.getTorrent(req);
+  health(magnet).then((result) => {
+    if (result.seeds <= 1) {
+      return (res.send({ status: 'error', details: 'src' }))
+    }
+  }).catch((err) => {
+    return (res.send({ status: 'error', details: 'src' }))
+  });
 	const user = req.loggedUser;
 	const title = req.body.title;
 	const id = req.body.id;
@@ -56,25 +81,6 @@ const addHistory = (req, res) => {
       user.save();
   }
   res.send({ status: 'success' });
-};
-
-const returnData = async (req) => {
-    const id = req.params.id;
-    // const userId = req.loggedUser._id;
-    const season = req.query.s;
-    const episode = req.query.e;
-    let found = await Movie.findOne({ _id: id });
-    if (!found) return ({ status: 'error', details: 'Movie not found' });
-    const type = found.episodes[0] ? 'serie' : 'movie';
-    if (type === 'serie') {
-        found = found.toObject();
-        found.torrents = getEpisode(found.episodes, season, episode);
-        delete found.episodes;
-    }
-    // const user = await (User.findOne({ _id: userId }));
-    // addHistory(user, found.title, id, season, episode);
-    // console.log(found.torrents);
-    return ({ result: found, status: 'success' });
 };
 
 const inHistory = (history, id) => {

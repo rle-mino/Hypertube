@@ -25,22 +25,27 @@ const getSubtitle = async (req, res) => {
   if (fs.existsSync(`${STPath}.vtt`)) {
     return (res.send({ status: 'success' }));
   }
-  const subtitles = await OpenSubtitles.search(reqOBJ);
-  const lang = req.body.lg === 'fr' ? subtitles.fr : subtitles.en;
-  if (lang) {
-      const download = request(subtitles.en.url).pipe(fs.createWriteStream(`${STPath}.srt`));
-      download.on('finish', () => {
-        const file = fs.createReadStream(`${STPath}.srt`)
-        .pipe(srt2vtt())
-        .pipe(fs.createWriteStream(`${STPath}.vtt`));
-        file.on('close', () => {
-          res.send({ status: 'success' });
+  OpenSubtitles.search(reqOBJ).then((subtitles) => {
+    const lang = req.body.lg === 'fr' ? subtitles.fr : subtitles.en;
+    if (lang) {
+        const download = request(subtitles.en.url).pipe(fs.createWriteStream(`${STPath}.srt`));
+        download.on('finish', () => {
+          const file = fs.createReadStream(`${STPath}.srt`)
+          .pipe(srt2vtt())
+          .pipe(fs.createWriteStream(`${STPath}.vtt`));
+          file.on('close', () => {
+            res.send({ status: 'success' });
+          });
         });
-      });
-      download.on('error', () => {
-        res.send({ status: 'error' });
-      });
-  }
+        download.on('error', () => {
+          res.send({ status: 'error', details: 'subtitles' });
+        });
+    } else {
+      res.send({ status: 'error', details: 'subtitles' });
+    }
+  }).catch((err) => {
+    res.send({ status: 'error', details: 'subtitles' });
+  });
 };
 
 export { getSubtitle };
