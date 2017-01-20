@@ -4,7 +4,7 @@ import Movie from './movie_schema';
 
 const create = async (req, res) => {
     const commentSchema = Joi.object().keys({
-        comment: Joi.string().alphanum().max(200).required(),
+        comment: Joi.string().max(200).required(),
     });
     const { error } = Joi.validate(req.body, commentSchema, {
         abortEarly: false,

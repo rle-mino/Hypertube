@@ -2,10 +2,16 @@ import OS from 'opensubtitles-api';
 import fs from 'fs';
 import request from 'request';
 import srt2vtt from 'srt-to-vtt';
+import health from 'torrent-tracker-health';
+import * as stream from '../stream/stream';
+
 
 const absPath = 'public/subtitles/';
 
 const getSubtitle = async (req, res) => {
+  const magnet = await stream.getTorrent(req);
+  const result = await health(magnet);
+  if (result.seeds < 1) return (res.send({ status: 'error', details: 'src' }));
   const OpenSubtitles = new OS({
     useragent: '42hypertube',
   });

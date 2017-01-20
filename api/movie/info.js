@@ -1,9 +1,6 @@
 import _ from 'lodash';
 import translate from 'google-translate-api';
-import health from 'torrent-tracker-health';
 import Movie from './movie_schema';
-import User from '../user/schema';
-import * as stream from '../stream/stream';
 
 const popGenres = async (data, genres, found, id, type) => {
     genres = _.initial(genres);
@@ -61,28 +58,20 @@ const returnData = async (req) => {
 };
 
 const addHistory = async (req, res) => {
-  const magnet = await stream.getTorrent(req);
-  health(magnet).then((result) => {
-    if (result.seeds <= 1) {
-      return (res.send({ status: 'error', details: 'src' }));
-    }
-  }).catch((err) => {
-    return (res.send({ status: 'error', details: 'src' }));
-  });
-	const user = req.loggedUser;
-	const title = req.body.title;
-	const id = req.body.id;
+  const user = req.loggedUser;
+  const title = req.body.title;
+  const id = req.body.id;
   const movie = await Movie.findOne({ _id: id });
   const video = {
-      title,
-      id,
-      year: movie.year,
-      poster: movie.poster,
-      rating: movie.rating,
+    title,
+    id,
+    year: movie.year,
+    poster: movie.poster,
+    rating: movie.rating,
   };
   if (_.findIndex(user.history, { id }) === -1) {
-      user.history.push(video);
-      user.save();
+    user.history.push(video);
+    user.save();
   }
   res.send({ status: 'success' });
 };
