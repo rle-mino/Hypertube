@@ -28,7 +28,7 @@ const getSubtitle = async (req, res) => {
   OpenSubtitles.search(reqOBJ).then((subtitles) => {
     const lang = req.body.lg === 'fr' ? subtitles.fr : subtitles.en;
     if (lang) {
-        const download = request(subtitles.en.url).pipe(fs.createWriteStream(`${STPath}.srt`));
+        const download = request(lang.url).pipe(fs.createWriteStream(`${STPath}.srt`));
         download.on('finish', () => {
           const file = fs.createReadStream(`${STPath}.srt`)
           .pipe(srt2vtt())

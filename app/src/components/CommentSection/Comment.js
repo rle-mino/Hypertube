@@ -24,11 +24,12 @@ const Comment = ({ comment, username, l, movieID, onCommentsUpdate }) => {
 					<img src={comment.author.image[0]} />
 				)}
 				<p>{comment.author.mail}</p>
+				{console.log(comment.author)}
 				{comment.author.history[0] &&
 					<p>Last seen : {comment.author.history[(comment.author.history.length) - 1].title }</p>
 				}
 			</div>
-			<p>{comment.author.username}</p>
+			<p className="author">{comment.author.username}</p>
 			<p className="commentText">{comment.text}</p>
 			{username === comment.author.username &&
 				<IconClickable

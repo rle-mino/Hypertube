@@ -20,6 +20,7 @@
 
 .comment
 	background-color: white
+	position: relative
 	width: 100%
 	display: flex
 	flex-direction: row
@@ -33,11 +34,14 @@
 		box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)
 		& .userProfile
 			display: block
+	& .author
+		margin-right: 10px
 	& .userProfile
-		width: auto
-		height: auto
-		margin-right: 5px
-		background-color:
+		position: absolute
+		background-color: white
+		box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)
+		padding: 5px
+		top: 50px
 		display: none
 		& img
 			width: 100px

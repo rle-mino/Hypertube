@@ -64,17 +64,21 @@ const addHistory = async (req, res) => {
   const magnet = await stream.getTorrent(req);
   health(magnet).then((result) => {
     if (result.seeds <= 1) {
-      return (res.send({ status: 'error', details: 'src' }))
+      return (res.send({ status: 'error', details: 'src' }));
     }
   }).catch((err) => {
-    return (res.send({ status: 'error', details: 'src' }))
+    return (res.send({ status: 'error', details: 'src' }));
   });
 	const user = req.loggedUser;
 	const title = req.body.title;
 	const id = req.body.id;
+  const movie = await Movie.findOne({ _id: id });
   const video = {
       title,
       id,
+      year: movie.year,
+      poster: movie.poster,
+      rating: movie.rating,
   };
   if (_.findIndex(user.history, { id }) === -1) {
       user.history.push(video);

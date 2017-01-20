@@ -186,6 +186,7 @@ class Movie extends React.Component {
 				})
 			} else if (data.status === 'error' && data.details === 'src') {
 				this.setState({
+					src: 'http://distribution.bbb3d.renderfarming.net/video/mp4/bbb_sunflower_1080p_30fps_normal.mp4',
 					label: lang.label[l],
 					srcLang: lang.labelSRC[l],
 					isMovieRequested: true,
