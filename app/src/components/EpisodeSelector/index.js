@@ -81,6 +81,7 @@ export default ({ selectedEpisode, episodesList, onEpisodeSelect, l, onClickPrev
 				<FlatButton
 					label={lang.prev[l]}
 					style={getStyle(!!hasPrev)}
+					labelStyle={{ padding: '0' }}
 					onTouchTap={onClickPrev}
 				/>
 				<FlatButton
@@ -94,7 +95,8 @@ export default ({ selectedEpisode, episodesList, onEpisodeSelect, l, onClickPrev
 					value={selectedEpisode.season}
 					onChange={updateSeason}
 					autoWidth={false}
-					style={{ width: '150px' }}
+					style={{ width: '150px', padding: '0' }}
+					labelStyle={{ padding: '5px' }}
 				>
 					{drawSeason(selectedEpisode, episodesList)}
 				</DropDownMenu>
@@ -103,6 +105,7 @@ export default ({ selectedEpisode, episodesList, onEpisodeSelect, l, onClickPrev
 					onChange={updateEpisode}
 					autoWidth={false}
 					style={{ width: '150px' }}
+					labelStyle={{ padding: '5px' }}
 				>
 					{drawEpisode(episodesList)}
 				</DropDownMenu>
