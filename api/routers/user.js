@@ -123,8 +123,6 @@ export default (app) => {
 
 	app.get('/api/user/auth/linkedin', (req, res, next) => {
 		req.session.query = req.query;
-		console.log(req.query);
-
 		next();
 	}, passport.authenticate('linkedin'));
 
@@ -138,12 +136,10 @@ export default (app) => {
 
 	app.get('/api/user/auth/spotify', (req, res, next) => {
 		req.session.query = req.query;
-		console.log(req.query);
 		next();
 	}, passport.authenticate('spotify', { scope: ['user-read-email', 'user-read-private'] }));
 
 	app.get('/api/user/auth/spotify/callback', userFonc.spotifyLogin, (req, res) => {
-		console.log(req.session.query.next);
 		res.set('Access-Control-Expose-Headers', 'x-access-token');
 		res.set('x-access-token', req.session.token);
 		return res.redirect(`${req.session.query.next}?token=${req.session.token}`);

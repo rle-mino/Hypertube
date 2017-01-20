@@ -95,9 +95,12 @@ module.exports = (app, passport) => {
 			passport.authenticate('twitter', (err, user) => {
 				if (err) return res.send(err);
 				if (!user) return next();
+				if (user.username) {
 				const token = jwt.sign({ _id: user._id, username: user.username, provider: 'twitter' }, cfg.jwtSecret);
 				req.session.token = token;
 				return next();
+			}
+			return next();
 			})(req, res, next);
 		},
 

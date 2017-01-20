@@ -132,10 +132,14 @@ passport.use('twitter', new TwitterStrategy({
 		User.findOne({ $and: [{ username }, { provider: 'twitter' }] }, (err, user) => {
 			if (err) return done(err, { status: 'error', details: 'Cant connect to db' });
 			if (!user) {
+				let mail = '';
+				if (profile.emails) {
+					mail = profile.emails[0].value;
+				}
 				const newUser = new User({
 					id: profile.id,
 					username,
-					mail: profile.emails[0].value,
+					mail,
 					image: profile.photos[0].value,
 					provider: 'twitter',
 				});
