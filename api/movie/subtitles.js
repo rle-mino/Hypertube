@@ -34,7 +34,6 @@ const getSubtitle = async (req, res) => {
         .pipe(srt2vtt())
         .pipe(fs.createWriteStream(`${STPath}.vtt`));
         file.on('close', () => {
-          fs.unlinkSync(`${STPath}.srt`);
           res.send({ status: 'success' });
         });
       });
