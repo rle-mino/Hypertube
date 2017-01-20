@@ -12,7 +12,7 @@ export default ({ history, l, dispatch }) =>
 	<div className="history">
 		<h3>{lang.yourHistory[l]}</h3>
 		{(history && history.length &&
-			<ul className="historyList">{drawHistory(history)}</ul>) ||
+			<ul className="historyList">{drawHistory(history, dispatch)}</ul>) ||
 			<div className="empty">{lang.empty[l]}</div>
 		}
 	</div>
