@@ -92,7 +92,6 @@ const FilmData = ({ data, serie, selectedEpisode, updateSelected, l, dispatch })
 
 	return (
 		<div className="filmData">
-			{(data.viewed && <span>already watched</span>)}
 			<div
 				className="poster"
 				style={{ backgroundImage: `url('${data.poster}'), url('${noImage}')` }}
@@ -108,6 +107,7 @@ const FilmData = ({ data, serie, selectedEpisode, updateSelected, l, dispatch })
 						l={l}
 					/>
 				}
+				{(data.viewed && <span className="alreadyWatched">{lang.alreadyWatched[l]}</span>)}
 				<h1>{data.title}</h1>
 				<div className="rate">
 					<i className="material-icons">stars</i>

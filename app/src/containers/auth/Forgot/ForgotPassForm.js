@@ -60,6 +60,13 @@ class ForgotPassForm extends React.Component {
 		}
 	}
 
+	updateTextField = (e) => {
+		if (e.target.value.length > 200) {
+			e.target.value = '';
+		}
+		this.setState({ value: e.target.value })
+	}
+
 	render() {
 		const { l } = this.props
 		const { mailR, serverResponse } = this.state
@@ -70,6 +77,7 @@ class ForgotPassForm extends React.Component {
 			    	floatingLabelText={lang.mail[l]}
 					name="mail"
 					type="text"
+					onChange={this.updateTextField}
 					errorText={mailR}
 					autoFocus={true}
 					{ ...textFieldSet }

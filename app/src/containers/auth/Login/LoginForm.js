@@ -84,6 +84,12 @@ class LoginForm extends React.Component {
 		this.props.dispatch(selectAuth(2))
 	}
 
+	updateTextField = (e) => {
+		if (e.target.value.length > 200) {
+			e.target.value = '';
+		}
+	}
+
 	render() {
 		const { l } = this.props
 		const { usernameR, passwordR, serverResponse } = this.state
@@ -95,6 +101,7 @@ class LoginForm extends React.Component {
 			    	floatingLabelText={lang.username[l]}
 					name="username"
 					type="text"
+					onChange={this.updateTextField}
 					errorText={usernameR}
 					autoFocus={true}
 					{ ...textFieldSet }
@@ -103,6 +110,7 @@ class LoginForm extends React.Component {
 			    	floatingLabelText={lang.password[l]}
 					name="password"
 					type="password"
+					onChange={this.updateTextField}
 					errorText={passwordR}
 					{ ...textFieldSet }
     			/>

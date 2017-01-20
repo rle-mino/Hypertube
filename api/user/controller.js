@@ -143,6 +143,7 @@ const getProfile = (req, res) => {
 	}
 	const profile = _.pick(req.loggedUser, [
 		'mail',
+		'history',
 		'username',
 		'firstname',
 		'lastname',

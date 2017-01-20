@@ -25,7 +25,7 @@ const Comment = ({ comment, username, l, movieID, onCommentsUpdate }) => {
 				)}
 				<p>{comment.author.mail}</p>
 				{comment.author.history[0] &&
-					<p>Last Seen : {comment.author.history[(comment.author.history.length) - 1].title }</p>
+					<p>Last seen : {comment.author.history[(comment.author.history.length) - 1].title }</p>
 				}
 			</div>
 			<p>{comment.author.username}</p>

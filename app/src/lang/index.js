@@ -99,6 +99,7 @@ module.exports = {
 	changeYourImage: [ 'Change your image', 'Mettez à jour votre image' ],
 	remove: [ 'remove', 'supprimer' ],
 	commentThisVideo: [ 'Comment this video', 'Commenter cette video' ],
+	alreadyWatched: [ 'Already watched', 'Déjà vu' ],
 	empty: [ 'empty', 'vide' ],
 	settings: [ 'settings', 'paramètres' ],
 	episode: [ 'episode', 'épisode' ],

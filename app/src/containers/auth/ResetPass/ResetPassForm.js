@@ -88,6 +88,12 @@ class ResetPassForm extends React.Component {
 
 	checkSub = (e) => { if (e.keyCode === 13) this.resetPass() }
 
+	updateTextField = (e) => {
+		if (e.target.value.length > 200) {
+			e.target.value = '';
+		}
+	}
+
 	render() {
 		const {
 			usernameR,
@@ -104,6 +110,7 @@ class ResetPassForm extends React.Component {
 			    	floatingLabelText={lang.username[l]}
 					name="username"
 					type="text"
+					onChange={this.updateTextField}
 					errorText={usernameR}
 					autoFocus={true}
 					{...textFieldSet}
@@ -112,6 +119,7 @@ class ResetPassForm extends React.Component {
 			    	floatingLabelText={lang.code[l]}
 					name="passToken"
 					type="text"
+					onChange={this.updateTextField}
 					errorText={passTokenR}
 					{...textFieldSet}
     			/>
@@ -119,6 +127,7 @@ class ResetPassForm extends React.Component {
 			    	floatingLabelText={lang.password[l]}
 					name="password"
 					type="password"
+					onChange={this.updateTextField}
 					errorText={passwordR}
 					{...textFieldSet}
     			/>
@@ -126,6 +135,7 @@ class ResetPassForm extends React.Component {
 			    	floatingLabelText={lang.passwordConfirm[l]}
 					name="passwordConfirm"
 					type="password"
+					onChange={this.updateTextField}
 					errorText={passwordConfirmR}
 					{...textFieldSet}
     			/>
