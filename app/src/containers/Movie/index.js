@@ -42,8 +42,8 @@ class Movie extends React.Component {
 	getFirstAvailable = (seasons) => {
 		if (!seasons || !seasons.length) return false
 		return {
-			season: seasons[0].season,
-			episode: seasons[0].episodes[0].episode
+			season: seasons[seasons.length - 1].season,
+			episode: seasons[seasons.length - 1].episodes[0].episode
 		}
 	}
 

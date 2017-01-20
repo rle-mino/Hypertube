@@ -11,9 +11,12 @@ class AddComment extends React.Component {
 	}
 
 	updateTextField = (e) => {
+		if (e.target.value.length > 200) {
+			e.target.value = '';
+		}
 		this.setState({ value: e.target.value })
 	}
-	
+
 	sendComment = () => {
 		if (!this.state.value) return false
 		api.addComment({ comment: this.state.value, id: this.props.movieID })
@@ -25,14 +28,14 @@ class AddComment extends React.Component {
 			})
 		return true
 	}
-	
+
 	checkSubmit = (e) => {
 		if (e.keyCode === 13) {
 			this.sendComment()
 			e.preventDefault()
 		}
 	}
-	
+
 	getFieldProps = () => {
 		const { mainColor } = this.props
 		return {
@@ -42,7 +45,7 @@ class AddComment extends React.Component {
 			underlineFocusStyle: { borderColor: mainColor },
 		}
 	}
-	
+
 	render() {
 		const { l } = this.props
 		const { value } = this.state
