@@ -2,7 +2,6 @@ import _ from 'lodash';
 import translate from 'google-translate-api';
 import Movie from './movie_schema';
 import User from '../user/schema';
-import * as subs from './subtitles';
 
 const popGenres = async (data, genres, found, id, type) => {
     genres = _.initial(genres);
@@ -46,32 +45,17 @@ const getEpisode = (episodes, season, episode) =>
 
 const addHistory = (req, res) => {
 	const user = req.loggedUser;
-	const season = req.body.season;
-	const episode = req.body.episode;
 	const title = req.body.title;
 	const id = req.body.id;
-    if (season && episode) {
-        const video = {
-            title,
-            id,
-            season,
-            episode,
-        };
-        if (_.findIndex(user.history, { id, season, episode }) === -1) {
-            user.history.push(video);
-            user.save();
-        }
-    } else {
-        const video = {
-            title,
-            id,
-        };
-        if (_.findIndex(user.history, { id }) === -1) {
-            user.history.push(video);
-            user.save();
-        }
-    }
-    res.send({ status: 'success' });
+  const video = {
+      title,
+      id,
+  };
+  if (_.findIndex(user.history, { id }) === -1) {
+      user.history.push(video);
+      user.save();
+  }
+  res.send({ status: 'success' });
 };
 
 const returnData = async (req) => {
@@ -86,9 +70,6 @@ const returnData = async (req) => {
         found = found.toObject();
         found.torrents = getEpisode(found.episodes, season, episode);
         delete found.episodes;
-        subs.getSerieSubs(found, found.torrents);
-    } else {
-        subs.getMovieSubs(found);
     }
     // const user = await (User.findOne({ _id: userId }));
     // addHistory(user, found.title, id, season, episode);

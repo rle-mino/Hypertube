@@ -160,13 +160,15 @@ class Movie extends React.Component {
 		const reqOBJ = {
 			title: data.title,
 			id: data._id,
+			code: data.code,
+			lg: lang.lang[l],
 		}
 		if (serie) {
 			reqOBJ.episode = episode;
 			reqOBJ.season = season;
 		}
-		api.addHistory(reqOBJ);
-		api.getSubTitles(reqOBJ).then(({ data }) => {
+
+		api.getSubtitle(reqOBJ).then(({ data }) => {
 			if (data.status === 'success') {
 				this.setState({
 					src,
@@ -175,8 +177,16 @@ class Movie extends React.Component {
 					srcLang: lang.labelSRC[l],
 					isMovieRequested: true,
 				})
+			} else if (data.status === 'error') {
+				this.setState({
+					src,
+					label: lang.label[l],
+					srcLang: lang.labelSRC[l],
+					isMovieRequested: true,
+				})
 			}
 		});
+		api.addHistory(reqOBJ);
 	}
 
 	onCommentsUpdate = (newComments) => {

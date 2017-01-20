@@ -116,6 +116,13 @@ const addHistory = (data) => axios({
 	...getToken(),
 });
 
+const getSubtitle = (data) => axios({
+  url: `${apiConnect}/api/movie/getsubtitle`,
+  method: 'post',
+  data,
+  ...getToken(),
+});
+
 module.exports = {
 	search,
 	fastSearch,
@@ -135,4 +142,5 @@ module.exports = {
 	addComment,
 	removeComment,
 	addHistory,
+  getSubtitle,
 }
