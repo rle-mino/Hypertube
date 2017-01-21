@@ -2,6 +2,7 @@ import React				from 'react'
 import lang					from '../../lang'
 import api					from '../../apiCall'
 
+import MiniProfile	from '../MiniProfile'
 import IconClickable		from '../IconClickable'
 
 const Comment = ({ comment, username, l, movieID, onCommentsUpdate }) => {
@@ -17,21 +18,7 @@ const Comment = ({ comment, username, l, movieID, onCommentsUpdate }) => {
 	}
 	return (
 		<li className="comment">
-			<div className="userProfile">
-				{comment.author.provider === 'local' ? (
-					<div className="imgComment" style={{
-						backgroundImage: `url('http://localhost:8080/api/user/public/${comment.author.image[0]}')`,
-					}} />
-				) : (
-					<div className="imgComment" style={{
-							backgroundImage: `url('${comment.author.image[0]}')`,
-						}} />
-				)}
-				<p>{comment.author.mail}</p>
-				{comment.author.history[0] &&
-					<p>Last seen : {comment.author.history[(comment.author.history.length) - 1].title }</p>
-				}
-			</div>
+			<MiniProfile author={comment.author} l={l} />
 			<p className="author">{comment.author.username}</p>
 			<p className="commentText">{comment.text}</p>
 			{username === comment.author.username &&
@@ -40,7 +27,7 @@ const Comment = ({ comment, username, l, movieID, onCommentsUpdate }) => {
 					tooltip={lang.remove[l]}
 					click={removeComment}
 				>
-					<i className="material-icons">remove_circle</i>
+					<i className="material-icons removeComment">remove_circle</i>
 				</IconClickable>
 			}
 		</li>

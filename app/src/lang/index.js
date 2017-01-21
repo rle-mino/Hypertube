@@ -100,6 +100,7 @@ module.exports = {
 	remove: [ 'remove', 'supprimer' ],
 	commentThisVideo: [ 'Comment this video', 'Commenter cette video' ],
 	alreadyWatched: [ 'Already watched', 'Déjà vu' ],
+	lastSeen: [ 'Last seen', 'Vu dernièrement' ],
 	empty: [ 'empty', 'vide' ],
 	settings: [ 'settings', 'paramètres' ],
 	episode: [ 'episode', 'épisode' ],
