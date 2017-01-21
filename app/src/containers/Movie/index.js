@@ -52,6 +52,7 @@ class Movie extends React.Component {
 	*		user can remove which comment
 	*/
 	handleProfile = (props) => ({ data }) => {
+		if (!this._mounted) return false
 		if (data.status && data.status.includes('error')) {
 			browserHistory.push('/')
 			return false
@@ -134,6 +135,8 @@ class Movie extends React.Component {
 	updateSelected = (selected) => this.setState({
 		selectedEpisode: selected,
 		isMovieRequested: false,
+		src: null,
+		srcTrack: null,
 	})
 
 	requestMovie = () => {
@@ -169,6 +172,7 @@ class Movie extends React.Component {
 		}
 
 		api.getSubtitle(reqOBJ).then(({ data }) => {
+			if (!this._mounted) return false
 			if (data.status === 'success') {
 				this.setState({
 					src,
