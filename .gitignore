@@ -7,3 +7,4 @@ api/MovieLibrary
 app/build
 api/build
 .env
+yarn.lock

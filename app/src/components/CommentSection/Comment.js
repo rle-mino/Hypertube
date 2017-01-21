@@ -19,9 +19,13 @@ const Comment = ({ comment, username, l, movieID, onCommentsUpdate }) => {
 		<li className="comment">
 			<div className="userProfile">
 				{comment.author.provider === 'local' ? (
-					<img src={`http://localhost:8080/api/user/public/${comment.author.image[0]}`} />
+					<div className="imgComment" style={{
+						backgroundImage: `url('http://localhost:8080/api/user/public/${comment.author.image[0]}')`,
+					}} />
 				) : (
-					<img src={comment.author.image[0]} />
+					<div className="imgComment" style={{
+							backgroundImage: `url('${comment.author.image[0]}')`,
+						}} />
 				)}
 				<p>{comment.author.mail}</p>
 				{comment.author.history[0] &&
