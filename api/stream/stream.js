@@ -1,11 +1,8 @@
-// import MovieFile	from './movieFile'
 import fs from 'fs';
 import torrentStream from 'torrent-stream';
 import Transcoder from 'stream-transcoder';
 import * as movie from '../movie/info';
 import { addPath, checkPath } from '../movie/scrap';
-
-// AJOUT PATH BDD
 
 const getTorrent = async (req) => {
 	const movieData = await movie.returnData(req);
@@ -36,15 +33,10 @@ const torrentHandle = (req, res, magnet) => {
 					new Transcoder(stream).videoCodec('h264')
 					.audioCodec('aac')
 					.format('mp4').stream().pipe(res);
-					// .pipe(res);
-					// stream.pipe(res);
 				} else {
 					stream.pipe(res);
 				}
 				console.log(`starting streaming for ${file.name}`);
-				// stream.on('error', e => {
-				// 	console.log(e);
-				// });
 			}
 		});
 	});
@@ -55,10 +47,7 @@ const torrentHandle = (req, res, magnet) => {
 				const path = `${engine.path}/${engine.torrent.files[i].path}`;
 				const dl = engine.swarm.downloaded;
 				const total = engine.torrent.files[i].length;
-				const pct = (dl * 100) / total;
-			//	process.stdout.clearLine();
-			//	process.stdout.cursorTo(0);
-			//	process.stdout.write(`${engine.torrent.name} -> dl: ${dl}, total: ${total}, pct: ${Math.ceil(pct)}%`);
+				// const pct = (dl * 100) / total;
 				if (dl >= total) {
 					addPath(req, path);
 				}
@@ -85,8 +74,6 @@ const streamRoute = async (req, res) => {
 		} else {
 			stream.pipe(res);
 		}
-		// const file =
-		// return;
 	} else {
 		torrentHandle(req, res, magnet);
 	}
