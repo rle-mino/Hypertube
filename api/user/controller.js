@@ -66,27 +66,42 @@ const getToken = (req) => {
 };
 
 const checkTokenMid = async (req, res, next) => {
-	if (safePath.indexOf(req.path) !== -1 || /\/api\/stream.*/.test(req.path) === true ||
-		/\/ht.*/.test(req.path) === true || /\/public\/subtitles.*/.test(req.path) === true) {
-		return next();
-	}
+	if (
+		safePath.indexOf(req.path) !== -1					||
+		/\/api\/stream.*/.test(req.path) === true ||
+		/\/ht.*/.test(req.path) === true					||
+		/\/public\/subtitles.*/.test(req.path) === true
+	) return next();
 	const token = getToken(req);
-	if (!token) return res.send({ status: 'error', details: 'user not authorized' });
+	if (!token) {
+		return res.send({
+			status: 'error',
+			details: 'user not authorized',
+		});
+	}
 	jwt.verify(token, cfg.jwtSecret, async (err, decoded) => {
-		if (err) return res.send({ status: 'error', details: 'invalid token' });
-		try {
-			await User.findOne({
-				username: decoded.username,
-				provider: decoded.provider,
-			},
-			(erro, user) => {
-				if (erro) return res.send({ status: 'error', details: 'cant connect to db' });
+		if (err) {
+			return res.send({
+				status: 'error',
+				details: 'invalid token',
+			});
+		}
+		User.findOne({
+			username: decoded.username,
+			provider: decoded.provider,
+		}).then((user) => {
+			if (user) {
 				req.loggedUser = user;
 				return next();
+			}
+			return res.send({
+				status: 'error',
+				details: 'user not authorized',
 			});
-		} catch (e) {
-			return res.send({ status: 'error', details: 'an error occured' });
-		}
+		}).catch(() => res.send({
+			status: 'error',
+			details: 'cant connect to db',
+		}));
 		return (true);
 	});
 	return (false);
