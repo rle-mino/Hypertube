@@ -7,8 +7,6 @@ import user							from './routers/user';
 import movie						from './routers/movie';
 import stream						from './routers/stream';
 
-import torrentStream from 'torrent-stream';
-
 const app = express();
 
 app.use(cors());
