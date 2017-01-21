@@ -1,5 +1,6 @@
 import React						from 'react'
 
+import BigPlayButton from './BigPlayButton'
 import './sass/player.sass'
 
 export default class VideoPlayer extends React.Component {
@@ -7,7 +8,7 @@ export default class VideoPlayer extends React.Component {
 		const { src, srcTrack, srcLang, label, requestMovie, isMovieRequested } = this.props
 		return (
 			<div className="playerContainer" onClick={requestMovie}>
-				{isMovieRequested && <video
+				{(isMovieRequested && <video
 					className="player"
 					width="100%"
 					height="100%"
@@ -16,7 +17,7 @@ export default class VideoPlayer extends React.Component {
 				>
 					<source src={src} type="video/ogg" />
 					<track src={srcTrack} kind="subtitles" srcLang={srcLang} label={label} default />
-				</video>}
+				</video>) || <BigPlayButton />}
 			</div>
 		)
 	}
