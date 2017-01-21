@@ -4,6 +4,7 @@ import * as scrap from '../movie/scrap';
 import * as info from '../movie/info';
 import * as comment from '../movie/comments';
 import * as subs from '../movie/subtitles';
+import cleanMovie from '../movie/clean';
 
 export default (app) => {
 	app.get('/api/movie', (req, res) => {
@@ -26,6 +27,8 @@ export default (app) => {
 
 	app.put('/api/movie/history', info.addHistory);
 	app.post('/api/movie/getsubtitle', subs.getSubtitle);
+
+	app.put('/api/movie/cleanmovie', cleanMovie);
 
 	// scrap.yts(); //	UNCOMMENT THIS WHEN PROJECT IS FINISHED -- commented for compliance issues
 	// scrap.eztv(); //	UNCOMMENT THIS WHEN PROJECT IS  -- commented for compliance issues
