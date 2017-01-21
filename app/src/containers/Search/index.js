@@ -72,7 +72,7 @@ class Search extends React.Component {
 				noResults: false,
 				more: data.results.length === 20
 			})
-		} else {
+		} else if(clearRes) {
 			this.setState({
 				noResults: true,
 				results: [],
