@@ -97,8 +97,12 @@ const addSerie = (serie) => {
         if (!found) {
             omdb.get({ imdb: serie.imdb_id }, false, (error, movie) => {
                 // if (error) return (console.log('err: ', error));
-                if (error) return (console.log('...'));
-                if (!movie) return (console.log('movie error'));
+                if (error || !movie) {
+                  addSerie(serie);
+                  return;
+                }
+                //return (console.log('...'));
+                // if (!movie) return (console.log('movie error'));
                 console.log(title);
                 const episodes = [];
                 serie.episodes.forEach((episode) => {
@@ -159,8 +163,12 @@ const addMovie = (movie) => {
         if (!found) {
             omdb.get({ imdb: movie.imdb_code }, false, (error, data) => {
                 // if (error) return (console.log('err: ', error));
-                if (error) return (console.log('...'));
-                if (!data) return (console.log('movie error'));
+                if (error || !data) {
+                  addMovie(movie);
+                  return;
+                }
+                // return (console.log('...'));
+                // if (!data) return (console.log('movie error'));
                 let pop = 0;
                 console.log(title);
                 movie.torrents.forEach((torrent) => {

@@ -1,9 +1,0 @@
-node_modules
-.DS_Store
-npm-debug*
-.idea
-api/public
-api/MovieLibrary
-app/build
-api/build
-yarn.lock
